@@ -8,6 +8,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.buttons.Button;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
 
 /**
@@ -28,6 +29,7 @@ public class OI {
 	private static JoystickButton driverBack = new JoystickButton(driverJoystick, 7);
 	private static JoystickButton driverStart = new JoystickButton(driverJoystick, 8);
 
+
 	public static void initialize(){
 
 	}
@@ -42,6 +44,10 @@ public class OI {
 
 	public static double getDriverRightXVal(){
 		return driverJoystick.getRawAxis(4);
+	}
+
+	public static double getDriverRightYVal(){
+		return driverJoystick.getRawAxis(5);
 	}
 
 	public static boolean getDriverAButton() {
@@ -74,5 +80,7 @@ public class OI {
 	public static boolean getDriverStartButton() {
 		return driverStart.get();
 	}
+
+
 
 }
