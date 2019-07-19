@@ -8,7 +8,7 @@
 package frc.robot;
 
 import frc.robot.OI;
-
+import frc.subsystem.Pigeon;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -34,6 +34,7 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     m_oi = new OI();
     swerveDrive = new SwerveDrive();
+    // Pigeon.getInstance().reset();
   }
 
   /**
@@ -46,6 +47,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
+    Pigeon.getInstance().outputToSmartDashboard();
   }
 
   /**
@@ -107,6 +109,8 @@ public class Robot extends TimedRobot {
 
   }
 
+  
+
   /**
    * This function is called periodically during test mode.
    */
@@ -115,4 +119,8 @@ public class Robot extends TimedRobot {
   }
 
 
+  @Override
+  public void disabledPeriodic() {
+    // Pigeon.getInstance().outputToSmartDashboard();
+  }
 }
