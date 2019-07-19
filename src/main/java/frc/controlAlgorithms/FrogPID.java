@@ -3,11 +3,11 @@ package frc.controlAlgorithms;
 import edu.wpi.first.wpilibj.Timer;
 
 public class FrogPID {
-    double p,i,d,f;
-    double setPoint;
-    double lastTime, lastError;
-    double integral;
-    ControlMode control;
+    private final double p,i,d,f;
+    private double setPoint;
+    private double lastTime, lastError;
+    private double integral;
+    private ControlMode control;
     public enum ControlMode{
         Velocity_Control, Position_Control;
     }

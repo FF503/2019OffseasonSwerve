@@ -7,6 +7,9 @@
 
 package frc.robot;
 
+import frc.controlAlgorithms.FrogPID;
+import frc.controlAlgorithms.SwerveTeleopHeadingController;
+import frc.controlAlgorithms.FrogPID.ControlMode;
 import frc.robot.OI;
 import frc.subsystem.Pigeon;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -24,6 +27,8 @@ public class Robot extends TimedRobot {
   private SwerveDrive swerveDrive;
 
   public static OI m_oi;
+  private FrogPID rotationalHoldPID = new FrogPID(503, 503, 503, 0, ControlMode.Position_Control);
+  private SwerveTeleopHeadingController teleopHeadingController;
 
 
   /**
@@ -35,6 +40,7 @@ public class Robot extends TimedRobot {
     m_oi = new OI();
     swerveDrive = new SwerveDrive();
     Pigeon.getInstance().reset();
+    this.teleopHeadingController = new SwerveTeleopHeadingController(rotationalHoldPID);
   }
 
   /**
@@ -83,11 +89,12 @@ public class Robot extends TimedRobot {
    
   }
 
-  /**
+  /*
    * This function is called periodically during operator control.
    */
   @Override
   public void teleopPeriodic() {
+    RobotState.getInstance().setCurrentTheta(Pigeon.getInstance().getYaw());
     double swerveYInput = -OI.getDriverLeftYVal();
 		double swerveXInput = OI.getDriverLeftXVal();
 		double swerveRotationInput = OI.getDriverRightXVal();
@@ -97,9 +104,12 @@ public class Robot extends TimedRobot {
     if(swerveYInput > -deadband && swerveYInput < deadband) {
       swerveYInput = 0.0;
     }
-    //if(swerveRotationInput > -deadband &&  swerveRotationInput < deadband) {
-    //  swerveRotationInput = 0.0; 
-    //}
+    if(swerveRotationInput > -deadband &&  swerveRotationInput < deadband) {
+      swerveRotationInput = teleopHeadingController.getRotationalOutput();//0.0; 
+    }
+    else{
+      teleopHeadingController.setRotationalSetpoint(RobotState.getInstance().getCurrentTheta());
+    }
 
     if(swerveXInput > -deadband && swerveXInput < deadband) {
       swerveXInput = 0.0;

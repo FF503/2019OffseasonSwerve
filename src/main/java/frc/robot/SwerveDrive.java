@@ -54,7 +54,7 @@ public class SwerveDrive {
         double r = Math.sqrt((L * L) + (W * W));
 
         if (fieldCentric) {
-            double angle = Math.toRadians(Pigeon.getInstance().getYaw());
+            double angle = Math.toRadians(RobotState.getInstance().getCurrentTheta());
             double temp = fwd * Math.cos(angle) + str * Math.sin(angle);
             str = -fwd * Math.sin(angle) + str * Math.cos(angle);
             fwd = temp;
