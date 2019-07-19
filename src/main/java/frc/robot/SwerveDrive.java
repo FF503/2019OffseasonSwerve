@@ -52,7 +52,6 @@ public class SwerveDrive {
     // Takes joystick input an calculates drive wheel speed and turn motor angle
     public void drive(double str, double fwd, double rcw) {
         double r = Math.sqrt((L * L) + (W * W));
-        fwd *= -1;
 
         if (fieldCentric) {
             double angle = Math.toRadians(Pigeon.getInstance().getYaw());
@@ -102,6 +101,26 @@ public class SwerveDrive {
             backRightSpeed /= max;
         }
 
+        if (shouldReverse(backRightAngle, backRight.getTurnEncoderPositioninDegrees())) {
+            backRightAngle += 180;
+            backRightSpeed *= -1;
+        }
+
+        if (shouldReverse(backLeftAngle, backLeft.getTurnEncoderPositioninDegrees())) {
+            backLeftAngle += 180;
+            backLeftSpeed *= -1;
+        }
+
+        if (shouldReverse(frontRightAngle, frontRight.getTurnEncoderPositioninDegrees())) {
+            frontRightAngle += 180;
+            frontRightSpeed *= -1;
+        }
+
+        if (shouldReverse(frontLeftAngle, frontLeft.getTurnEncoderPositioninDegrees())) {
+            frontLeftAngle += 180;
+            frontLeftSpeed *= -1;
+        }
+
         // Send speeds and angles to the drive motors
         backRight.drive(backRightSpeed, backRightAngle);
         backLeft.drive(backLeftSpeed, backLeftAngle);
@@ -149,5 +168,29 @@ public class SwerveDrive {
         SmartDashboard.putNumber("RR Turn Position (degrees)", backRight.getTurnEncoderPositioninDegrees());
         SmartDashboard.putNumber("RR Turn Closed Loop Error (clicks)", backRight.getTurnClosedLoopError());
 
+    }
+
+    /**
+     * 
+     * @param goalAngle Target Angle through drive vectors
+     * @param currentAngle Current Angle of swerve module
+     * @return if the module phase should be inverted
+     */
+    public static boolean shouldReverse(double goalAngle, double currentAngle){
+    	goalAngle = boundAngle0to360Degrees(goalAngle);
+    	currentAngle = boundAngle0to360Degrees(currentAngle);
+    	double reversedAngle = boundAngle0to360Degrees(currentAngle + 180);
+    	double angleDifference = Math.abs(goalAngle - currentAngle);
+    	double reversedAngleDifference = Math.abs(goalAngle - reversedAngle);
+    	angleDifference = (angleDifference > 180) ? 360-angleDifference : angleDifference;
+    	reversedAngleDifference = (reversedAngleDifference > 180) ? 360-reversedAngleDifference : reversedAngleDifference;
+    	return reversedAngleDifference < angleDifference;
+    }
+
+    public static double boundAngle0to360Degrees(double angle){
+        // Naive algorithm
+        while(angle >= 360.0) {angle -= 360.0;}
+        while(angle < 0.0) {angle += 360.0;}
+        return angle;
     }
 }

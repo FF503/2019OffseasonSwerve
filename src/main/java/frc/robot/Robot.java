@@ -34,7 +34,7 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     m_oi = new OI();
     swerveDrive = new SwerveDrive();
-    // Pigeon.getInstance().reset();
+    Pigeon.getInstance().reset();
   }
 
   /**
@@ -88,14 +88,14 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopPeriodic() {
-    double swerveYInput = OI.getDriverLeftYVal();
+    double swerveYInput = -OI.getDriverLeftYVal();
 		double swerveXInput = OI.getDriverLeftXVal();
 		double swerveRotationInput = OI.getDriverRightXVal();
     double deadband = 0.010;
 
     //check for deadband in controller 
     if(swerveYInput > -deadband && swerveYInput < deadband) {
-      swerveXInput = 0.0;
+      swerveYInput = 0.0;
     }
     //if(swerveRotationInput > -deadband &&  swerveRotationInput < deadband) {
     //  swerveRotationInput = 0.0; 

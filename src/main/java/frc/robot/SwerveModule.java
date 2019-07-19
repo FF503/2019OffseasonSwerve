@@ -2,6 +2,7 @@
 package frc.robot;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -10,6 +11,7 @@ import com.revrobotics.CANEncoder;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 public class SwerveModule {
@@ -47,7 +49,9 @@ public class SwerveModule {
         this.driveMotor = new CANSparkMax(driveMotorID, MotorType.kBrushless);  
         this.motorEncoder = new CANEncoder(this.driveMotor);
         this.turnMotor = new TalonSRX(turnMotorID);
-        
+
+        driveMotor.setIdleMode(IdleMode.kBrake);
+        turnMotor.setNeutralMode(NeutralMode.Brake);
         //this is the encoder count when the wheel is aligned forward at the start 
         this.kBaseEncoderClicks = startingEncoderClick;
         this.kMagicCruiseVelocity = cruiseVelocity;
