@@ -34,7 +34,7 @@ public class FrogPID {
         double iOut = i * integral;
         double dOut = d * derivative;
         double fOut = f * setPoint;
-        return pOut + iOut + dOut + fOut;
+        return Math.max(-1,Math.min(pOut + iOut + dOut + fOut,1));
     }
 
 }
