@@ -7,13 +7,15 @@
 
 package frc.robot;
 
-import frc.controlAlgorithms.FrogPID;
-import frc.controlAlgorithms.SwerveTeleopHeadingController;
-import frc.controlAlgorithms.FrogPID.ControlMode;
-import frc.robot.OI;
-import frc.subsystem.Pigeon;
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
+
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.controlAlgorithms.FrogPID;
+import frc.controlAlgorithms.FrogPID.ControlMode;
+import frc.controlAlgorithms.SwerveTeleopHeadingController;
+import frc.subsystem.*;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -23,53 +25,57 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * project.
  */
 public class Robot extends TimedRobot {
-  
+
   private SwerveDrive swerveDrive;
+
+  private List<Subsystem> subsystems = Arrays.asList(Pigeon.getInstance());
 
   public static OI m_oi;
   private FrogPID rotationalHoldPID = new FrogPID(503, 503, 503, 0, ControlMode.Position_Control);
   private SwerveTeleopHeadingController teleopHeadingController;
 
-
   /**
-   * This function is run when the robot is first started up and should be
-   * used for any initialization code.
+   * This function is run when the robot is first started up and should be used
+   * for any initialization code.
    */
   @Override
   public void robotInit() {
     m_oi = new OI();
     swerveDrive = new SwerveDrive();
-    Pigeon.getInstance().reset();
+    Pigeon.getInstance().zeroSensors();
     this.teleopHeadingController = new SwerveTeleopHeadingController(rotationalHoldPID);
+
   }
 
   /**
-   * This function is called every robot packet, no matter the mode. Use
-   * this for items like diagnostics that you want ran during disabled,
-   * autonomous, teleoperated and test.
+   * This function is called every robot packet, no matter the mode. Use this for
+   * items like diagnostics that you want ran during disabled, autonomous,
+   * teleoperated and test.
    *
-   * <p>This runs after the mode specific periodic functions, but before
-   * LiveWindow and SmartDashboard integrated updating.
+   * <p>
+   * This runs after the mode specific periodic functions, but before LiveWindow
+   * and SmartDashboard integrated updating.
    */
   @Override
   public void robotPeriodic() {
-    Pigeon.getInstance().outputToSmartDashboard();
+    subsystems.forEach((s) -> s.outputTelemetry());
   }
 
   /**
    * This autonomous (along with the chooser code above) shows how to select
-   * between different autonomous modes using the dashboard. The sendable
-   * chooser code works with the Java SmartDashboard. If you prefer the
-   * LabVIEW Dashboard, remove all of the chooser code and uncomment the
-   * getString line to get the auto name from the text box below the Gyro
+   * between different autonomous modes using the dashboard. The sendable chooser
+   * code works with the Java SmartDashboard. If you prefer the LabVIEW Dashboard,
+   * remove all of the chooser code and uncomment the getString line to get the
+   * auto name from the text box below the Gyro
    *
-   * <p>You can add additional auto modes by adding additional comparisons to
-   * the switch structure below with additional strings. If using the
-   * SendableChooser make sure to add them to the chooser code above as well.
+   * <p>
+   * You can add additional auto modes by adding additional comparisons to the
+   * switch structure below with additional strings. If using the SendableChooser
+   * make sure to add them to the chooser code above as well.
    */
   @Override
   public void autonomousInit() {
- 
+
   }
 
   /**
@@ -77,7 +83,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousPeriodic() {
-  
+
   }
 
   /**
@@ -86,7 +92,6 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
 
-   
   }
 
   /*
@@ -96,22 +101,21 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     RobotState.getInstance().setCurrentTheta(Pigeon.getInstance().getYaw());
     double swerveYInput = -OI.getDriverLeftYVal();
-		double swerveXInput = OI.getDriverLeftXVal();
-		double swerveRotationInput = OI.getDriverRightXVal();
+    double swerveXInput = OI.getDriverLeftXVal();
+    double swerveRotationInput = OI.getDriverRightXVal();
     double deadband = 0.010;
 
-    //check for deadband in controller 
-    if(swerveYInput > -deadband && swerveYInput < deadband) {
+    // check for deadband in controller
+    if (swerveYInput > -deadband && swerveYInput < deadband) {
       swerveYInput = 0.0;
     }
-    if(swerveRotationInput > -deadband &&  swerveRotationInput < deadband) {
-      swerveRotationInput = teleopHeadingController.getRotationalOutput();//0.0; 
-    }
-    else{
+    if (swerveRotationInput > -deadband && swerveRotationInput < deadband) {
+      swerveRotationInput = teleopHeadingController.getRotationalOutput();// 0.0;
+    } else {
       teleopHeadingController.setRotationalSetpoint(RobotState.getInstance().getCurrentTheta());
     }
 
-    if(swerveXInput > -deadband && swerveXInput < deadband) {
+    if (swerveXInput > -deadband && swerveXInput < deadband) {
       swerveXInput = 0.0;
     }
 
@@ -119,15 +123,12 @@ public class Robot extends TimedRobot {
 
   }
 
-  
-
   /**
    * This function is called periodically during test mode.
    */
   @Override
   public void testPeriodic() {
   }
-
 
   @Override
   public void disabledPeriodic() {
