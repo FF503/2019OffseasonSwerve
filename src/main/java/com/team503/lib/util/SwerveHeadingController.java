@@ -1,6 +1,6 @@
-package com.team503.controlAlgorithms;
+package com.team503.lib.util;
 
-import com.team503.controlAlgorithms.FrogPIDF.ControlMode;
+import com.team503.lib.util.FrogPIDF.ControlMode;
 import com.team503.robot.RobotState;
 
 public class SwerveHeadingController {

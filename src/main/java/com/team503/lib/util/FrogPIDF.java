@@ -1,4 +1,4 @@
-package com.team503.controlAlgorithms;
+package com.team503.lib.util;
 
 import edu.wpi.first.wpilibj.Timer;
 

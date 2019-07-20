@@ -9,13 +9,13 @@ package com.team503.robot;
 
 import java.util.Arrays;
 
-
-import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.GenericHID.Hand;
-import com.team503.controlAlgorithms.SwerveHeadingController;
+import com.team503.lib.util.SwerveHeadingController;
 import com.team503.robot.subsystems.Pigeon;
 import com.team503.robot.subsystems.SubsystemManager;
 import com.team503.robot.subsystems.SwerveDrive;
+
+import edu.wpi.first.wpilibj.GenericHID.Hand;
+import edu.wpi.first.wpilibj.TimedRobot;
 
 /**
  * The VM is configured to automatically run this class, and to call the
