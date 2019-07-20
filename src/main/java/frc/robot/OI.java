@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj.buttons.JoystickButton;
 
 public class OI {
 
-	private static XboxController driverJoystick = new XboxController(0);
+	public static XboxController driverJoystick = new XboxController(0);
 	private static JoystickButton driverA = new JoystickButton(driverJoystick, 1);	
 	private static JoystickButton driverB = new JoystickButton(driverJoystick, 2);
 	private static JoystickButton driverX = new JoystickButton(driverJoystick, 3);

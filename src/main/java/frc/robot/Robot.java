@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.GenericHID.Hand;
 import frc.controlAlgorithms.SwerveHeadingController;
 import frc.subsystem.Pigeon;
 import frc.subsystem.Subsystem;
@@ -25,7 +26,7 @@ import frc.subsystem.SwerveDrive;
  */
 public class Robot extends TimedRobot {
 
-  private SwerveDrive swerve;
+  private SwerveDrive mSwerve;
 
   private List<Subsystem> subsystems = Arrays.asList(Pigeon.getInstance());
 
@@ -40,7 +41,7 @@ public class Robot extends TimedRobot {
   public void robotInit() {
 
     m_oi = new OI();
-    swerve = SwerveDrive.getInstance();
+    mSwerve = SwerveDrive.getInstance();
 
     Pigeon.getInstance().zeroSensors();
 
@@ -119,7 +120,11 @@ public class Robot extends TimedRobot {
       swerveXInput = 0.0;
     }
 
-    swerve.drive(swerveXInput, swerveYInput, swerveRotationInput);
+    if(OI.driverJoystick.getBumperPressed(Hand.kRight)) {
+      mSwerve.setFieldCentric(!mSwerve.isFieldCentric());
+    }
+
+    mSwerve.drive(swerveXInput, swerveYInput, swerveRotationInput);
 
   }
 
