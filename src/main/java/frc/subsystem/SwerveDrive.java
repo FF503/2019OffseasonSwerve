@@ -1,24 +1,36 @@
 
-package frc.robot;
+package frc.subsystem;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constants;
+import frc.robot.RobotState;
+import lib.geometry.Pose2d;
+import lib.geometry.Rotation2d;
+import lib.geometry.Translation2d;
 
 public class SwerveDrive {
 
-    private boolean fieldCentric = true;
+    // Instance declaration
+    private static SwerveDrive instance = null;
 
+    public static SwerveDrive getInstance() {
+        if (instance == null)
+            instance = new SwerveDrive();
+        return instance;
+    }
+
+    // Swerve Dimensions
     public final double L = 21.0;
     public final double W = 21.0;
 
-    private SwerveModule backRight;
-    private SwerveModule backLeft;
-    private SwerveModule frontRight;
-    private SwerveModule frontLeft;
-
+    // Module declaration
+    private SwerveModule backRight, backLeft, frontRight, frontLeft;
     private List<SwerveModule> modules;
+
     // Constructor
     public SwerveDrive() {
         // before module inversion
@@ -38,6 +50,25 @@ public class SwerveDrive {
 
         modules = Arrays.asList(backRight, backLeft, frontLeft, frontRight);
     }
+
+    // Teleop driving variables
+    private Translation2d translationalVector = new Translation2d();
+    private double rotationalInput = 0;
+    private Translation2d lastDriveVector = new Translation2d();
+    private final Translation2d rotationalVector = Translation2d.identity();
+    private double lowPowerScalar = 0.6;
+
+    public void setLowPowerScalar(double scalar) {
+        lowPowerScalar = scalar;
+    }
+
+    private double maxSpeedFactor = 1.0;
+
+    public void setMaxSpeed(double max) {
+        maxSpeedFactor = max;
+    }
+
+    private boolean fieldCentric = true;
 
     /**
      * @return the fieldCentric
@@ -200,5 +231,48 @@ public class SwerveDrive {
             angle += 360.0;
         }
         return angle;
+    }
+
+    class SwerveInverseKinematics {
+
+        private final int kNumberOfModules = 4;
+
+        private List<Translation2d> moduleRelativePositions = Constants.kModulePositions;
+        private List<Translation2d> moduleRotationDirections = updateRotationDirections();
+
+        private List<Translation2d> updateRotationDirections() {
+            List<Translation2d> directions = new ArrayList<>(kNumberOfModules);
+            for (int i = 0; i < kNumberOfModules; i++) {
+                directions.add(moduleRelativePositions.get(i).rotateBy(Rotation2d.fromDegrees(90)));
+            }
+            return directions;
+        }
+
+        public List<Translation2d> updateDriveVectors(Translation2d translationalVector, double rotationalMagnitude,
+                Pose2d robotPose, boolean robotCentric) {
+            SmartDashboard.putNumber("Vector Direction", translationalVector.direction().getDegrees());
+            // SmartDashboard.putNumber("Vector Magnitude", translationalVector.norm());
+            SmartDashboard.putNumber("Robot Velocity", translationalVector.norm());
+
+            if (!robotCentric)
+                translationalVector = translationalVector.rotateBy(robotPose.getRotation().inverse());
+            List<Translation2d> driveVectors = new ArrayList<>(kNumberOfModules);
+            for (int i = 0; i < kNumberOfModules; i++) {
+                driveVectors.add(
+                        translationalVector.translateBy(moduleRotationDirections.get(i).scale(rotationalMagnitude)));
+            }
+            double maxMagnitude = 1.0;
+            for (Translation2d t : driveVectors) {
+                double magnitude = t.norm();
+                if (magnitude > maxMagnitude) {
+                    maxMagnitude = magnitude;
+                }
+            }
+            for (int i = 0; i < kNumberOfModules; i++) {
+                Translation2d driveVector = driveVectors.get(i);
+                driveVectors.set(i, driveVector.scale(1.0 / maxMagnitude));
+            }
+            return driveVectors;
+        }
     }
 }
