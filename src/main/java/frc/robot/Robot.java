@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import frc.controlAlgorithms.SwerveHeadingController;
 import frc.subsystem.Pigeon;
 import frc.subsystem.Subsystem;
+import frc.subsystem.SwerveDrive;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -24,7 +25,7 @@ import frc.subsystem.Subsystem;
  */
 public class Robot extends TimedRobot {
 
-  private SwerveDrive swerveDrive;
+  private SwerveDrive swerve;
 
   private List<Subsystem> subsystems = Arrays.asList(Pigeon.getInstance());
 
@@ -37,9 +38,12 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+
     m_oi = new OI();
-    swerveDrive = new SwerveDrive();
+    swerve = SwerveDrive.getInstance();
+
     Pigeon.getInstance().zeroSensors();
+
     this.teleopHeadingController = new SwerveHeadingController();
   }
 
@@ -115,7 +119,7 @@ public class Robot extends TimedRobot {
       swerveXInput = 0.0;
     }
 
-    swerveDrive.drive(swerveXInput, swerveYInput, swerveRotationInput);
+    swerve.drive(swerveXInput, swerveYInput, swerveRotationInput);
 
   }
 
