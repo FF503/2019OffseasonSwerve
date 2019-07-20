@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.RobotState;
 
-public class SwerveDrive {
+public class SwerveDrive extends Subsystem {
 
     // Instance declaration
     private static SwerveDrive instance = null;
@@ -168,41 +168,9 @@ public class SwerveDrive {
         SmartDashboard.putNumber("LR Calc Angle (deg)", backLeftAngle);
         SmartDashboard.putNumber("RR Calc Angle (deg)", backRightAngle);
 
-        // inform drives whats going on
+        // inform drives whats going on 
         // SmartDashboard.putBoolean("Drive Motor Inverted", kDriveMotorInverted);
         // SmartDashboard.putBoolean("LF Turn Encoder Inverted", kEncoderInverted);
-
-        SmartDashboard.putNumber("LF Drive Position (clicks)", frontLeft.getDriveEncoderPosition());
-        SmartDashboard.putNumber("LF Drive Velocity", frontLeft.getDriveEncoderVelocity());
-        // SmartDashboard.putNumber("LF Drive Position (inches)",
-        // ticksToInches(getDriveEncoderPosition()));
-        SmartDashboard.putNumber("LF Turn Position (clicks)", frontLeft.getTurnEncoderPosition());
-        SmartDashboard.putNumber("LF Turn Position (degrees)", frontLeft.getTurnEncoderPositioninDegrees());
-        SmartDashboard.putNumber("LF Turn Closed Loop Error (clicks)", frontLeft.getTurnClosedLoopError());
-
-        SmartDashboard.putNumber("RF Drive Position (clicks)", frontRight.getDriveEncoderPosition());
-        SmartDashboard.putNumber("RF Drive Velocity", frontRight.getDriveEncoderVelocity());
-        // SmartDashboard.putNumber("RF Drive Position (inches)",
-        // ticksToInches(getDriveEncoderPosition()));
-        SmartDashboard.putNumber("RF Turn Position (clicks)", frontRight.getTurnEncoderPosition());
-        SmartDashboard.putNumber("RF Turn Position (degrees)", frontRight.getTurnEncoderPositioninDegrees());
-        SmartDashboard.putNumber("RF Turn Closed Loop Error (clicks)", frontRight.getTurnClosedLoopError());
-
-        SmartDashboard.putNumber("LR Drive Position (clicks)", backLeft.getDriveEncoderPosition());
-        SmartDashboard.putNumber("LR Drive Velocity", backLeft.getDriveEncoderVelocity());
-        // SmartDashboard.putNumber("LR Drive Position (inches)",
-        // ticksToInches(getDriveEncoderPosition()));
-        SmartDashboard.putNumber("LR Turn Position (clicks)", backLeft.getTurnEncoderPosition());
-        SmartDashboard.putNumber("LR Turn Position (degrees)", backLeft.getTurnEncoderPositioninDegrees());
-        SmartDashboard.putNumber("LR Turn Closed Loop Error (clicks)", backLeft.getTurnClosedLoopError());
-
-        SmartDashboard.putNumber("RR Drive Position (clicks)", backRight.getDriveEncoderPosition());
-        SmartDashboard.putNumber("RR Drive Velocity", backRight.getDriveEncoderVelocity());
-        // SmartDashboard.putNumber("RR Drive Position (inches)",
-        // ticksToInches(getDriveEncoderPosition()));
-        SmartDashboard.putNumber("RR Turn Position (clicks)", backRight.getTurnEncoderPosition());
-        SmartDashboard.putNumber("RR Turn Position (degrees)", backRight.getTurnEncoderPositioninDegrees());
-        SmartDashboard.putNumber("RR Turn Closed Loop Error (clicks)", backRight.getTurnClosedLoopError());
 
     }
 
@@ -275,5 +243,45 @@ public class SwerveDrive {
             }
             return driveVectors;
         }
+    }
+
+    @Override
+    public void outputTelemetry() {
+        SmartDashboard.putNumber("LF Drive Position (clicks)", frontLeft.getDriveEncoderPosition());
+        SmartDashboard.putNumber("LF Drive Velocity", frontLeft.getDriveEncoderVelocity());
+        // SmartDashboard.putNumber("LF Drive Position (inches)",
+        // ticksToInches(getDriveEncoderPosition()));
+        SmartDashboard.putNumber("LF Turn Position (clicks)", frontLeft.getTurnEncoderPosition());
+        SmartDashboard.putNumber("LF Turn Position (degrees)", frontLeft.getTurnEncoderPositioninDegrees());
+        SmartDashboard.putNumber("LF Turn Closed Loop Error (clicks)", frontLeft.getTurnClosedLoopError());
+
+        SmartDashboard.putNumber("RF Drive Position (clicks)", frontRight.getDriveEncoderPosition());
+        SmartDashboard.putNumber("RF Drive Velocity", frontRight.getDriveEncoderVelocity());
+        // SmartDashboard.putNumber("RF Drive Position (inches)",
+        // ticksToInches(getDriveEncoderPosition()));
+        SmartDashboard.putNumber("RF Turn Position (clicks)", frontRight.getTurnEncoderPosition());
+        SmartDashboard.putNumber("RF Turn Position (degrees)", frontRight.getTurnEncoderPositioninDegrees());
+        SmartDashboard.putNumber("RF Turn Closed Loop Error (clicks)", frontRight.getTurnClosedLoopError());
+
+        SmartDashboard.putNumber("LR Drive Position (clicks)", backLeft.getDriveEncoderPosition());
+        SmartDashboard.putNumber("LR Drive Velocity", backLeft.getDriveEncoderVelocity());
+        // SmartDashboard.putNumber("LR Drive Position (inches)",
+        // ticksToInches(getDriveEncoderPosition()));
+        SmartDashboard.putNumber("LR Turn Position (clicks)", backLeft.getTurnEncoderPosition());
+        SmartDashboard.putNumber("LR Turn Position (degrees)", backLeft.getTurnEncoderPositioninDegrees());
+        SmartDashboard.putNumber("LR Turn Closed Loop Error (clicks)", backLeft.getTurnClosedLoopError());
+
+        SmartDashboard.putNumber("RR Drive Position (clicks)", backRight.getDriveEncoderPosition());
+        SmartDashboard.putNumber("RR Drive Velocity", backRight.getDriveEncoderVelocity());
+        // SmartDashboard.putNumber("RR Drive Position (inches)",
+        // ticksToInches(getDriveEncoderPosition()));
+        SmartDashboard.putNumber("RR Turn Position (clicks)", backRight.getTurnEncoderPosition());
+        SmartDashboard.putNumber("RR Turn Position (degrees)", backRight.getTurnEncoderPositioninDegrees());
+        SmartDashboard.putNumber("RR Turn Closed Loop Error (clicks)", backRight.getTurnClosedLoopError());
+    }
+
+    @Override
+    public void stop() {
+        modules.forEach((m) -> m.setDriveMotorSpeed(0));
     }
 }

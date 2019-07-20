@@ -28,7 +28,7 @@ public class Robot extends TimedRobot {
 
   private SwerveDrive mSwerve;
 
-  private List<Subsystem> subsystems = Arrays.asList(Pigeon.getInstance());
+  private List<Subsystem> subsystems = Arrays.asList(Pigeon.getInstance(), SwerveDrive.getInstance());
 
   public static OI m_oi;
   private SwerveHeadingController teleopHeadingController;
@@ -113,7 +113,7 @@ public class Robot extends TimedRobot {
     if (swerveRotationInput > -deadband && swerveRotationInput < deadband) {
       swerveRotationInput = teleopHeadingController.getRotationalOutput();// 0.0;
     } else {
-      teleopHeadingController.setRotationalSetpoint(RobotState.getInstance().getCurrentTheta());
+      teleopHeadingController.setStabilizationTarget(RobotState.getInstance().getCurrentTheta());
     }
 
     if (swerveXInput > -deadband && swerveXInput < deadband) {

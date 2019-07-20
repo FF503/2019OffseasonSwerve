@@ -12,7 +12,7 @@ public class SwerveHeadingController {
     }
 
     public enum State {
-        Off, Stabilize;
+        Off, Stabilize, TemporaryDisable;
     }
 
     private State currentState = State.Off;
@@ -30,6 +30,10 @@ public class SwerveHeadingController {
         stabilizationPID.setSetpoint(targetHeading);
         setState(State.Stabilize);
     }
+
+    public void temporarilyDisable(){
+		setState(State.TemporaryDisable);
+	}
 
     public double getRotationalOutput() {
         switch (currentState) {
