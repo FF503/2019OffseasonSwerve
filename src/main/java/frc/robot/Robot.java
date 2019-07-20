@@ -44,7 +44,6 @@ public class Robot extends TimedRobot {
     swerveDrive = new SwerveDrive();
     Pigeon.getInstance().zeroSensors();
     this.teleopHeadingController = new SwerveTeleopHeadingController(rotationalHoldPID);
-
   }
 
   /**

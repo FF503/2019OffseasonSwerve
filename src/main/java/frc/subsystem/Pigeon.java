@@ -38,7 +38,7 @@ public class Pigeon extends Subsystem {
 	}
 
 	public boolean isGood() {
-		return (pigeon.getState() == PigeonState.Ready) ? true : false;
+		return (pigeon.getState() == PigeonState.Ready);
 	}
 
 	public double getYaw() {
