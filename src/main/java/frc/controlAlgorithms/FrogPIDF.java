@@ -2,7 +2,7 @@ package frc.controlAlgorithms;
 
 import edu.wpi.first.wpilibj.Timer;
 
-public class FrogPID {
+public class FrogPIDF {
     private final double p, i, d, f;
     private double setPoint;
     private double lastTime, lastError;
@@ -13,7 +13,15 @@ public class FrogPID {
         Velocity_Control, Position_Control;
     }
 
-    public FrogPID(double p, double i, double d, double f, ControlMode controlMode) {
+    public FrogPIDF(double p, double i, double d, ControlMode controlMode) {
+        this.p = p;
+        this.i = i;
+        this.d = d;
+        this.control = controlMode;
+        this.f = 0.0;
+    }
+
+    public FrogPIDF(double p, double i, double d, double f, ControlMode controlMode) {
         this.p = p;
         this.i = i;
         this.d = d;

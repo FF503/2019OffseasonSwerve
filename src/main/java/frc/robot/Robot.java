@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.wpi.first.wpilibj.TimedRobot;
-import frc.controlAlgorithms.FrogPID;
-import frc.controlAlgorithms.FrogPID.ControlMode;
-import frc.controlAlgorithms.SwerveTeleopHeadingController;
+import frc.controlAlgorithms.FrogPIDF;
+import frc.controlAlgorithms.FrogPIDF.ControlMode;
+import frc.controlAlgorithms.SwerveHeadingController;
 import frc.subsystem.*;
 
 /**
@@ -31,8 +31,7 @@ public class Robot extends TimedRobot {
   private List<Subsystem> subsystems = Arrays.asList(Pigeon.getInstance());
 
   public static OI m_oi;
-  private FrogPID rotationalHoldPID = new FrogPID(503, 503, 503, 0, ControlMode.Position_Control);
-  private SwerveTeleopHeadingController teleopHeadingController;
+  private SwerveHeadingController teleopHeadingController;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -43,7 +42,7 @@ public class Robot extends TimedRobot {
     m_oi = new OI();
     swerveDrive = new SwerveDrive();
     Pigeon.getInstance().zeroSensors();
-    this.teleopHeadingController = new SwerveTeleopHeadingController(rotationalHoldPID);
+    this.teleopHeadingController = new SwerveHeadingController(rotationalHoldPID);
   }
 
   /**
