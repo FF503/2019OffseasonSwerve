@@ -8,14 +8,12 @@
 package frc.robot;
 
 import java.util.Arrays;
-import java.util.ArrayList;
 import java.util.List;
 
 import edu.wpi.first.wpilibj.TimedRobot;
-import frc.controlAlgorithms.FrogPIDF;
-import frc.controlAlgorithms.FrogPIDF.ControlMode;
 import frc.controlAlgorithms.SwerveHeadingController;
-import frc.subsystem.*;
+import frc.subsystem.Pigeon;
+import frc.subsystem.Subsystem;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -42,7 +40,7 @@ public class Robot extends TimedRobot {
     m_oi = new OI();
     swerveDrive = new SwerveDrive();
     Pigeon.getInstance().zeroSensors();
-    this.teleopHeadingController = new SwerveHeadingController(rotationalHoldPID);
+    this.teleopHeadingController = new SwerveHeadingController();
   }
 
   /**
