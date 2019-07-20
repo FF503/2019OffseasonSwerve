@@ -1,6 +1,6 @@
 package com.team254.lib.geometry;
 
-import com.team1323.lib.util.Interpolable;
+import com.team503.lib.util.Interpolable;
 import com.team254.lib.util.CSVWritable;
 
 public interface State<S> extends Interpolable<S>, CSVWritable {
