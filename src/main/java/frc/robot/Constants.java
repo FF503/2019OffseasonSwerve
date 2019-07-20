@@ -10,7 +10,8 @@ package frc.robot;
 import java.util.Arrays;
 import java.util.List;
 
-import lib.geometry.Translation2d;
+import com.team254.lib.geometry.Translation2d;
+
 
 public class Constants {
     /* All distance measurements are in inches, unless otherwise noted */
