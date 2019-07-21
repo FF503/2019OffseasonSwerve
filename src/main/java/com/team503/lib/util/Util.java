@@ -135,15 +135,15 @@ public class Util {
           
         // getting firstName and lastName 
         String moduleName = (String) jo.get("name"); 
-        int driveMotorID = (int) jo.get("driveMotorID");
-        int  turnMotorID = (int) jo.get("turnMotorID");
+        int driveMotorID = Math.toIntExact((Long) jo.get("driveMotorID"));
+        int  turnMotorID = Math.toIntExact((Long) jo.get("turnMotorID"));
         double p = (double) jo.get("P");
         double i = (double) jo.get("I");
         double d = (double) jo.get("D");
         double f = (double) jo.get("F");
-        int startEnc = (int) jo.get("startingEncoderClick");
-        int cv = (int) jo.get("cruiseVelocity");
-        int ca = (int) jo.get("cruiseAccel");
+        int startEnc = Math.toIntExact((Long) jo.get("startingEncoderClick"));
+        int cv = Math.toIntExact((Long) jo.get("cruiseVelocity"));
+        int ca = Math.toIntExact((Long) jo.get("cruiseAccel"));
         boolean tcd = (boolean) jo.get("turnCountsDecreasing");
         boolean driveInvert = (boolean) jo.get("DriveInverted");
         boolean driveEncInvert = (boolean) jo.get("DriveEncoderInverted");
