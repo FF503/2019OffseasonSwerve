@@ -5,21 +5,21 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.team503.robot.subsystems.Subsystem;
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Translation2d;
-
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
+import com.team503.lib.util.SwerveHeadingController;
 import com.team503.lib.util.Util;
 import com.team503.robot.Constants;
 import com.team503.robot.RobotState;
+
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class SwerveDrive extends Subsystem {
 
     // Instance declaration
     private static SwerveDrive instance = null;
+    private SwerveHeadingController headingController = new SwerveHeadingController();
 
     public static SwerveDrive getInstance() {
         if (instance == null)
@@ -191,6 +191,29 @@ public class SwerveDrive extends Subsystem {
         // inform drives whats going on
         // SmartDashboard.putBoolean("Drive Motor Inverted", kDriveMotorInverted);
         // SmartDashboard.putBoolean("LF Turn Encoder Inverted", kEncoderInverted);
+    }
+
+    public synchronized double getRotationalOutput() {
+        return headingController.getRotationalOutput();
+    }
+
+    // Various methods to control the heading controller
+    public synchronized void rotate(double goalHeading) {
+        if (translationalVector.x() == 0 && translationalVector.y() == 0)
+            rotateInPlace(goalHeading);
+        else {
+            stabilize(goalHeading);
+        }
+    }
+
+    public synchronized void stabilize(double goalHeading) {
+        headingController.setStabilizationTarget(
+                Util.placeInAppropriate0To360Scope(RobotState.getInstance().getCurrentTheta(), goalHeading));
+    }
+
+    public void rotateInPlace(double goalHeading) {
+        headingController.setStationaryTarget(
+                Util.placeInAppropriate0To360Scope(RobotState.getInstance().getCurrentTheta(), goalHeading));
     }
 
     /**

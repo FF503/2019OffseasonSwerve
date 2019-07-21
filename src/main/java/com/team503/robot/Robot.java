@@ -32,7 +32,6 @@ public class Robot extends TimedRobot {
   private SubsystemManager subsystems;
 
   public static OI m_oi;
-  private SwerveHeadingController teleopHeadingController;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -45,8 +44,6 @@ public class Robot extends TimedRobot {
     mSwerve = SwerveDrive.getInstance();
     subsystems = new SubsystemManager(Arrays.asList(mSwerve, Pigeon.getInstance()));
     Pigeon.getInstance().zeroSensors();
-
-    this.teleopHeadingController = new SwerveHeadingController();
 
   }
 
@@ -118,17 +115,17 @@ public class Robot extends TimedRobot {
     // swerveXInput = 0.0;
     // }
     if (swerveRotationInput > -deadband && swerveRotationInput < deadband) {
-      swerveRotationInput = teleopHeadingController.getRotationalOutput();// 0.0;
+      swerveRotationInput = mSwerve.getRotationalOutput();// 0.0;
     } else {
-      teleopHeadingController.setStabilizationTarget(RobotState.getInstance().getCurrentTheta());
+      mSwerve.stabilize(RobotState.getInstance().getCurrentTheta());
     }
 
     if (OI.driverJoystick.getBumperPressed(Hand.kRight)) {
       mSwerve.setFieldCentric(!mSwerve.isFieldCentric());
     }
 
-    if(OI.driverJoystick.getAButtonPressed()) {
-      teleopHeadingController.setStabilizationTarget(0);
+    if (OI.driverJoystick.getAButtonPressed()) {
+      mSwerve.rotate(0);
     }
 
     mSwerve.drive(swerveXInput, swerveYInput, swerveRotationInput);
