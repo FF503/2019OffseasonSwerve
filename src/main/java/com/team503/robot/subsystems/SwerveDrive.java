@@ -11,6 +11,8 @@ import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Translation2d;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+import com.team503.lib.util.Util;
 import com.team503.robot.Constants;
 import com.team503.robot.RobotState;
 
@@ -40,15 +42,30 @@ public class SwerveDrive extends Subsystem {
         // SwerveModule(3,7,20.0,0.0,2.200,6.577,748,300,900,true,true,true,false,false);
         // this.backLeft = new
         // SwerveModule(4,8,20.0,0.0,2.200,6.577,980,300,900,true,true,true,false,false);
-        this.backRight = new SwerveModule(3, 7, 20.0, 0.0, 2.200, 6.577, 748, 300, 900, true, false, false, false,
-                false);
-        this.backLeft = new SwerveModule(4, 8, 20.0, 0.0, 2.200, 6.577, 980, 300, 900, true, false, false, false,
-                false);
-        // was 275 FR
-        this.frontRight = new SwerveModule(2, 6, 20.0, 0.0, 2.200, 6.577, 787, 300, 900, true, false, true, false,
-                false);
-        this.frontLeft = new SwerveModule(1, 5, 2.0, 0.0, 2.200, 6.577, 222, 300, 900, true, false, false, false,
-                false); // change drive inverted to false
+
+
+        // this.backRight = new SwerveModule(3, 7, 20.0, 0.0, 2.200, 6.577, 748, 300,
+        // 900, true, false, false, false,
+        // false);
+        // this.backLeft = new SwerveModule(4, 8, 20.0, 0.0, 2.200, 6.577, 980, 300,
+        // 900, true, false, false, false,
+        // false);
+        // // was 275 FR
+        // this.frontRight = new SwerveModule(2, 6, 20.0, 0.0, 2.200, 6.577, 787, 300,
+        // 900, true, false, true, false,
+        // false);
+        // this.frontLeft = new SwerveModule(1, 5, 2.0, 0.0, 2.200, 6.577, 222, 300,
+        // 900, true, false, false, false,
+        // false); // change drive inverted to false
+        try {
+            this.backRight = Util.readSwerveJSON(Constants.SwerveFileNames.backRight);
+            this.backLeft = Util.readSwerveJSON(Constants.SwerveFileNames.backLeft);
+            this.frontRight = Util.readSwerveJSON(Constants.SwerveFileNames.frontRight);
+            this.frontLeft = Util.readSwerveJSON(Constants.SwerveFileNames.frontLeft);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
         modules = Arrays.asList(backRight, backLeft, frontLeft, frontRight);
     }

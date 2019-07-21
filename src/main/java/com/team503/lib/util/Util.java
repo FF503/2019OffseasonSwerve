@@ -1,6 +1,14 @@
 package com.team503.lib.util;
 
+import java.io.FileReader;
 import java.util.List;
+
+import com.team503.robot.subsystems.SwerveModule;
+
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
+
 
 /**
  * Contains basic functions that are used often.
@@ -64,7 +72,7 @@ public class Util {
     }
     
     public static double boundAngle0to360Degrees(double angle){
-        // Naive algorithm
+        // Naive algorithm hmmm angle % 360 was too simple I guess
         while(angle >= 360.0) {angle -= 360.0;}
         while(angle < 0.0) {angle += 360.0;}
         return angle;
@@ -115,5 +123,34 @@ public class Util {
     
     public static double deadBand(double val, double deadband){
         return (Math.abs(val) > Math.abs(deadband)) ? val : 0.0;
+    }
+
+    public static SwerveModule readSwerveJSON(String file) throws Exception{ 
+        file += (!file.endsWith(".json")) ? ".json" : "";
+        // parsing file "JSONExample.json" 
+        Object obj = new JSONParser().parse(new FileReader("src/main/java/com/team503/ConstantFiles/SwerveModules/" + file)); 
+          
+        // typecasting obj to JSONObject 
+        JSONObject jo = (JSONObject) obj; 
+          
+        // getting firstName and lastName 
+        String moduleName = (String) jo.get("name"); 
+        int driveMotorID = (int) jo.get("driveMotorID");
+        int  turnMotorID = (int) jo.get("turnMotorID");
+        double p = (double) jo.get("P");
+        double i = (double) jo.get("I");
+        double d = (double) jo.get("D");
+        double f = (double) jo.get("F");
+        int startEnc = (int) jo.get("startingEncoderClick");
+        int cv = (int) jo.get("cruiseVelocity");
+        int ca = (int) jo.get("cruiseAccel");
+        boolean tcd = (boolean) jo.get("turnCountsDecreasing");
+        boolean driveInvert = (boolean) jo.get("DriveInverted");
+        boolean driveEncInvert = (boolean) jo.get("DriveEncoderInverted");
+        boolean turnMotorInvert = (boolean) jo.get("TurnMotorInverted");
+        boolean turnEncInvert = (boolean) jo.get("TurnEncoderInverted");
+
+        SwerveModule m = new SwerveModule(driveMotorID, turnMotorID, p, i, d, f, startEnc, cv, ca, tcd, driveInvert, driveEncInvert, turnMotorInvert, turnEncInvert);
+        return m;
     }
 }
