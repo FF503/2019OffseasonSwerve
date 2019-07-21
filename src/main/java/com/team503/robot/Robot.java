@@ -10,6 +10,7 @@ package com.team503.robot;
 import java.util.Arrays;
 
 import com.team503.lib.util.SwerveHeadingController;
+import com.team503.lib.util.Util;
 import com.team503.robot.subsystems.Pigeon;
 import com.team503.robot.subsystems.SubsystemManager;
 import com.team503.robot.subsystems.SwerveDrive;
@@ -108,21 +109,26 @@ public class Robot extends TimedRobot {
     double deadband = 0.010;
 
     // check for deadband in controller
-    if (swerveYInput > -deadband && swerveYInput < deadband) {
-      swerveYInput = 0.0;
-    }
+    swerveYInput = Util.deadBand(swerveYInput, deadband);
+    swerveXInput = Util.deadBand(swerveXInput, deadband);
+    // if (swerveYInput > -deadband && swerveYInput < deadband) {
+    // swerveYInput = 0.0;
+    // }
+    // if (swerveXInput > -deadband && swerveXInput < deadband) {
+    // swerveXInput = 0.0;
+    // }
     if (swerveRotationInput > -deadband && swerveRotationInput < deadband) {
       swerveRotationInput = teleopHeadingController.getRotationalOutput();// 0.0;
     } else {
       teleopHeadingController.setStabilizationTarget(RobotState.getInstance().getCurrentTheta());
     }
 
-    if (swerveXInput > -deadband && swerveXInput < deadband) {
-      swerveXInput = 0.0;
-    }
-
     if (OI.driverJoystick.getBumperPressed(Hand.kRight)) {
       mSwerve.setFieldCentric(!mSwerve.isFieldCentric());
+    }
+
+    if(OI.driverJoystick.getAButtonPressed()) {
+      teleopHeadingController.setStabilizationTarget(0);
     }
 
     mSwerve.drive(swerveXInput, swerveYInput, swerveRotationInput);

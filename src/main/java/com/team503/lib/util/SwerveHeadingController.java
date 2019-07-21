@@ -31,9 +31,9 @@ public class SwerveHeadingController {
         setState(State.Stabilize);
     }
 
-    public void temporarilyDisable(){
-		setState(State.TemporaryDisable);
-	}
+    public void temporarilyDisable() {
+        setState(State.TemporaryDisable);
+    }
 
     public double getRotationalOutput() {
         switch (currentState) {
@@ -41,6 +41,8 @@ public class SwerveHeadingController {
             return 0;
         case Stabilize:
             return stabilizationPID.calculateOutput(RobotState.getInstance().getCurrentTheta());
+        case TemporaryDisable:
+            return 0;
         default:
             return 0;
         }
