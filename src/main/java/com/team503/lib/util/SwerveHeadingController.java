@@ -5,14 +5,15 @@ import com.team503.robot.RobotState;
 
 public class SwerveHeadingController {
     private double targetHeading = 0;
-    private FrogPIDF stabilizationPID;
+    private FrogPIDF stabilizationPID, rotateInPlace;
 
     public SwerveHeadingController() {
         this.stabilizationPID = new FrogPIDF(0.005, 0.0, 0.0005, 0.0, ControlMode.Position_Control);
+        this.rotateInPlace = new FrogPIDF(0.01, 0.0, 0.002, ControlMode.Position_Control);
     }
 
     public enum State {
-        Off, Stabilize, TemporaryDisable;
+        Off, Stabilize, TemporaryDisable, Stationary;
     }
 
     private State currentState = State.Off;
@@ -31,6 +32,12 @@ public class SwerveHeadingController {
         setState(State.Stabilize);
     }
 
+    public void setStationaryTarget(double angle) {
+        targetHeading = angle;
+        rotateInPlace.setSetpoint(angle);
+        setState(State.Stationary);
+    }
+
     public void temporarilyDisable() {
         setState(State.TemporaryDisable);
     }
@@ -43,6 +50,8 @@ public class SwerveHeadingController {
             return stabilizationPID.calculateOutput(RobotState.getInstance().getCurrentTheta());
         case TemporaryDisable:
             return 0;
+        case Stationary:
+            return rotateInPlace.calculateOutput(RobotState.getInstance().getCurrentTheta());
         default:
             return 0;
         }
