@@ -130,7 +130,7 @@ public class Util {
     public static SwerveModule readSwerveJSON(String file) throws Exception{ 
         file += (!file.endsWith(".json")) ? ".json" : "";
         // parsing file "JSONExample.json" 
-        Object obj = new JSONParser().parse(new FileReader(Filesystem.getDeployDirectory().getAbsolutePath() + file)); 
+        Object obj = new JSONParser().parse(new FileReader(Filesystem.getDeployDirectory().getAbsolutePath() + "/SwerveModules/" + file)); 
           
         // typecasting obj to JSONObject 
         JSONObject jo = (JSONObject) obj; 

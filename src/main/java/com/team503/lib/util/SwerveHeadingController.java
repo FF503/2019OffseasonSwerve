@@ -63,7 +63,7 @@ public class SwerveHeadingController {
             if (stabilizationPID.onTarget()){
                 setState(State.Stabilize);
             }
-            return stabilizationPID.calculateOutput(targetHeading);
+            return snappingPID.calculateOutput(targetHeading);
         default:
             return 0;
         }
