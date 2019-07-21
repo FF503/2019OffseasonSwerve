@@ -4,6 +4,8 @@ import edu.wpi.first.wpilibj.Timer;
 
 public class FrogPIDF {
     private final double p, i, d, f;
+    private double state;
+    private double tolerance;
     private double setPoint;
     private double lastTime, lastError;
     private double integral;
@@ -37,6 +39,7 @@ public class FrogPIDF {
     }
 
     public double calculateOutput(double sensorState) {
+        this.state = sensorState;
         double error = setPoint - sensorState;
         double dError = error - lastError;
         double dt = Timer.getFPGATimestamp() - lastTime;
@@ -47,6 +50,13 @@ public class FrogPIDF {
         double dOut = d * derivative;
         double fOut = f * setPoint;
         return Math.max(-1, Math.min(pOut + iOut + dOut + fOut, 1));
+    }
+    public void setTolerance(double t){
+        this.tolerance = t;
+    }
+
+    public boolean onTarget(){
+        return Math.abs(state - setPoint) < tolerance;
     }
 
 }
