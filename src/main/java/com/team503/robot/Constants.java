@@ -7,6 +7,7 @@
 
 package com.team503.robot;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -15,6 +16,13 @@ import com.team254.lib.geometry.Translation2d;
 
 public class Constants {
     /* All distance measurements are in inches, unless otherwise noted */
+    //Swerve Module JSON file names
+    public class SwerveFileNames{
+       public static final String backLeft = "BackLeftAndyA";
+       public static final String backRight = "BackRightAndyA";
+       public static final String frontLeft = "FrontLeftAndyA";
+       public static final String frontRight = "FrontRightAndyA";
+    }
 
     //Swerve Calculations Constants (measurements are in inches)
     public static final double kWheelbaseLength = 21.0;
