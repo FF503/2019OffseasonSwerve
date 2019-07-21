@@ -8,6 +8,8 @@ import com.team503.robot.subsystems.SwerveModule;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import edu.wpi.first.wpilibj.Filesystem;
+
 
 
 /**
@@ -128,7 +130,7 @@ public class Util {
     public static SwerveModule readSwerveJSON(String file) throws Exception{ 
         file += (!file.endsWith(".json")) ? ".json" : "";
         // parsing file "JSONExample.json" 
-        Object obj = new JSONParser().parse(new FileReader("src/main/java/com/team503/ConstantFiles/SwerveModules/" + file)); 
+        Object obj = new JSONParser().parse(new FileReader(Filesystem.getDeployDirectory().getAbsolutePath() + file)); 
           
         // typecasting obj to JSONObject 
         JSONObject jo = (JSONObject) obj; 

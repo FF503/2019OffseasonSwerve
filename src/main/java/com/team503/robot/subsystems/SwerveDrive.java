@@ -43,7 +43,6 @@ public class SwerveDrive extends Subsystem {
         // this.backLeft = new
         // SwerveModule(4,8,20.0,0.0,2.200,6.577,980,300,900,true,true,true,false,false);
 
-
         // this.backRight = new SwerveModule(3, 7, 20.0, 0.0, 2.200, 6.577, 748, 300,
         // 900, true, false, false, false,
         // false);
@@ -113,6 +112,9 @@ public class SwerveDrive extends Subsystem {
             str = -fwd * Math.sin(angle) + str * Math.cos(angle);
             fwd = temp;
         }
+
+        translationalVector = new Translation2d(str, fwd);
+        rotationalInput = rcw;
 
         double a = str - rcw * (L / r);
         double b = str + rcw * (L / r);
@@ -186,10 +188,9 @@ public class SwerveDrive extends Subsystem {
         SmartDashboard.putNumber("LR Calc Angle (deg)", backLeftAngle);
         SmartDashboard.putNumber("RR Calc Angle (deg)", backRightAngle);
 
-        // inform drives whats going on 
+        // inform drives whats going on
         // SmartDashboard.putBoolean("Drive Motor Inverted", kDriveMotorInverted);
         // SmartDashboard.putBoolean("LF Turn Encoder Inverted", kEncoderInverted);
-
     }
 
     /**
