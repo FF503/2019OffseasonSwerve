@@ -42,7 +42,7 @@ public class RobotState {
     }
     
     public static enum Bot {
-        ProgrammingBot;
+        Automatic, ProgrammingBot;
     }
 
     
