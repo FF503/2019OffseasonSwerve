@@ -10,7 +10,7 @@ import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Translation2d;
 import com.team503.lib.util.SwerveHeadingController;
 import com.team503.lib.util.Util;
-import com.team503.robot.Constants;
+import com.team503.robot.Robot;
 import com.team503.robot.RobotState;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -57,10 +57,10 @@ public class SwerveDrive extends Subsystem {
         // 900, true, false, false, false,
         // false); // change drive inverted to false
         try {
-            this.backRight = Util.readSwerveJSON(Constants.SwerveFileNames.backRight);
-            this.backLeft = Util.readSwerveJSON(Constants.SwerveFileNames.backLeft);
-            this.frontRight = Util.readSwerveJSON(Constants.SwerveFileNames.frontRight);
-            this.frontLeft = Util.readSwerveJSON(Constants.SwerveFileNames.frontLeft);
+            this.backRight = Util.readSwerveJSON(Robot.bot.getBackRightName());
+            this.backLeft = Util.readSwerveJSON(Robot.bot.getBackLeftName());
+            this.frontRight = Util.readSwerveJSON(Robot.bot.getFrontRightName());
+            this.frontLeft = Util.readSwerveJSON(Robot.bot.getFrontLeftName());
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -248,7 +248,7 @@ public class SwerveDrive extends Subsystem {
 
         private final int kNumberOfModules = 4;
 
-        private List<Translation2d> moduleRelativePositions = Constants.kModulePositions;
+        private List<Translation2d> moduleRelativePositions = Robot.bot.kModulePositions;
         private List<Translation2d> moduleRotationDirections = updateRotationDirections();
 
         private List<Translation2d> updateRotationDirections() {

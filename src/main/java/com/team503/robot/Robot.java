@@ -9,8 +9,8 @@ package com.team503.robot;
 
 import java.util.Arrays;
 
-import com.team503.lib.util.SwerveHeadingController;
 import com.team503.lib.util.Util;
+import com.team503.robot.RobotState.Bot;
 import com.team503.robot.subsystems.Pigeon;
 import com.team503.robot.subsystems.SubsystemManager;
 import com.team503.robot.subsystems.SwerveDrive;
@@ -28,10 +28,9 @@ import edu.wpi.first.wpilibj.TimedRobot;
 public class Robot extends TimedRobot {
 
   private SwerveDrive mSwerve;
-
   private SubsystemManager subsystems;
-
   public static OI m_oi;
+  public static RobotHardware bot;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -39,7 +38,8 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-
+    RobotState.getInstance().setCurrentRobot(Bot.ProgrammingBot);
+    bot = RobotHardware.getInstance();
     m_oi = new OI();
     mSwerve = SwerveDrive.getInstance();
     subsystems = new SubsystemManager(Arrays.asList(mSwerve, Pigeon.getInstance()));
