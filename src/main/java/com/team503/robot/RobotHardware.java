@@ -13,6 +13,8 @@ import java.util.Enumeration;
 import java.util.List;
 
 import com.team254.lib.geometry.Translation2d;
+import com.team503.lib.util.Util;
+import com.team503.robot.RobotState.Bot;
 
 /**
  * Add your docs here.
@@ -26,12 +28,17 @@ public abstract class RobotHardware {
 
     public static RobotHardware getInstance() {
         if (instance == null) {
+            if (RobotState.getInstance().getCurrentRobot().equals(Bot.Automatic)) {
+                RobotState.getInstance().setCurrentRobot(Util.parseRobotNameToEnum(Util.readRobotName()));
+            }
             switch (RobotState.getInstance().getCurrentRobot()) {
             case ProgrammingBot:
                 instance = new RobotHardwareProgammingBot();
                 break;
+            case Automatic:
+                System.err.println("Robot should not be set to automatic... something went wrong");
+                break;
             }
-
             instance.initalizeConstants();
         }
         return instance;
