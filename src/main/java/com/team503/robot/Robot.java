@@ -91,7 +91,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopInit() {
-
+    mSwerve.initializeTeleopVariables();
   }
 
   /*
@@ -108,6 +108,11 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void testPeriodic() {
+  }
+
+  @Override
+  public void disabledInit() {
+    mSwerve.teleopStop();
   }
 
   @Override

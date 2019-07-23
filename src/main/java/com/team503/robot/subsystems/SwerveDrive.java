@@ -105,6 +105,24 @@ public class SwerveDrive extends Subsystem {
         this.fieldCentric = !this.fieldCentric;
     }
 
+    public void initializeTeleopVariables() {
+
+        translationalVector = new Translation2d();
+        lastDriveVector = rotationalVector;
+        rotationalInput = 0;
+        // resetAveragedDirection();
+        headingController.temporarilyDisable();
+        stop();
+        // lastUpdateTimestamp = timestamp;
+
+    }
+
+    public void teleopStop() {
+        translationalVector = new Translation2d();
+        rotationalInput = 0;
+        stop();
+    }
+
     /**
      * Main function used to send manual input during teleop.
      * 
