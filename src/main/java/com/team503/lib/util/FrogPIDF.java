@@ -7,7 +7,7 @@ public class FrogPIDF {
     private double state;
     private double tolerance;
     private double setPoint;
-    private double lastTime, lastError;
+    private double lastTime, lastError = 0;
     private double integral;
     private ControlMode control;
 
@@ -33,8 +33,6 @@ public class FrogPIDF {
 
     public void setSetpoint(double setPoint) {
         this.setPoint = setPoint;
-        this.lastTime = Timer.getFPGATimestamp();
-        this.lastError = 0;
         this.integral = 0;
     }
 
@@ -42,13 +40,18 @@ public class FrogPIDF {
         this.state = sensorState;
         double error = setPoint - sensorState;
         double dError = error - lastError;
-        double dt = Timer.getFPGATimestamp() - lastTime;
+        double time = Timer.getFPGATimestamp();
+        double dt = time - lastTime;
         double derivative = dError / dt;
         integral += error * dt;
         double pOut = p * error;
         double iOut = i * integral;
         double dOut = d * derivative;
         double fOut = f * setPoint;
+        
+        lastTime = time;
+        lastError = error;
+        
         return Math.max(-1, Math.min(pOut + iOut + dOut + fOut, 1));
     }
 
