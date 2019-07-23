@@ -3,8 +3,12 @@ package com.team503.lib.util;
 import com.team503.lib.util.FrogPIDF.ControlMode;
 import com.team503.robot.RobotState;
 
+import edu.wpi.first.wpilibj.Timer;
+
 public class SwerveHeadingController {
-    private double targetHeading = 0;
+    private double targetHeading;
+    private double disabledTimestamp;
+    private final double disableTimeLength = 0.2;
     private FrogPIDF stabilizationPID, rotateInPlace, snappingPID;
 
     public SwerveHeadingController() {
@@ -15,7 +19,7 @@ public class SwerveHeadingController {
     }
 
     public enum State {
-        Off, Stabilize, TemporaryDisable, Stationary, Snapping;
+        Off, Stabilize, TemporaryDisable, Stationary, Snap;
     }
 
     private State currentState = State.Off;
@@ -30,7 +34,6 @@ public class SwerveHeadingController {
 
     public void setStabilizationTarget(double angle) {
         targetHeading = angle;
-        stabilizationPID.setSetpoint(targetHeading);
         setState(State.Stabilize);
     }
 
@@ -40,36 +43,45 @@ public class SwerveHeadingController {
         setState(State.Stationary);
     }
 
-    public void setSnapTarget(double angle){
+    public void setSnapTarget(double angle) {
         targetHeading = angle;
-        setState(State.Snapping);
+        snappingPID.setSetpoint(angle);
+        setState(State.Snap);
     }
 
     public void temporarilyDisable() {
         setState(State.TemporaryDisable);
+        disabledTimestamp = Timer.getFPGATimestamp();
     }
 
     public double getRotationalOutput() {
+
+        double output = 0;
+        double heading = RobotState.getInstance().getCurrentTheta();
+
         switch (currentState) {
         case Off:
-            return 0;
+            break;
         case Stabilize:
-            return stabilizationPID.calculateOutput(RobotState.getInstance().getCurrentTheta());
+            output = stabilizationPID.calculateOutput(heading);
+            break;
         case TemporaryDisable:
-            return 0;
-        case Stationary:
-            return rotateInPlace.calculateOutput(RobotState.getInstance().getCurrentTheta());
-        case Snapping:
-            if (stabilizationPID.onTarget()){
+            targetHeading = heading;
+            if (Timer.getFPGATimestamp() - disabledTimestamp >= disableTimeLength) {
                 setState(State.Stabilize);
             }
-            return snappingPID.calculateOutput(targetHeading);
-        default:
-            return 0;
+            break;
+        case Stationary:
+            output = rotateInPlace.calculateOutput(heading);
+            break;
+        case Snap:
+            if (stabilizationPID.onTarget()) {
+                setState(State.Stabilize);
+            }
+            output = snappingPID.calculateOutput(targetHeading);
+            break;
         }
-    }
 
-    public void setRotationalSetpoint(double setPoint) {
-        this.targetHeading = setPoint;
+        return output;
     }
 }

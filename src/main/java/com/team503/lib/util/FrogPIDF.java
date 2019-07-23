@@ -51,11 +51,12 @@ public class FrogPIDF {
         double fOut = f * setPoint;
         return Math.max(-1, Math.min(pOut + iOut + dOut + fOut, 1));
     }
-    public void setTolerance(double t){
+
+    public void setTolerance(double t) {
         this.tolerance = t;
     }
 
-    public boolean onTarget(){
+    public boolean onTarget() {
         return Math.abs(state - setPoint) < tolerance;
     }
 
