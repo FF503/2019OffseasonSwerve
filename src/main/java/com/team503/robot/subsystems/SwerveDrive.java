@@ -131,13 +131,13 @@ public class SwerveDrive extends Subsystem {
         double frontRightAngle = (Math.atan2(b, c) * 180 / Math.PI);
         double frontLeftAngle = (Math.atan2(b, d) * 180 / Math.PI);
 
-        // if the speed is zero and the right side = 0, then left side should be zero
-        if (frontLeftSpeed == 0.0 && frontRightSpeed == 0.0) {
-            if (frontRightAngle == 180.0) {
-                frontRightAngle = 0.0;
-                backRightAngle = 0.0;
-            }
-        }
+        // // if the speed is zero and the right side = 0, then left side should be zero
+        // if (frontLeftSpeed == 0.0 && frontRightSpeed == 0.0) {
+        //     if (frontRightAngle == 180.0) {
+        //         frontRightAngle = 0.0;
+        //         backRightAngle = 0.0;
+        //     }
+        // }
 
         // normalize wheel speeds
         double max = frontRightSpeed;

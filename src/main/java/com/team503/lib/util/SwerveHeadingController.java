@@ -14,7 +14,7 @@ public class SwerveHeadingController {
     public SwerveHeadingController() {
         this.stabilizationPID = new FrogPIDF(0.005, 0.0, 0.0005, 0.0, ControlMode.Position_Control);
         this.rotateInPlace = new FrogPIDF(0.01, 0.0, 0.002, ControlMode.Position_Control);
-        this.snappingPID = new FrogPIDF(0.005, 0.0, 0.0005, 0.0, ControlMode.Position_Control);
+        this.snappingPID = new FrogPIDF(0.015, 0.0, 0.000, 0.0, ControlMode.Position_Control);
         snappingPID.setTolerance(3);
     }
 
@@ -34,6 +34,7 @@ public class SwerveHeadingController {
 
     public void setStabilizationTarget(double angle) {
         targetHeading = angle;
+        stabilizationPID.setSetpoint(angle);
         setState(State.Stabilize);
     }
 
@@ -77,8 +78,9 @@ public class SwerveHeadingController {
         case Snap:
             if (stabilizationPID.onTarget()) {
                 setState(State.Stabilize);
+                break;
             }
-            output = snappingPID.calculateOutput(targetHeading);
+            output = snappingPID.calculateOutput(heading);
             break;
         }
 
