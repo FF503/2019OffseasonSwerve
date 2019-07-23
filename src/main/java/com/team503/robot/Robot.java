@@ -101,6 +101,7 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     RobotState.getInstance().setCurrentTheta(Pigeon.getInstance().getYaw());
     joystickInput();
+    mSwerve.updateTeleopControl();
   }
 
   /**
