@@ -107,7 +107,7 @@ public class SwerveDrive extends Subsystem {
 	 * @param x forward/backward input
 	 * @param y left/right input
 	 * @param rotate rotational input
-	 * @param robotCentric gyro use
+	 * @param fieldCentric gyro use
 	 * @param lowPower scaled down output
 	 */
 	public void inputDrive(double x, double y, double rotate, boolean fieldCentric, boolean lowPower){

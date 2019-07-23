@@ -22,7 +22,6 @@ public class OI {
 	private static JoystickButton driverA = new JoystickButton(driverJoystick, 1);	
 	private static JoystickButton driverB = new JoystickButton(driverJoystick, 2);
 	private static JoystickButton driverX = new JoystickButton(driverJoystick, 3);
-
 	private static JoystickButton driverY = new JoystickButton(driverJoystick, 4);
 	private static JoystickButton driverLeftBump = new JoystickButton(driverJoystick, 5);
 	private static JoystickButton driverRightBump= new JoystickButton(driverJoystick, 6);
@@ -48,6 +47,22 @@ public class OI {
 
 	public static double getDriverRightYVal(){
 		return driverJoystick.getRawAxis(5);
+	}
+
+	public static double getDriverLeftTriggerValue() {
+		return driverJoystick.getRawAxis(2);
+	}
+
+	public static double getDriverRightTriggerValue() {
+		return driverJoystick.getRawAxis(3);
+	}
+
+	public static boolean getDriverLeftTriggerPressed() {
+		return getDriverLeftTriggerValue() > 0.5;
+	}
+
+	public static boolean getDriverRightTriggerPressed() {
+		return getDriverRightTriggerValue() > 0.5;
 	}
 
 	public static boolean getDriverAButton() {
