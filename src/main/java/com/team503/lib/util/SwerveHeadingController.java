@@ -76,7 +76,7 @@ public class SwerveHeadingController {
             output = rotateInPlace.calculateOutput(heading);
             break;
         case Snap:
-            if (stabilizationPID.onTarget()) {
+            if (snappingPID.onTarget()) {
                 setState(State.Stabilize);
                 break;
             }
