@@ -110,7 +110,7 @@ public class SwerveDrive extends Subsystem {
 	 * @param robotCentric gyro use
 	 * @param lowPower scaled down output
 	 */
-	public void inputDrive(double x, double y, double rotate, boolean robotCentric, boolean lowPower){
+	public void inputDrive(double x, double y, double rotate, boolean fieldCentric, boolean lowPower){
 		Translation2d translationalInput = new Translation2d(x, y);
 		double inputMagnitude = translationalInput.norm();
 		
@@ -121,12 +121,6 @@ public class SwerveDrive extends Subsystem {
 			translationalInput = translationalInput.direction().nearestPole().toTranslation().scale(inputMagnitude);
 		}
 		
-		double deadband = 0.05;
-		if(inputMagnitude < deadband){
-			translationalInput = new Translation2d();
-			inputMagnitude = 0;
-		}
-		
 		/* Scale x and y by applying a power to the magnitude of the vector they create, in order
 		 to make the controls less sensitive at the lower end. */
 		final double power = (lowPower) ? 1.75 : 1.5;
@@ -135,7 +129,6 @@ public class SwerveDrive extends Subsystem {
 		translationalInput = new Translation2d(direction.cos() * scaledMagnitude,
 				direction.sin() * scaledMagnitude);
 		
-		rotate = (Math.abs(rotate) < deadband) ? 0 : rotate;
 		rotate = Math.pow(Math.abs(rotate), 1.75)*Math.signum(rotate);
 		
 		translationalInput = translationalInput.scale(maxSpeedFactor);
@@ -164,7 +157,7 @@ public class SwerveDrive extends Subsystem {
 			lastDriveVector = rotationalVector;
 		}
 		
-		this.fieldCentric = !robotCentric;
+		this.fieldCentric = fieldCentric;
 	}
 
 
