@@ -108,12 +108,6 @@ public class Robot extends TimedRobot {
     // check for deadband in controller
     swerveYInput = Util.deadBand(swerveYInput, deadband);
     swerveXInput = Util.deadBand(swerveXInput, deadband);
-    // if (swerveYInput > -deadband && swerveYInput < deadband) {
-    // swerveYInput = 0.0;
-    // }
-    // if (swerveXInput > -deadband && swerveXInput < deadband) {
-    // swerveXInput = 0.0;
-    // }
     if (swerveRotationInput > -deadband && swerveRotationInput < deadband) {
       swerveRotationInput = mSwerve.getRotationalOutput();// 0.0;
     } else {
@@ -126,6 +120,7 @@ public class Robot extends TimedRobot {
 
     if (OI.driverJoystick.getAButtonPressed()) {
       mSwerve.rotate(0);
+      swerveRotationInput = mSwerve.getRotationalOutput();
     }
 
     mSwerve.drive(swerveXInput, swerveYInput, swerveRotationInput);
