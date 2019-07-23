@@ -20,6 +20,12 @@ public class SwerveDrive extends Subsystem {
     // Instance declaration
     private static SwerveDrive instance = null;
     private SwerveHeadingController headingController = new SwerveHeadingController();
+    // Teleop driving variables
+    private Translation2d translationalVector = new Translation2d();
+    private double rotationalInput = 0;
+    private Translation2d lastDriveVector = new Translation2d();
+    private final Translation2d rotationalVector = Translation2d.identity();
+    private double lowPowerScalar = 0.6;
 
     public static SwerveDrive getInstance() {
         if (instance == null)
@@ -69,13 +75,6 @@ public class SwerveDrive extends Subsystem {
         modules = Arrays.asList(backRight, backLeft, frontLeft, frontRight);
     }
 
-    // Teleop driving variables
-    private Translation2d translationalVector = new Translation2d();
-    private double rotationalInput = 0;
-    private Translation2d lastDriveVector = new Translation2d();
-    private final Translation2d rotationalVector = Translation2d.identity();
-    private double lowPowerScalar = 0.6;
-
     public void setLowPowerScalar(double scalar) {
         lowPowerScalar = scalar;
     }
@@ -102,6 +101,10 @@ public class SwerveDrive extends Subsystem {
         this.fieldCentric = fieldCentric;
     }
 
+    public void toggleFieldCentric() {
+        this.fieldCentric = !this.fieldCentric;
+    }
+
     /**
      * Main function used to send manual input during teleop.
      * 
@@ -111,7 +114,7 @@ public class SwerveDrive extends Subsystem {
      * @param fieldCentric gyro use
      * @param lowPower     scaled down output
      */
-    public void inputDrive(double x, double y, double rotate, boolean fieldCentric, boolean lowPower) {
+    public void inputDrive(double x, double y, double rotate, boolean lowPower) {
         Translation2d translationalInput = new Translation2d(x, y);
         double inputMagnitude = translationalInput.norm();
 
@@ -168,8 +171,6 @@ public class SwerveDrive extends Subsystem {
         else if (translationalVector.x() == 0.0 && translationalVector.y() == 0.0 && rotate != 0.0) {
             lastDriveVector = rotationalVector;
         }
-
-        this.fieldCentric = fieldCentric;
     }
 
     // Takes joystick input an calculates drive wheel speed and turn motor angle
@@ -203,10 +204,10 @@ public class SwerveDrive extends Subsystem {
 
         // // if the speed is zero and the right side = 0, then left side should be zero
         // if (frontLeftSpeed == 0.0 && frontRightSpeed == 0.0) {
-        //     if (frontRightAngle == 180.0) {
-        //         frontRightAngle = 0.0;
-        //         backRightAngle = 0.0;
-        //     }
+        // if (frontRightAngle == 180.0) {
+        // frontRightAngle = 0.0;
+        // backRightAngle = 0.0;
+        // }
         // }
 
         // normalize wheel speeds

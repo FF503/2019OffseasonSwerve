@@ -100,26 +100,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     RobotState.getInstance().setCurrentTheta(Pigeon.getInstance().getYaw());
-    double swerveYInput = -OI.getDriverLeftYVal();
-    double swerveXInput = OI.getDriverLeftXVal();
-    double swerveRotationInput = OI.getDriverRightXVal();
-    boolean fieldCentric = !OI.driverJoystick.getBumperPressed(Hand.kRight);
-    boolean lowPower = OI.getDriverLeftTriggerPressed();
-    double deadband = 0.010;
-
-    if (swerveRotationInput > -deadband && swerveRotationInput < deadband) {
-      swerveRotationInput = mSwerve.getRotationalOutput();// 0.0;
-    } else {
-      mSwerve.stabilize(RobotState.getInstance().getCurrentTheta());
-    }
-
-    if (OI.driverJoystick.getAButtonPressed()) {
-      mSwerve.rotate(0);
-      swerveRotationInput = mSwerve.getRotationalOutput();
-    }
-
-    mSwerve.inputDrive(swerveXInput, swerveYInput, swerveRotationInput, fieldCentric, lowPower);
-
+    joystickInput();
   }
 
   /**
@@ -132,5 +113,28 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledPeriodic() {
     // Pigeon.getInstance().outputToSmartDashboard();
+  }
+
+  private void joystickInput() {
+    double swerveYInput = -OI.getDriverLeftYVal();
+    double swerveXInput = OI.getDriverLeftXVal();
+    double swerveRotationInput = OI.getDriverRightXVal();
+    boolean lowPower = OI.getDriverLeftTriggerPressed();
+    double deadband = 0.010;
+
+    if (swerveRotationInput > -deadband && swerveRotationInput < deadband) {
+      swerveRotationInput = mSwerve.getRotationalOutput();// 0.0;
+    } else {
+      mSwerve.stabilize(RobotState.getInstance().getCurrentTheta());
+    }
+
+    if (OI.driverJoystick.getAButtonPressed()) {
+      mSwerve.rotate(0);
+      swerveRotationInput = mSwerve.getRotationalOutput();
+    } else if (OI.driverJoystick.getBumperPressed(Hand.kRight)) {
+      mSwerve.toggleFieldCentric();
+    }
+
+    mSwerve.inputDrive(swerveXInput, swerveYInput, swerveRotationInput, lowPower);
   }
 }
