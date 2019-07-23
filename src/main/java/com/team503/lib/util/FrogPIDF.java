@@ -34,6 +34,7 @@ public class FrogPIDF {
     public void setSetpoint(double setPoint) {
         this.setPoint = setPoint;
         this.integral = 0;
+        this.lastTime = Timer.getFPGATimestamp();
     }
 
     public double calculateOutput(double sensorState) {
