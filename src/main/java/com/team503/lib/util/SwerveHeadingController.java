@@ -55,6 +55,10 @@ public class SwerveHeadingController {
         disabledTimestamp = Timer.getFPGATimestamp();
     }
 
+    public void disable() {
+        setState(State.Off);
+    }
+
     public double getRotationalOutput() {
 
         double output = 0;

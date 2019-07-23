@@ -102,6 +102,72 @@ public class SwerveDrive extends Subsystem {
         this.fieldCentric = fieldCentric;
     }
 
+    /**
+	 * Main function used to send manual input during teleop.
+	 * @param x forward/backward input
+	 * @param y left/right input
+	 * @param rotate rotational input
+	 * @param robotCentric gyro use
+	 * @param lowPower scaled down output
+	 */
+	public void inputDrive(double x, double y, double rotate, boolean robotCentric, boolean lowPower){
+		Translation2d translationalInput = new Translation2d(x, y);
+		double inputMagnitude = translationalInput.norm();
+		
+		/* Snap the translational input to its nearest pole, if it is within a certain threshold 
+		  of it. */
+		double threshold = Math.toRadians(10.0);
+		if(Math.abs(translationalInput.direction().distance(translationalInput.direction().nearestPole())) < threshold){
+			translationalInput = translationalInput.direction().nearestPole().toTranslation().scale(inputMagnitude);
+		}
+		
+		double deadband = 0.05;
+		if(inputMagnitude < deadband){
+			translationalInput = new Translation2d();
+			inputMagnitude = 0;
+		}
+		
+		/* Scale x and y by applying a power to the magnitude of the vector they create, in order
+		 to make the controls less sensitive at the lower end. */
+		final double power = (lowPower) ? 1.75 : 1.5;
+		Rotation2d direction = translationalInput.direction();
+		double scaledMagnitude = Math.pow(inputMagnitude, power);
+		translationalInput = new Translation2d(direction.cos() * scaledMagnitude,
+				direction.sin() * scaledMagnitude);
+		
+		rotate = (Math.abs(rotate) < deadband) ? 0 : rotate;
+		rotate = Math.pow(Math.abs(rotate), 1.75)*Math.signum(rotate);
+		
+		translationalInput = translationalInput.scale(maxSpeedFactor);
+		rotate *= maxSpeedFactor;
+				
+		translationalVector = translationalInput;
+		
+		if(lowPower){
+			translationalVector = translationalVector.scale(lowPowerScalar);
+			rotate *= lowPowerScalar;
+		}else{
+			rotate *= 0.8;
+		}
+		
+		if(rotate != 0 && rotationalInput == 0){
+			headingController.disable();
+		}else if(rotate == 0 && rotationalInput != 0){
+			headingController.temporarilyDisable();
+		}
+		
+		rotationalInput = rotate;
+
+		if(inputMagnitude > 0.3)
+			lastDriveVector = new Translation2d(x, y);
+		else if(translationalVector.x() == 0.0 && translationalVector.y() == 0.0 && rotate != 0.0){
+			lastDriveVector = rotationalVector;
+		}
+		
+		this.fieldCentric = !robotCentric;
+	}
+
+
     // Takes joystick input an calculates drive wheel speed and turn motor angle
     public void drive(double str, double fwd, double rcw) {
         double r = Math.sqrt((L * L) + (W * W));
