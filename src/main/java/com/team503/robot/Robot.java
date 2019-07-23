@@ -107,18 +107,11 @@ public class Robot extends TimedRobot {
     boolean lowPower = OI.getDriverLeftTriggerPressed();
     double deadband = 0.010;
 
-    // check for deadband in controller
-    swerveYInput = Util.deadBand(swerveYInput, deadband);
-    swerveXInput = Util.deadBand(swerveXInput, deadband);
     if (swerveRotationInput > -deadband && swerveRotationInput < deadband) {
       swerveRotationInput = mSwerve.getRotationalOutput();// 0.0;
     } else {
       mSwerve.stabilize(RobotState.getInstance().getCurrentTheta());
     }
-
-    // if (OI.driverJoystick.getBumperPressed(Hand.kRight)) {
-    // mSwerve.setFieldCentric(!mSwerve.isFieldCentric());
-    // }
 
     if (OI.driverJoystick.getAButtonPressed()) {
       mSwerve.rotate(0);
