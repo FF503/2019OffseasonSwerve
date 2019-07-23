@@ -20,12 +20,14 @@ public class SwerveDrive extends Subsystem {
     // Instance declaration
     private static SwerveDrive instance = null;
     private SwerveHeadingController headingController = new SwerveHeadingController();
+
     // Teleop driving variables
     private Translation2d translationalVector = new Translation2d();
     private double rotationalInput = 0;
     private Translation2d lastDriveVector = new Translation2d();
     private final Translation2d rotationalVector = Translation2d.identity();
     private double lowPowerScalar = 0.6;
+    SwerveInverseKinematics inverseKinematics = new SwerveInverseKinematics();
 
     public static SwerveDrive getInstance() {
         if (instance == null)
@@ -191,96 +193,120 @@ public class SwerveDrive extends Subsystem {
         }
     }
 
-    // Takes joystick input an calculates drive wheel speed and turn motor angle
-    public void drive(double str, double fwd, double rcw) {
-        double r = Math.sqrt((L * L) + (W * W));
+    public synchronized void updateTeleopControl() {
+        setDriveOutput(inverseKinematics.updateDriveVectors(translationalVector, rotationalInput,
+                RobotState.getInstance().getCurrentTheta(), fieldCentric));
 
-        if (fieldCentric) {
-            double angle = Math.toRadians(RobotState.getInstance().getCurrentTheta());
-            double temp = fwd * Math.cos(angle) + str * Math.sin(angle);
-            str = -fwd * Math.sin(angle) + str * Math.cos(angle);
-            fwd = temp;
-        }
-
-        translationalVector = new Translation2d(str, fwd);
-        rotationalInput = rcw;
-
-        double a = str - rcw * (L / r);
-        double b = str + rcw * (L / r);
-        double c = fwd - rcw * (W / r);
-        double d = fwd + rcw * (W / r);
-
-        double backRightSpeed = Math.sqrt((a * a) + (c * c));
-        double backLeftSpeed = Math.sqrt((a * a) + (d * d));
-        double frontRightSpeed = Math.sqrt((b * b) + (c * c));
-        double frontLeftSpeed = Math.sqrt((b * b) + (d * d));
-
-        double backRightAngle = (Math.atan2(a, c) * 180 / Math.PI);
-        double backLeftAngle = (Math.atan2(a, d) * 180 / Math.PI);
-        double frontRightAngle = (Math.atan2(b, c) * 180 / Math.PI);
-        double frontLeftAngle = (Math.atan2(b, d) * 180 / Math.PI);
-
-        // // if the speed is zero and the right side = 0, then left side should be zero
-        // if (frontLeftSpeed == 0.0 && frontRightSpeed == 0.0) {
-        // if (frontRightAngle == 180.0) {
-        // frontRightAngle = 0.0;
-        // backRightAngle = 0.0;
-        // }
-        // }
-
-        // normalize wheel speeds
-        double max = frontRightSpeed;
-        if (frontLeftSpeed > max) {
-            max = frontLeftSpeed;
-        }
-        if (backLeftSpeed > max) {
-            max = backLeftSpeed;
-        }
-        if (backRightSpeed > max) {
-            max = backRightSpeed;
-        }
-        if (max > 1.0) {
-            frontRightSpeed /= max;
-            frontLeftSpeed /= max;
-            backLeftSpeed /= max;
-            backRightSpeed /= max;
-        }
-
-        if (shouldReverse(backRightAngle, backRight.getTurnEncoderPositioninDegrees())) {
-            backRightAngle += 180;
-            backRightSpeed *= -1;
-        }
-
-        if (shouldReverse(backLeftAngle, backLeft.getTurnEncoderPositioninDegrees())) {
-            backLeftAngle += 180;
-            backLeftSpeed *= -1;
-        }
-
-        if (shouldReverse(frontRightAngle, frontRight.getTurnEncoderPositioninDegrees())) {
-            frontRightAngle += 180;
-            frontRightSpeed *= -1;
-        }
-
-        if (shouldReverse(frontLeftAngle, frontLeft.getTurnEncoderPositioninDegrees())) {
-            frontLeftAngle += 180;
-            frontLeftSpeed *= -1;
-        }
-
-        // Send speeds and angles to the drive motors
-        backRight.drive(backRightSpeed, backRightAngle);
-        backLeft.drive(backLeftSpeed, backLeftAngle);
-        frontRight.drive(frontRightSpeed, frontRightAngle);
-        frontLeft.drive(frontLeftSpeed, frontLeftAngle);
-
-        SmartDashboard.putNumber("LF Calc Angle (deg)", frontLeftAngle);
-        SmartDashboard.putNumber("RF Calc Angle (deg)", frontRightAngle);
-        SmartDashboard.putNumber("LR Calc Angle (deg)", backLeftAngle);
-        SmartDashboard.putNumber("RR Calc Angle (deg)", backRightAngle);
-
-        // inform drives whats going on
-        // SmartDashboard.putBoolean("Drive Motor Inverted", kDriveMotorInverted);
-        // SmartDashboard.putBoolean("LF Turn Encoder Inverted", kEncoderInverted);
     }
+
+    public void setDriveOutput(List<Translation2d> driveVectors) {
+        for (int i = 0; i < modules.size(); i++) {
+            if (Util.shouldReverse(driveVectors.get(i).direction().getDegrees(),
+                    modules.get(i).getTurnEncoderPositioninDegrees())) {
+                modules.get(i).drive(-driveVectors.get(i).norm(), driveVectors.get(i).direction().getDegrees() + 180.0);
+            } else {
+                modules.get(i).drive(driveVectors.get(i).norm(), driveVectors.get(i).direction().getDegrees());
+
+            }
+        }
+    }
+
+    // Takes joystick input an calculates drive wheel speed and turn motor angle
+    // @Deprecated
+    // public void drive(double str, double fwd, double rcw) {
+    // double r = Math.sqrt((L * L) + (W * W));
+
+    // if (fieldCentric) {
+    // double angle = Math.toRadians(RobotState.getInstance().getCurrentTheta());
+    // double temp = fwd * Math.cos(angle) + str * Math.sin(angle);
+    // str = -fwd * Math.sin(angle) + str * Math.cos(angle);
+    // fwd = temp;
+    // }
+
+    // translationalVector = new Translation2d(str, fwd);
+    // rotationalInput = rcw;
+
+    // double a = str - rcw * (L / r);
+    // double b = str + rcw * (L / r);
+    // double c = fwd - rcw * (W / r);
+    // double d = fwd + rcw * (W / r);
+
+    // double backRightSpeed = Math.sqrt((a * a) + (c * c));
+    // double backLeftSpeed = Math.sqrt((a * a) + (d * d));
+    // double frontRightSpeed = Math.sqrt((b * b) + (c * c));
+    // double frontLeftSpeed = Math.sqrt((b * b) + (d * d));
+
+    // double backRightAngle = (Math.atan2(a, c) * 180 / Math.PI);
+    // double backLeftAngle = (Math.atan2(a, d) * 180 / Math.PI);
+    // double frontRightAngle = (Math.atan2(b, c) * 180 / Math.PI);
+    // double frontLeftAngle = (Math.atan2(b, d) * 180 / Math.PI);
+
+    // // // if the speed is zero and the right side = 0, then left side should be
+    // zero
+    // // if (frontLeftSpeed == 0.0 && frontRightSpeed == 0.0) {
+    // // if (frontRightAngle == 180.0) {
+    // // frontRightAngle = 0.0;
+    // // backRightAngle = 0.0;
+    // // }
+    // // }
+
+    // // normalize wheel speeds
+    // double max = frontRightSpeed;
+    // if (frontLeftSpeed > max) {
+    // max = frontLeftSpeed;
+    // }
+    // if (backLeftSpeed > max) {
+    // max = backLeftSpeed;
+    // }
+    // if (backRightSpeed > max) {
+    // max = backRightSpeed;
+    // }
+    // if (max > 1.0) {
+    // frontRightSpeed /= max;
+    // frontLeftSpeed /= max;
+    // backLeftSpeed /= max;
+    // backRightSpeed /= max;
+    // }
+
+    // if (shouldReverse(backRightAngle,
+    // backRight.getTurnEncoderPositioninDegrees())) {
+    // backRightAngle += 180;
+    // backRightSpeed *= -1;
+    // }
+
+    // if (shouldReverse(backLeftAngle, backLeft.getTurnEncoderPositioninDegrees()))
+    // {
+    // backLeftAngle += 180;
+    // backLeftSpeed *= -1;
+    // }
+
+    // if (shouldReverse(frontRightAngle,
+    // frontRight.getTurnEncoderPositioninDegrees())) {
+    // frontRightAngle += 180;
+    // frontRightSpeed *= -1;
+    // }
+
+    // if (shouldReverse(frontLeftAngle,
+    // frontLeft.getTurnEncoderPositioninDegrees())) {
+    // frontLeftAngle += 180;
+    // frontLeftSpeed *= -1;
+    // }
+
+    // // Send speeds and angles to the drive motors
+    // backRight.drive(backRightSpeed, backRightAngle);
+    // backLeft.drive(backLeftSpeed, backLeftAngle);
+    // frontRight.drive(frontRightSpeed, frontRightAngle);
+    // frontLeft.drive(frontLeftSpeed, frontLeftAngle);
+
+    // SmartDashboard.putNumber("LF Calc Angle (deg)", frontLeftAngle);
+    // SmartDashboard.putNumber("RF Calc Angle (deg)", frontRightAngle);
+    // SmartDashboard.putNumber("LR Calc Angle (deg)", backLeftAngle);
+    // SmartDashboard.putNumber("RR Calc Angle (deg)", backRightAngle);
+
+    // // inform drives whats going on
+    // // SmartDashboard.putBoolean("Drive Motor Inverted", kDriveMotorInverted);
+    // // SmartDashboard.putBoolean("LF Turn Encoder Inverted", kEncoderInverted);
+    // }
 
     public synchronized double getRotationalOutput() {
         return headingController.getRotationalOutput();
@@ -331,13 +357,14 @@ public class SwerveDrive extends Subsystem {
         }
 
         public List<Translation2d> updateDriveVectors(Translation2d translationalVector, double rotationalMagnitude,
-                Pose2d robotPose, boolean robotCentric) {
+                double heading, boolean fieldCentric) {
             SmartDashboard.putNumber("Vector Direction", translationalVector.direction().getDegrees());
             // SmartDashboard.putNumber("Vector Magnitude", translationalVector.norm());
             SmartDashboard.putNumber("Robot Velocity", translationalVector.norm());
 
-            if (!robotCentric)
-                translationalVector = translationalVector.rotateBy(robotPose.getRotation().inverse());
+            Rotation2d robotHeading = Rotation2d.fromDegrees(heading);
+            if (fieldCentric)
+                translationalVector = translationalVector.rotateBy(robotHeading.inverse());
             List<Translation2d> driveVectors = new ArrayList<>(kNumberOfModules);
             for (int i = 0; i < kNumberOfModules; i++) {
                 driveVectors.add(
