@@ -39,7 +39,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    RobotState.getInstance().setCurrentRobot(Bot.ProgrammingBot);
+    RobotState.getInstance().setCurrentRobot(Bot.Automatic);
     bot = RobotHardware.getInstance();
     m_oi = new OI();
     mSwerve = SwerveDrive.getInstance();
@@ -152,7 +152,8 @@ public class Robot extends TimedRobot {
       mSwerve.toggleFieldCentric();
     }
 
-    // mSwerve.inputDrive(swerveXInput, swerveYInput, swerveRotationInput, lowPower);
+    // mSwerve.inputDrive(swerveXInput, swerveYInput, swerveRotationInput,
+    // lowPower);
     mSwerve.drive(swerveXInput, swerveYInput, swerveRotationInput);
   }
 }
