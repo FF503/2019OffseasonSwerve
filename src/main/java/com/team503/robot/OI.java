@@ -7,8 +7,8 @@
 
 package com.team503.robot;
 
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.buttons.Button;
+import com.team503.lib.io.Xbox;
+
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
 
 /**
@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj.buttons.JoystickButton;
 
 public class OI {
 
-	public static XboxController driverJoystick = new XboxController(0);
+	public static Xbox driverJoystick = new Xbox(0);
 	private static JoystickButton driverA = new JoystickButton(driverJoystick, 1);
 	private static JoystickButton driverB = new JoystickButton(driverJoystick, 2);
 	private static JoystickButton driverX = new JoystickButton(driverJoystick, 3);

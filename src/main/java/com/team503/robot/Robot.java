@@ -9,15 +9,12 @@ package com.team503.robot;
 
 import java.util.Arrays;
 
-import com.team503.lib.util.Util;
 import com.team503.robot.RobotState.Bot;
 import com.team503.robot.subsystems.Pigeon;
 import com.team503.robot.subsystems.SubsystemManager;
 import com.team503.robot.subsystems.SwerveDrive;
 import com.team503.robot.subsystems.SwerveDrive.DriveMode;
 
-import edu.wpi.first.wpilibj.GenericHID.Hand;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.TimedRobot;
 
 /**
@@ -101,8 +98,10 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopPeriodic() {
+    OI.driverJoystick.update();
     RobotState.getInstance().setCurrentTheta(Pigeon.getInstance().getYaw());
     joystickInput();
+
     // mSwerve.updateTeleopControl();
   }
 
@@ -133,12 +132,24 @@ public class Robot extends TimedRobot {
 
     if (swerveRotationInput > -deadband && swerveRotationInput < deadband) {
       swerveRotationInput = mSwerve.getRotationalOutput();// 0.0;
-      SmartDashboard.putNumber("Rotational Output", mSwerve.getRotationalOutput());
+      // SmartDashboard.putNumber("Rotational Output", mSwerve.getRotationalOutput());
     } else {
       mSwerve.stabilize(RobotState.getInstance().getCurrentTheta());
     }
 
-    if (OI.driverJoystick.getAButtonPressed()) {
+    if (OI.driverJoystick.leftBumper.shortReleased()) {
+      mSwerve.rotate(-24);
+      swerveRotationInput = mSwerve.getRotationalOutput();
+    } else if (OI.driverJoystick.leftBumper.longPressed()) {
+      mSwerve.rotate(-151.0);
+      swerveRotationInput = mSwerve.getRotationalOutput();
+    } else if (OI.driverJoystick.rightBumper.shortReleased()) {
+      mSwerve.rotate(24);
+      swerveRotationInput = mSwerve.getRotationalOutput();
+    } else if (OI.driverJoystick.rightBumper.longPressed()) {
+      mSwerve.rotate(151.0);
+      swerveRotationInput = mSwerve.getRotationalOutput();
+    } else if (OI.driverJoystick.getAButtonPressed()) {
       mSwerve.rotate(180);
       swerveRotationInput = mSwerve.getRotationalOutput();
     } else if (OI.driverJoystick.getBButtonPressed()) {
@@ -150,7 +161,7 @@ public class Robot extends TimedRobot {
     } else if (OI.driverJoystick.getYButtonPressed()) {
       mSwerve.rotate(0);
       swerveRotationInput = mSwerve.getRotationalOutput();
-    } else if (OI.driverJoystick.getBumperPressed(Hand.kRight)) {
+    } else if (OI.getDriverBackButton()) {
       mSwerve.toggleFieldCentric();
     }
 

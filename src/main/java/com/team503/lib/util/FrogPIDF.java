@@ -51,7 +51,7 @@ public class FrogPIDF {
         double dOut = d * derivative;
         double fOut = f * setPoint;
 
-        SmartDashboard.putNumber("Stabalization Error", error);
+        SmartDashboard.putNumber("FrogPIDF Error", error);
         
         lastTime = time;
         lastError = error;
