@@ -102,6 +102,11 @@ public class Robot extends TimedRobot {
     // mSwerve.updateTeleopControl();
   }
 
+  @Override
+  public void testInit() {
+    subsystems.resetSensor();
+  }
+
   /**
    * This function is called periodically during test mode.
    */

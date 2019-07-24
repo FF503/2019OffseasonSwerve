@@ -3,14 +3,16 @@ package com.team503.robot.subsystems;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  * Used to reset, start, stop, and update all subsystems at once
  */
 public class SubsystemManager {
 
     private final List<Subsystem> mAllSubsystems;
-    public List<Subsystem> getSubsystems(){ return mAllSubsystems; }
+
+    public List<Subsystem> getSubsystems() {
+        return mAllSubsystems;
+    }
 
     // private List<Loop> mLoops = new ArrayList<>();
 
@@ -30,9 +32,13 @@ public class SubsystemManager {
         mAllSubsystems.forEach((s) -> s.stop());
     }
 
-    public boolean haveEmergency(){
+    public void resetSensor() {
+        mAllSubsystems.forEach((s) -> s.zeroSensors());
+    }
+
+    public boolean haveEmergency() {
         boolean emergency = false;
-        for(Subsystem s : mAllSubsystems){
+        for (Subsystem s : mAllSubsystems) {
             emergency |= s.hasEmergency;
         }
         return emergency;
@@ -40,68 +46,68 @@ public class SubsystemManager {
 
     // private class EnabledLoop implements Loop {
 
-    //     @Override
-    //     public void onStart(double timestamp) {
-    //         for (Loop l : mLoops) {
-    //             l.onStart(timestamp);
-    //         }
-    //     }
+    // @Override
+    // public void onStart(double timestamp) {
+    // for (Loop l : mLoops) {
+    // l.onStart(timestamp);
+    // }
+    // }
 
-    //     @Override
-    //     public void onLoop(double timestamp) {
-    //         for (Subsystem s : mAllSubsystems) {
-    //            s.readPeriodicInputs();
-    //         }
-    //         for (Loop l : mLoops) {
-    //             l.onLoop(timestamp);
-    //         }
-    //         for (Subsystem s : mAllSubsystems) {
-    //             s.writePeriodicOutputs();
-    //         }
-    //     }
+    // @Override
+    // public void onLoop(double timestamp) {
+    // for (Subsystem s : mAllSubsystems) {
+    // s.readPeriodicInputs();
+    // }
+    // for (Loop l : mLoops) {
+    // l.onLoop(timestamp);
+    // }
+    // for (Subsystem s : mAllSubsystems) {
+    // s.writePeriodicOutputs();
+    // }
+    // }
 
-    //     @Override
-    //     public void onStop(double timestamp) {
-    //         for (Loop l : mLoops) {
-    //             l.onStop(timestamp);
-    //         }
-    //     }
+    // @Override
+    // public void onStop(double timestamp) {
+    // for (Loop l : mLoops) {
+    // l.onStop(timestamp);
+    // }
+    // }
     // }
 
     // private class DisabledLoop implements Loop {
 
-    //     @Override
-    //     public void onStart(double timestamp) {
+    // @Override
+    // public void onStart(double timestamp) {
 
-    //     }
+    // }
 
-    //     @Override
-    //     public void onLoop(double timestamp) {
-    //         for (Subsystem s : mAllSubsystems) {
-    //             s.readPeriodicInputs();
-    //         }
-    //         for (Subsystem s : mAllSubsystems) {
-    //             s.writePeriodicOutputs();
-    //         }
-    //     }
+    // @Override
+    // public void onLoop(double timestamp) {
+    // for (Subsystem s : mAllSubsystems) {
+    // s.readPeriodicInputs();
+    // }
+    // for (Subsystem s : mAllSubsystems) {
+    // s.writePeriodicOutputs();
+    // }
+    // }
 
-    //     @Override
-    //     public void onStop(double timestamp) {
+    // @Override
+    // public void onStop(double timestamp) {
 
-    //     }
+    // }
     // }
 
     // public void registerEnabledLoops(Looper enabledLooper) {
-    //     mAllSubsystems.forEach((s) -> s.registerEnabledLoops(this));
-    //     enabledLooper.register(new EnabledLoop());
+    // mAllSubsystems.forEach((s) -> s.registerEnabledLoops(this));
+    // enabledLooper.register(new EnabledLoop());
     // }
 
     // public void registerDisabledLoops(Looper disabledLooper) {
-    //     disabledLooper.register(new DisabledLoop());
+    // disabledLooper.register(new DisabledLoop());
     // }
 
     // @Override
     // public void register(Loop loop) {
-    //     mLoops.add(loop);
+    // mLoops.add(loop);
     // }
 }
