@@ -401,6 +401,18 @@ public class SwerveDrive extends Subsystem {
         }
     }
 
+    public void setBrakeMode() {
+        modules.forEach((mod) -> mod.brakeDrive());
+    }
+
+    public void setCoastMode() {
+        modules.forEach((mod) -> mod.coastDrive());
+    }
+
+    public void setCurrentLimit(int limit) {
+        modules.forEach((mod) -> mod.setDriveMotorCurrentLimit(limit));
+    }
+
     @Override
     public void outputTelemetry() {
         SmartDashboard.putNumber("LF Drive Position (clicks)", frontLeft.getDriveEncoderPosition());
@@ -439,5 +451,6 @@ public class SwerveDrive extends Subsystem {
     @Override
     public void stop() {
         modules.forEach((m) -> m.setDriveMotorSpeed(0));
+        // setCoastMode();
     }
 }

@@ -150,6 +150,18 @@ public class SwerveModule {
         return turnMotor.getClosedLoopError();
     }
 
+    public void setDriveMotorCurrentLimit(int limit) {
+        driveMotor.setSmartCurrentLimit(limit);
+    }
+
+    public void coastDrive() {
+        driveMotor.setIdleMode(IdleMode.kCoast);
+    }
+
+    public void brakeDrive() {
+        driveMotor.setIdleMode(IdleMode.kBrake);
+    }
+
     public double getTurnEncoderPositioninDegrees() {
         // get the base clicks = zero degrees for this particular wheel
 

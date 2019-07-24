@@ -43,7 +43,6 @@ public class Robot extends TimedRobot {
     mSwerve = SwerveDrive.getInstance();
     subsystems = new SubsystemManager(Arrays.asList(mSwerve, Pigeon.getInstance()));
     Pigeon.getInstance().zeroSensors();
-
   }
 
   /**
@@ -74,7 +73,6 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-
   }
 
   /**
@@ -82,7 +80,6 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousPeriodic() {
-
   }
 
   /**
@@ -114,7 +111,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledInit() {
-    mSwerve.teleopStop();
+    subsystems.stop();
   }
 
   @Override
