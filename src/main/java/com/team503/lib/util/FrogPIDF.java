@@ -1,6 +1,7 @@
 package com.team503.lib.util;
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class FrogPIDF {
     private final double p, i, d, f;
@@ -37,9 +38,9 @@ public class FrogPIDF {
         this.lastTime = Timer.getFPGATimestamp();
     }
 
-    public double calculateOutput(double sensorState) {
+    public double calculateOutput(double sensorState, boolean boundTo180) {
         this.state = sensorState;
-        double error = setPoint - sensorState;
+        double error = boundTo180 ? boundHalfDegrees(setPoint - sensorState) : (setPoint - sensorState) ;
         double dError = error - lastError;
         double time = Timer.getFPGATimestamp();
         double dt = time - lastTime;
@@ -49,6 +50,8 @@ public class FrogPIDF {
         double iOut = i * integral;
         double dOut = d * derivative;
         double fOut = f * setPoint;
+
+        SmartDashboard.putNumber("Stabalization Error", error);
         
         lastTime = time;
         lastError = error;
@@ -63,5 +66,13 @@ public class FrogPIDF {
     public boolean onTarget() {
         return Math.abs(state - setPoint) < tolerance;
     }
+
+    public static double boundHalfDegrees(double angle_degrees) {
+		while (angle_degrees >= 180.0)
+			angle_degrees -= 360.0;
+		while (angle_degrees < -180.0)
+			angle_degrees += 360.0;
+		return angle_degrees;
+	}
 
 }

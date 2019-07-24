@@ -212,101 +212,95 @@ public class SwerveDrive extends Subsystem {
     }
 
     // Takes joystick input an calculates drive wheel speed and turn motor angle
-    // @Deprecated
-    // public void drive(double str, double fwd, double rcw) {
-    // double r = Math.sqrt((L * L) + (W * W));
+    public void drive(double str, double fwd, double rcw) {
+        double r = Math.sqrt((L * L) + (W * W));
 
-    // if (fieldCentric) {
-    // double angle = Math.toRadians(RobotState.getInstance().getCurrentTheta());
-    // double temp = fwd * Math.cos(angle) + str * Math.sin(angle);
-    // str = -fwd * Math.sin(angle) + str * Math.cos(angle);
-    // fwd = temp;
-    // }
+        if (fieldCentric) {
+            double angle = Math.toRadians(RobotState.getInstance().getCurrentTheta());
+            double temp = fwd * Math.cos(angle) + str * Math.sin(angle);
+            str = -fwd * Math.sin(angle) + str * Math.cos(angle);
+            fwd = temp;
+        }
 
-    // translationalVector = new Translation2d(str, fwd);
-    // rotationalInput = rcw;
+        translationalVector = new Translation2d(str, fwd);
+        rotationalInput = rcw;
 
-    // double a = str - rcw * (L / r);
-    // double b = str + rcw * (L / r);
-    // double c = fwd - rcw * (W / r);
-    // double d = fwd + rcw * (W / r);
+        double a = str - rcw * (L / r);
+        double b = str + rcw * (L / r);
+        double c = fwd - rcw * (W / r);
+        double d = fwd + rcw * (W / r);
 
-    // double backRightSpeed = Math.sqrt((a * a) + (c * c));
-    // double backLeftSpeed = Math.sqrt((a * a) + (d * d));
-    // double frontRightSpeed = Math.sqrt((b * b) + (c * c));
-    // double frontLeftSpeed = Math.sqrt((b * b) + (d * d));
+        double backRightSpeed = Math.sqrt((a * a) + (c * c));
+        double backLeftSpeed = Math.sqrt((a * a) + (d * d));
+        double frontRightSpeed = Math.sqrt((b * b) + (c * c));
+        double frontLeftSpeed = Math.sqrt((b * b) + (d * d));
 
-    // double backRightAngle = (Math.atan2(a, c) * 180 / Math.PI);
-    // double backLeftAngle = (Math.atan2(a, d) * 180 / Math.PI);
-    // double frontRightAngle = (Math.atan2(b, c) * 180 / Math.PI);
-    // double frontLeftAngle = (Math.atan2(b, d) * 180 / Math.PI);
+        double backRightAngle = (Math.atan2(a, c) * 180 / Math.PI);
+        double backLeftAngle = (Math.atan2(a, d) * 180 / Math.PI);
+        double frontRightAngle = (Math.atan2(b, c) * 180 / Math.PI);
+        double frontLeftAngle = (Math.atan2(b, d) * 180 / Math.PI);
 
-    // // // if the speed is zero and the right side = 0, then left side should be
-    // zero
-    // // if (frontLeftSpeed == 0.0 && frontRightSpeed == 0.0) {
-    // // if (frontRightAngle == 180.0) {
-    // // frontRightAngle = 0.0;
-    // // backRightAngle = 0.0;
-    // // }
-    // // }
+        // // if the speed is zero and the right side = 0, then left side should be zero
+        // if (frontLeftSpeed == 0.0 && frontRightSpeed == 0.0) {
+        // if (frontRightAngle == 180.0) {
+        // frontRightAngle = 0.0;
+        // backRightAngle = 0.0;
+        // }
+        // }
 
-    // // normalize wheel speeds
-    // double max = frontRightSpeed;
-    // if (frontLeftSpeed > max) {
-    // max = frontLeftSpeed;
-    // }
-    // if (backLeftSpeed > max) {
-    // max = backLeftSpeed;
-    // }
-    // if (backRightSpeed > max) {
-    // max = backRightSpeed;
-    // }
-    // if (max > 1.0) {
-    // frontRightSpeed /= max;
-    // frontLeftSpeed /= max;
-    // backLeftSpeed /= max;
-    // backRightSpeed /= max;
-    // }
+        // normalize wheel speeds
+        double max = frontRightSpeed;
+        if (frontLeftSpeed > max) {
+            max = frontLeftSpeed;
+        }
+        if (backLeftSpeed > max) {
+            max = backLeftSpeed;
+        }
+        if (backRightSpeed > max) {
+            max = backRightSpeed;
+        }
+        if (max > 1.0) {
+            frontRightSpeed /= max;
+            frontLeftSpeed /= max;
+            backLeftSpeed /= max;
+            backRightSpeed /= max;
+        }
 
-    // if (shouldReverse(backRightAngle,
-    // backRight.getTurnEncoderPositioninDegrees())) {
-    // backRightAngle += 180;
-    // backRightSpeed *= -1;
-    // }
+        if (shouldReverse(backRightAngle, backRight.getTurnEncoderPositioninDegrees())) {
+            backRightAngle += 180;
+            backRightSpeed *= -1;
+        }
 
-    // if (shouldReverse(backLeftAngle, backLeft.getTurnEncoderPositioninDegrees()))
-    // {
-    // backLeftAngle += 180;
-    // backLeftSpeed *= -1;
-    // }
+        if (shouldReverse(backLeftAngle, backLeft.getTurnEncoderPositioninDegrees())) {
+            backLeftAngle += 180;
+            backLeftSpeed *= -1;
+        }
 
-    // if (shouldReverse(frontRightAngle,
-    // frontRight.getTurnEncoderPositioninDegrees())) {
-    // frontRightAngle += 180;
-    // frontRightSpeed *= -1;
-    // }
+        if (shouldReverse(frontRightAngle, frontRight.getTurnEncoderPositioninDegrees())) {
+            frontRightAngle += 180;
+            frontRightSpeed *= -1;
+        }
 
-    // if (shouldReverse(frontLeftAngle,
-    // frontLeft.getTurnEncoderPositioninDegrees())) {
-    // frontLeftAngle += 180;
-    // frontLeftSpeed *= -1;
-    // }
+        if (shouldReverse(frontLeftAngle, frontLeft.getTurnEncoderPositioninDegrees())) {
+            frontLeftAngle += 180;
+            frontLeftSpeed *= -1;
+        }
 
-    // // Send speeds and angles to the drive motors
-    // backRight.drive(backRightSpeed, backRightAngle);
-    // backLeft.drive(backLeftSpeed, backLeftAngle);
-    // frontRight.drive(frontRightSpeed, frontRightAngle);
-    // frontLeft.drive(frontLeftSpeed, frontLeftAngle);
+        // Send speeds and angles to the drive motors
+        backRight.drive(backRightSpeed, backRightAngle);
+        backLeft.drive(backLeftSpeed, backLeftAngle);
+        frontRight.drive(frontRightSpeed, frontRightAngle);
+        frontLeft.drive(frontLeftSpeed, frontLeftAngle);
 
-    // SmartDashboard.putNumber("LF Calc Angle (deg)", frontLeftAngle);
-    // SmartDashboard.putNumber("RF Calc Angle (deg)", frontRightAngle);
-    // SmartDashboard.putNumber("LR Calc Angle (deg)", backLeftAngle);
-    // SmartDashboard.putNumber("RR Calc Angle (deg)", backRightAngle);
+        SmartDashboard.putNumber("LF Calc Angle (deg)", frontLeftAngle);
+        SmartDashboard.putNumber("RF Calc Angle (deg)", frontRightAngle);
+        SmartDashboard.putNumber("LR Calc Angle (deg)", backLeftAngle);
+        SmartDashboard.putNumber("RR Calc Angle (deg)", backRightAngle);
 
-    // // inform drives whats going on
-    // // SmartDashboard.putBoolean("Drive Motor Inverted", kDriveMotorInverted);
-    // // SmartDashboard.putBoolean("LF Turn Encoder Inverted", kEncoderInverted);
-    // }
+        // inform drives whats going on
+        // SmartDashboard.putBoolean("Drive Motor Inverted", kDriveMotorInverted);
+        // SmartDashboard.putBoolean("LF Turn Encoder Inverted", kEncoderInverted);
+    }
 
     public synchronized double getRotationalOutput() {
         return headingController.getRotationalOutput();

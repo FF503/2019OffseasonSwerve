@@ -16,6 +16,7 @@ import com.team503.robot.subsystems.SubsystemManager;
 import com.team503.robot.subsystems.SwerveDrive;
 
 import edu.wpi.first.wpilibj.GenericHID.Hand;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.TimedRobot;
 
 /**
@@ -101,7 +102,7 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     RobotState.getInstance().setCurrentTheta(Pigeon.getInstance().getYaw());
     joystickInput();
-    mSwerve.updateTeleopControl();
+    // mSwerve.updateTeleopControl();
   }
 
   /**
@@ -130,17 +131,19 @@ public class Robot extends TimedRobot {
 
     if (swerveRotationInput > -deadband && swerveRotationInput < deadband) {
       swerveRotationInput = mSwerve.getRotationalOutput();// 0.0;
+      SmartDashboard.putNumber("Rotational Output", mSwerve.getRotationalOutput());
     } else {
       mSwerve.stabilize(RobotState.getInstance().getCurrentTheta());
     }
 
-    if (OI.driverJoystick.getAButtonPressed()) {
+    if (OI.driverJoystick.getPOV() == 270) {
       mSwerve.rotate(0);
       swerveRotationInput = mSwerve.getRotationalOutput();
     } else if (OI.driverJoystick.getBumperPressed(Hand.kRight)) {
       mSwerve.toggleFieldCentric();
     }
 
-    mSwerve.inputDrive(swerveXInput, swerveYInput, swerveRotationInput, lowPower);
+    // mSwerve.inputDrive(swerveXInput, swerveYInput, swerveRotationInput, lowPower);
+    mSwerve.drive(swerveXInput, swerveYInput, swerveRotationInput);
   }
 }
