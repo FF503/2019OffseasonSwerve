@@ -4,6 +4,7 @@ import com.team503.lib.util.FrogPIDF.ControlMode;
 import com.team503.robot.RobotState;
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class SwerveHeadingController {
     private double targetHeading;
@@ -13,7 +14,7 @@ public class SwerveHeadingController {
 
     public SwerveHeadingController() {
         this.stabilizationPID = new FrogPIDF(0.005, 0.0, 0.0005, 0.0, ControlMode.Position_Control);
-        this.rotateInPlace = new FrogPIDF(0.01, 0.0, 0.002, ControlMode.Position_Control);
+        this.rotateInPlace = new FrogPIDF(0.004, 0.0, 0.0001, ControlMode.Position_Control);
         this.snappingPID = new FrogPIDF(0.015, 0.0, 0.000, 0.0, ControlMode.Position_Control);
         snappingPID.setTolerance(3);
     }
@@ -60,7 +61,8 @@ public class SwerveHeadingController {
     }
 
     public double getRotationalOutput() {
-
+        SmartDashboard.putNumber("Target Heading", targetHeading);
+        SmartDashboard.putString("State", currentState.toString());
         double output = 0;
         double heading = RobotState.getInstance().getCurrentTheta();
 
@@ -68,7 +70,7 @@ public class SwerveHeadingController {
         case Off:
             break;
         case Stabilize:
-            output = stabilizationPID.calculateOutput(heading);
+            output = stabilizationPID.calculateOutput(heading, true);
             break;
         case TemporaryDisable:
             targetHeading = heading;
@@ -77,14 +79,14 @@ public class SwerveHeadingController {
             }
             break;
         case Stationary:
-            output = rotateInPlace.calculateOutput(heading);
+            output = rotateInPlace.calculateOutput(heading, true);
             break;
         case Snap:
             if (snappingPID.onTarget()) {
                 setState(State.Stabilize);
                 break;
             }
-            output = snappingPID.calculateOutput(heading);
+            output = snappingPID.calculateOutput(heading, true);
             break;
         }
 
