@@ -57,6 +57,8 @@ public abstract class RobotHardware {
 
     public abstract String getFrontRightName();
 
+    public abstract List<Translation2d> getModulePositions();
+
     // Swerve Calculations Constants (measurements are in inches)
     public double kWheelbaseLength;
     public double kWheelbaseWidth;

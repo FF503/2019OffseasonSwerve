@@ -152,8 +152,7 @@ public class Robot extends TimedRobot {
       mSwerve.toggleFieldCentric();
     }
 
-    // mSwerve.inputDrive(swerveXInput, swerveYInput, swerveRotationInput,
-    // lowPower);
-    mSwerve.drive(swerveXInput, swerveYInput, swerveRotationInput);
+    mSwerve.inputDrive(swerveXInput, swerveYInput, swerveRotationInput, lowPower);
+    // mSwerve.drive(swerveXInput, swerveYInput, swerveRotationInput);
   }
 }

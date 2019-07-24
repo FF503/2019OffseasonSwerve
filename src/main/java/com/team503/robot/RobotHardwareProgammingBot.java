@@ -8,6 +8,7 @@
 package com.team503.robot;
 
 import java.util.Arrays;
+import java.util.List;
 
 import com.team254.lib.geometry.Translation2d;
 
@@ -28,14 +29,19 @@ public class RobotHardwareProgammingBot extends RobotHardware {
         kWheelbaseWidth = 21.0;
 
         // Swerve Module Positions (relative to the center of the drive base)
-        kVehicleToModuleZero = new Translation2d(kWheelbaseLength / 2, -kWheelbaseWidth / 2);
+        kVehicleToModuleZero = new Translation2d(-kWheelbaseLength / 2, kWheelbaseWidth / 2);
         kVehicleToModuleOne = new Translation2d(-kWheelbaseLength / 2, -kWheelbaseWidth / 2);
-        kVehicleToModuleTwo = new Translation2d(-kWheelbaseLength / 2, kWheelbaseWidth / 2);
+        kVehicleToModuleTwo = new Translation2d(kWheelbaseLength / 2, -kWheelbaseWidth / 2);
         kVehicleToModuleThree = new Translation2d(kWheelbaseLength / 2, kWheelbaseWidth / 2);
 
         kModulePositions = Arrays.asList(kVehicleToModuleZero, kVehicleToModuleOne, kVehicleToModuleTwo,
                 kVehicleToModuleThree);
 
+    }
+
+    @Override
+    public List<Translation2d> getModulePositions() {
+        return kModulePositions;
     }
 
     @Override
