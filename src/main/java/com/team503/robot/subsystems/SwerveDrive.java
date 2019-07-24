@@ -27,12 +27,24 @@ public class SwerveDrive extends Subsystem {
     private Translation2d lastDriveVector = new Translation2d();
     private final Translation2d rotationalVector = Translation2d.identity();
     private double lowPowerScalar = 0.6;
+    public enum DriveMode{
+        Drive, Defense;
+    }
+    private DriveMode mode = DriveMode.Drive;
     SwerveInverseKinematics inverseKinematics = new SwerveInverseKinematics();
 
     public static SwerveDrive getInstance() {
         if (instance == null)
             instance = new SwerveDrive();
         return instance;
+    }
+
+    public DriveMode getMode() {
+        return mode;
+    }
+
+    public void setMode(DriveMode mode) {
+        this.mode = mode;
     }
 
     // Swerve Dimensions
@@ -287,6 +299,16 @@ public class SwerveDrive extends Subsystem {
         }
 
         // Send speeds and angles to the drive motors
+        if (mode == DriveMode.Defense){
+            backRightSpeed = 0;
+            backLeftSpeed = 0;
+            frontRightSpeed = 0;
+            frontLeftSpeed = 0;
+            backRightAngle = -45;
+            backLeftAngle = 45;
+            frontLeftAngle = -45;
+            frontRightAngle = 45;
+        }
         backRight.drive(backRightSpeed, backRightAngle);
         backLeft.drive(backLeftSpeed, backLeftAngle);
         frontRight.drive(frontRightSpeed, frontRightAngle);

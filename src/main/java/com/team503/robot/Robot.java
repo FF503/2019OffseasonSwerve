@@ -14,6 +14,7 @@ import com.team503.robot.RobotState.Bot;
 import com.team503.robot.subsystems.Pigeon;
 import com.team503.robot.subsystems.SubsystemManager;
 import com.team503.robot.subsystems.SwerveDrive;
+import com.team503.robot.subsystems.SwerveDrive.DriveMode;
 
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -128,6 +129,7 @@ public class Robot extends TimedRobot {
     double swerveRotationInput = OI.getDriverRightXVal();
     boolean lowPower = OI.getDriverLeftTriggerPressed();
     double deadband = 0.010;
+    
 
     if (swerveRotationInput > -deadband && swerveRotationInput < deadband) {
       swerveRotationInput = mSwerve.getRotationalOutput();// 0.0;
@@ -150,6 +152,13 @@ public class Robot extends TimedRobot {
       swerveRotationInput = mSwerve.getRotationalOutput();
     } else if (OI.driverJoystick.getBumperPressed(Hand.kRight)) {
       mSwerve.toggleFieldCentric();
+    }
+
+    if (OI.driverJoystick.getStartButton()){
+      mSwerve.setMode(DriveMode.Defense);
+    }
+    else{
+      mSwerve.setMode(DriveMode.Drive);
     }
 
     // mSwerve.inputDrive(swerveXInput, swerveYInput, swerveRotationInput,
