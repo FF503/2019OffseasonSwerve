@@ -27,17 +27,19 @@ public class SwerveDrive extends Subsystem {
     private Translation2d lastDriveVector = new Translation2d();
     private final Translation2d rotationalVector = Translation2d.identity();
     private double lowPowerScalar = 0.6;
-    public enum DriveMode{
-        Drive, Defense;
-    }
-    private DriveMode mode = DriveMode.Drive;
-    SwerveInverseKinematics inverseKinematics = new SwerveInverseKinematics();
 
     public static SwerveDrive getInstance() {
         if (instance == null)
             instance = new SwerveDrive();
         return instance;
     }
+
+    public enum DriveMode {
+        TeleopDrive, Defense, MotionProfling, Vision, PurePursuit;
+    }
+
+    private DriveMode mode = DriveMode.TeleopDrive;
+    SwerveInverseKinematics inverseKinematics = new SwerveInverseKinematics();
 
     public DriveMode getMode() {
         return mode;
@@ -218,9 +220,14 @@ public class SwerveDrive extends Subsystem {
                 modules.get(i).drive(-driveVectors.get(i).norm(), driveVectors.get(i).direction().getDegrees() + 180.0);
             } else {
                 modules.get(i).drive(driveVectors.get(i).norm(), driveVectors.get(i).direction().getDegrees());
-
             }
         }
+    }
+
+    public void drive(Translation2d translationVector, double rotatationalInput) {
+        double str = translationVector.x();
+        double fwd = translationVector.y();
+        drive(str, fwd, rotationalInput);
     }
 
     // Takes joystick input an calculates drive wheel speed and turn motor angle
@@ -299,7 +306,7 @@ public class SwerveDrive extends Subsystem {
         }
 
         // Send speeds and angles to the drive motors
-        if (mode == DriveMode.Defense){
+        if (mode == DriveMode.Defense) {
             backRightSpeed = 0;
             backLeftSpeed = 0;
             frontRightSpeed = 0;
@@ -322,6 +329,18 @@ public class SwerveDrive extends Subsystem {
         // inform drives whats going on
         // SmartDashboard.putBoolean("Drive Motor Inverted", kDriveMotorInverted);
         // SmartDashboard.putBoolean("LF Turn Encoder Inverted", kEncoderInverted);
+    }
+
+    public void defensePosition() {
+        if (mode == DriveMode.Defense) {
+            double backRightSpeed = 0, backLeftSpeed = 0, frontRightSpeed = 0, frontLeftSpeed = 0, backRightAngle = -45,
+                    backLeftAngle = 45, frontLeftAngle = -45, frontRightAngle = 45;
+        
+        backRight.drive(backRightSpeed, backRightAngle);
+        backLeft.drive(backLeftSpeed, backLeftAngle);
+        frontRight.drive(frontRightSpeed, frontRightAngle);
+        frontLeft.drive(frontLeftSpeed, frontLeftAngle);
+        }
     }
 
     public synchronized double getRotationalOutput() {
