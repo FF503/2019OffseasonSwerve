@@ -136,7 +136,16 @@ public class Robot extends TimedRobot {
       mSwerve.stabilize(RobotState.getInstance().getCurrentTheta());
     }
 
-    if (OI.driverJoystick.getPOV() == 270) {
+    if (OI.driverJoystick.getAButtonPressed()) {
+      mSwerve.rotate(180);
+      swerveRotationInput = mSwerve.getRotationalOutput();
+    } else if (OI.driverJoystick.getBButtonPressed()) {
+      mSwerve.rotate(90);
+      swerveRotationInput = mSwerve.getRotationalOutput();
+    } else if (OI.driverJoystick.getXButtonPressed()) {
+      mSwerve.rotate(270);
+      swerveRotationInput = mSwerve.getRotationalOutput();
+    } else if (OI.driverJoystick.getYButtonPressed()) {
       mSwerve.rotate(0);
       swerveRotationInput = mSwerve.getRotationalOutput();
     } else if (OI.driverJoystick.getBumperPressed(Hand.kRight)) {
