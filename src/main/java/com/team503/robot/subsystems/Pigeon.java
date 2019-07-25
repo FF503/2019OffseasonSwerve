@@ -51,6 +51,10 @@ public class Pigeon extends Subsystem {
 		return heading/*-ypr[0]*/;
 	}
 
+	public double getUnitCircleHeading() {
+		return 90 - getYaw();
+	}
+
 	public double getPitch() {
 		double[] ypr = new double[3];
 		pigeon.getYawPitchRoll(ypr);
