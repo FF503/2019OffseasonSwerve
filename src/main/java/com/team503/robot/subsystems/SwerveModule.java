@@ -191,6 +191,10 @@ public class SwerveModule {
 
         return actpos;
     }
+    //converts angle from 0 forwards and clockwise to 0 to the right and counter clockwise
+    private double unitCircleify(double angle){
+        return 90-angle;
+    }
 
     /********************************************************************************
      * Section - Encoder Conversion Routines
@@ -211,5 +215,12 @@ public class SwerveModule {
 
     private static double inchesToRotations(double inches) {
         return inches / (kWheelDiameter * Math.PI);
+    }
+
+    public double getXComponentVelocity(){
+        return Math.cos(Math.toRadians((getTurnEncoderPositioninDegrees()))) * driveMotor.getEncoder().getVelocity();
+    }
+    public double getYComponentVelocity(){
+        return Math.sin(Math.toRadians(getTurnEncoderPositioninDegrees())) * driveMotor.getEncoder().getVelocity();
     }
 }

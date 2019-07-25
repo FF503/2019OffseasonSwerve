@@ -9,6 +9,7 @@ package com.team503.robot;
 
 import java.util.Arrays;
 
+import com.team503.robot.Loops.PoseController;
 import com.team503.robot.RobotState.Bot;
 import com.team503.robot.subsystems.Pigeon;
 import com.team503.robot.subsystems.SubsystemManager;
@@ -16,6 +17,7 @@ import com.team503.robot.subsystems.SwerveDrive;
 import com.team503.robot.subsystems.SwerveDrive.DriveMode;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -30,6 +32,7 @@ public class Robot extends TimedRobot {
   private SubsystemManager subsystems;
   public static OI m_oi;
   public static RobotHardware bot;
+  private PoseController poseEngine;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -43,6 +46,7 @@ public class Robot extends TimedRobot {
     mSwerve = SwerveDrive.getInstance();
     subsystems = new SubsystemManager(Arrays.asList(mSwerve, Pigeon.getInstance()));
     Pigeon.getInstance().zeroSensors();
+    poseEngine = new PoseController();
   }
 
   /**
@@ -88,6 +92,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     mSwerve.initializeTeleopVariables();
+    poseEngine.start();
   }
 
   /*
@@ -112,7 +117,9 @@ public class Robot extends TimedRobot {
     default:
       break;
     }
-
+    String pose =  RobotState.getInstance().getCurrentPose().toString();
+    SmartDashboard.putString("pose",pose);
+    System.out.println(pose);
     // mSwerve.updateTeleopControl();
   }
 

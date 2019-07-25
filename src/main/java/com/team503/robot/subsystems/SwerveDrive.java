@@ -49,6 +49,8 @@ public class SwerveDrive extends Subsystem {
         this.mode = mode;
     }
 
+    
+
     // Swerve Dimensions
     public final double L = 21.0;
     public final double W = 21.0;
@@ -56,6 +58,23 @@ public class SwerveDrive extends Subsystem {
     // Module declaration
     private SwerveModule backRight, backLeft, frontRight, frontLeft;
     private List<SwerveModule> modules;
+
+    public double[][] getWheelComponentVelocities(){
+        double[][] returner = {
+            {frontRight.getXComponentVelocity()},
+            {frontRight.getYComponentVelocity()},
+            {frontLeft.getXComponentVelocity()},
+            {frontLeft.getYComponentVelocity()},
+            {backLeft.getXComponentVelocity()},
+            {backLeft.getYComponentVelocity()},
+            {backRight.getXComponentVelocity()},
+            {backRight.getYComponentVelocity()}
+        };
+        return returner;
+
+    }
+        
+    
 
     // Constructor
     public SwerveDrive() {
