@@ -1,10 +1,10 @@
 package com.team503.robot;
 
-import com.team254.lib.geometry.Pose2d;
+import com.team503.lib.util.Pose;
 
 public class RobotState {
     private Bot currentRobot;
-    private Pose2d currentPose;
+    private Pose currentPose;
     private double currentTheta;
     private static RobotState instance = new RobotState();
 
@@ -12,11 +12,11 @@ public class RobotState {
         return instance;
     }
 
-    public Pose2d getCurrentPose() {
+    public Pose getCurrentPose() {
         return currentPose;
     }
 
-    public void setCurrentPose(Pose2d currentPose) {
+    public void setCurrentPose(Pose currentPose) {
         this.currentPose = currentPose;
     }
 

@@ -46,6 +46,7 @@ public class Robot extends TimedRobot {
     mSwerve = SwerveDrive.getInstance();
     subsystems = new SubsystemManager(Arrays.asList(mSwerve, Pigeon.getInstance()));
     Pigeon.getInstance().zeroSensors();
+    mSwerve.initializeTeleopVariables();
     poseEngine = new PoseController();
   }
 
@@ -91,8 +92,8 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopInit() {
-    mSwerve.initializeTeleopVariables();
     poseEngine.start();
+    mSwerve.setBrakeMode();
   }
 
   /*
@@ -137,6 +138,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledInit() {
+    mSwerve.setCoastMode();
     subsystems.stop();
   }
 
