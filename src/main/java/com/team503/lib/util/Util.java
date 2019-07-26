@@ -24,7 +24,7 @@ public class Util {
     private static DMatrixRMaj invertedWheelPositionMatrix;
     public static final double kEpsilon = 1e-12;
     // static {
-        // invertedWheelPositionMatrix = getPseudoInverseForwardKinematicsMatrix();
+    // invertedWheelPositionMatrix = getPseudoInverseForwardKinematicsMatrix();
     // }
 
     /** Prevent this class from being instantiated. */
@@ -222,4 +222,11 @@ public class Util {
         SimpleMatrix cardinalVelocities = simpleMatrix.mult(wheelVelocities);
         return new Translation2d(cardinalVelocities.get(0, 0), cardinalVelocities.get(1, 0));
     }
+
+    // converts angle from 0 forwards and clockwise to 0 to the right and counter
+    // clockwise
+    public static double unitCircleify(double angle) {
+        return 90 - angle;
+    }
+
 }
