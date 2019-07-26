@@ -9,6 +9,7 @@ import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.team503.lib.util.Util;
 
 public class SwerveModule {
     private static final double kTurnEncoderClicksperRevolution = 1024.0;
@@ -214,10 +215,10 @@ public class SwerveModule {
     }
 
     public double getXComponentVelocity() {
-        return Math.cos(Math.toRadians((getTurnEncoderPositioninDegrees()))) * driveMotor.getEncoder().getVelocity();
+        return Math.cos(Math.toRadians(Util.unitCircleify(getTurnEncoderPositioninDegrees()))) * driveMotor.getEncoder().getVelocity();
     }
 
     public double getYComponentVelocity() {
-        return Math.sin(Math.toRadians(getTurnEncoderPositioninDegrees())) * driveMotor.getEncoder().getVelocity();
+        return Math.sin(Math.toRadians(Util.unitCircleify(getTurnEncoderPositioninDegrees()))) * driveMotor.getEncoder().getVelocity();
     }
 }
