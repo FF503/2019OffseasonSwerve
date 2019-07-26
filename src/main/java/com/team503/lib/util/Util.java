@@ -2,23 +2,19 @@ package com.team503.lib.util;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.sql.Driver;
 import java.util.List;
 
-import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Translation2d;
 import com.team503.robot.Robot;
 import com.team503.robot.RobotState.Bot;
 import com.team503.robot.subsystems.SwerveModule;
 
 import org.ejml.data.DMatrixRMaj;
-import org.ejml.data.Matrix;
 import org.ejml.dense.row.CommonOps_DDRM;
+import org.ejml.simple.SimpleMatrix;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.ejml.simple.SimpleMatrix;
 
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 
 /**
@@ -27,9 +23,9 @@ import edu.wpi.first.wpilibj.Filesystem;
 public class Util {
     private static DMatrixRMaj invertedWheelPositionMatrix;
     public static final double kEpsilon = 1e-12;
-    static {
-        invertedWheelPositionMatrix = getPseudoInverseForwardKinematicsMatrix();
-    }
+    // static {
+        // invertedWheelPositionMatrix = getPseudoInverseForwardKinematicsMatrix();
+    // }
 
     /** Prevent this class from being instantiated. */
     private Util() {
@@ -201,7 +197,8 @@ public class Util {
     public static Bot parseRobotNameToEnum(final String robotName) {
         return Bot.valueOf(robotName);
     }
-    private static DMatrixRMaj getPseudoInverseForwardKinematicsMatrix(){
+
+    public static DMatrixRMaj setPseudoInverseForwardKinematicsMatrix() {
         double r1x = Robot.bot.kWheelbaseWidth / 2;
         double r1y = Robot.bot.kWheelbaseLength / 2;
         double r2x = -r1x;
@@ -210,26 +207,19 @@ public class Util {
         double r3y = -r1y;
         double r4x = r1x;
         double r4y = r3y;
-        double[][] wheelPositions = {
-            {1,0,-r1y},
-            {0,1,r1x},
-            {1,0,-r2y},
-            {0,1,r2x},
-            {1,0,-r3y},
-            {0,1,r3x},
-            {1,0,-r4y},
-            {0,1,r4x}
-        };
+        double[][] wheelPositions = { { 1, 0, -r1y }, { 0, 1, r1x }, { 1, 0, -r2y }, { 0, 1, r2x }, { 1, 0, -r3y },
+                { 0, 1, r3x }, { 1, 0, -r4y }, { 0, 1, r4x } };
 
         DMatrixRMaj wheelPositionMatrix = new DMatrixRMaj(wheelPositions);
         DMatrixRMaj output = new DMatrixRMaj(wheelPositions);
         CommonOps_DDRM.pinv(wheelPositionMatrix, output);
+        Util.invertedWheelPositionMatrix = output;
         return output;
     }
 
-    public static Translation2d getVelocity(SimpleMatrix wheelVelocities){
+    public static Translation2d getVelocity(SimpleMatrix wheelVelocities) {
         SimpleMatrix simpleMatrix = invertedWheelPositionMatrix.createLike();
         SimpleMatrix cardinalVelocities = simpleMatrix.mult(wheelVelocities);
-        return new Translation2d(cardinalVelocities.get(0, 0), cardinalVelocities.get(1,0));
+        return new Translation2d(cardinalVelocities.get(0, 0), cardinalVelocities.get(1, 0));
     }
 }

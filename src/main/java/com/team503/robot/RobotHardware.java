@@ -16,14 +16,6 @@ import com.team254.lib.geometry.Translation2d;
 import com.team503.lib.util.Util;
 import com.team503.robot.RobotState.Bot;
 
-import org.ejml.data.DMatrixRMaj;
-import org.ejml.data.Matrix;
-import org.ejml.dense.row.CommonOps_DDRM;
-import org.ejml.dense.row.factory.LinearSolverFactory_DDRM;
-import org.ejml.interfaces.linsol.LinearSolver;
-import org.ejml.simple.SimpleMatrix;
-import org.ejml.simple.SimpleOperations;
-
 /**
  * Add your docs here.
  */
@@ -31,6 +23,7 @@ public abstract class RobotHardware {
 
     private static RobotHardware instance = null;
     public final double POSE_LOOP_DT = 0.01;
+
     public RobotHardware() {
     }
 
@@ -48,6 +41,7 @@ public abstract class RobotHardware {
                 break;
             }
             instance.initalizeConstants();
+            Util.setPseudoInverseForwardKinematicsMatrix();
         }
         return instance;
     }
@@ -107,7 +101,5 @@ public abstract class RobotHardware {
         }
         return "";
     }
-
-   
 
 }

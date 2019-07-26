@@ -103,7 +103,7 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     OI.driverJoystick.update();
     RobotState.getInstance().setCurrentTheta(Pigeon.getInstance().getYaw());
-    
+
     switch (SwerveDrive.getInstance().getMode()) {
     case TeleopDrive:
       joystickInput();
@@ -118,8 +118,8 @@ public class Robot extends TimedRobot {
     default:
       break;
     }
-    String pose =  RobotState.getInstance().getCurrentPose().toString();
-    SmartDashboard.putString("pose",pose);
+    String pose = RobotState.getInstance().getCurrentPose().toString();
+    SmartDashboard.putString("pose", pose);
     System.out.println(pose);
     // mSwerve.updateTeleopControl();
   }
