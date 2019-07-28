@@ -39,7 +39,6 @@ public class SwerveDrive extends Subsystem {
     }
 
     private DriveMode mode = DriveMode.TeleopDrive;
-    SwerveInverseKinematics inverseKinematics = new SwerveInverseKinematics();
 
     public DriveMode getMode() {
         return mode;
@@ -226,22 +225,7 @@ public class SwerveDrive extends Subsystem {
         }
     }
 
-    public synchronized void updateTeleopControl() {
-        setDriveOutput(inverseKinematics.updateDriveVectors(translationalVector, rotationalInput,
-                RobotState.getInstance().getCurrentTheta(), fieldCentric));
 
-    }
-
-    public void setDriveOutput(List<Translation2d> driveVectors) {
-        for (int i = 0; i < modules.size(); i++) {
-            if (Util.shouldReverse(driveVectors.get(i).direction().getDegrees(),
-                    modules.get(i).getTurnEncoderPositioninDegrees())) {
-                modules.get(i).drive(-driveVectors.get(i).norm(), driveVectors.get(i).direction().getDegrees() + 180.0);
-            } else {
-                modules.get(i).drive(driveVectors.get(i).norm(), driveVectors.get(i).direction().getDegrees());
-            }
-        }
-    }
 
     public void drive(Translation2d translationVector, double rotatationalInput) {
         double str = translationVector.x();
@@ -395,49 +379,7 @@ public class SwerveDrive extends Subsystem {
         return Util.shouldReverse(goalAngle, currentAngle);
     }
 
-    class SwerveInverseKinematics {
-
-        private final int kNumberOfModules = 4;
-
-        private List<Translation2d> moduleRelativePositions = Robot.bot.kModulePositions;
-        private List<Translation2d> moduleRotationDirections = updateRotationDirections();
-
-        private List<Translation2d> updateRotationDirections() {
-            List<Translation2d> directions = new ArrayList<>(kNumberOfModules);
-            for (int i = 0; i < kNumberOfModules; i++) {
-                directions.add(moduleRelativePositions.get(i).rotateBy(Rotation2d.fromDegrees(90)));
-            }
-            return directions;
-        }
-
-        public List<Translation2d> updateDriveVectors(Translation2d translationalVector, double rotationalMagnitude,
-                double heading, boolean fieldCentric) {
-            SmartDashboard.putNumber("Vector Direction", translationalVector.direction().getDegrees());
-            // SmartDashboard.putNumber("Vector Magnitude", translationalVector.norm());
-            SmartDashboard.putNumber("Robot Velocity", translationalVector.norm());
-
-            Rotation2d robotHeading = Rotation2d.fromDegrees(heading);
-            if (fieldCentric)
-                translationalVector = translationalVector.rotateBy(robotHeading.inverse());
-            List<Translation2d> driveVectors = new ArrayList<>(kNumberOfModules);
-            for (int i = 0; i < kNumberOfModules; i++) {
-                driveVectors.add(
-                        translationalVector.translateBy(moduleRotationDirections.get(i).scale(rotationalMagnitude)));
-            }
-            double maxMagnitude = 1.0;
-            for (Translation2d t : driveVectors) {
-                double magnitude = t.norm();
-                if (magnitude > maxMagnitude) {
-                    maxMagnitude = magnitude;
-                }
-            }
-            for (int i = 0; i < kNumberOfModules; i++) {
-                Translation2d driveVector = driveVectors.get(i);
-                driveVectors.set(i, driveVector.scale(1.0 / maxMagnitude));
-            }
-            return driveVectors;
-        }
-    }
+    
 
     public void setBrakeMode() {
         modules.forEach((mod) -> mod.brakeDrive());
