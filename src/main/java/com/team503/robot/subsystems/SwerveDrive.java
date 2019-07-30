@@ -286,14 +286,16 @@ public class SwerveDrive extends Subsystem {
     }
 
     public Translation2d getCenterOfRotation() {
-		return this.centerOfRotation;
-	}
+	return this.centerOfRotation;
+    }
 
-	public void setCenterOfRotation(Translation2d centerOfRotation) {
-		this.centerOfRotation = centerOfRotation;
-	}
-
-    
+    public void setCenterOfRotation(Translation2d centerOfRotation) {
+	this.centerOfRotation = centerOfRotation;
+    }
+	
+    public void setCenterOfRotation(double x, double y) {
+        setCenterOfRotation(new Translation2d(x, y));
+    }
 
     public void setBrakeMode() {
         modules.forEach((mod) -> mod.brakeDrive());
