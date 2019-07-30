@@ -46,7 +46,6 @@ public class Robot extends TimedRobot {
     mSwerve = SwerveDrive.getInstance();
     subsystems = new SubsystemManager(Arrays.asList(mSwerve, Pigeon.getInstance()));
     Pigeon.getInstance().zeroSensors();
-    mSwerve.initializeTeleopVariables();
     poseEngine = new PoseController();
   }
 
