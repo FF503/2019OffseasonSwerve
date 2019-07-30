@@ -20,6 +20,8 @@ public class SwerveDrive extends Subsystem {
 
     // Teleop driving variables
     private Translation2d translationalVector = new Translation2d();
+    private Translation2d centerOfRotation = new Translation2d();
+
     private double rotationalInput = 0;
 
     public static SwerveDrive getInstance() {
@@ -249,6 +251,7 @@ public class SwerveDrive extends Subsystem {
         }
     }
 
+    
     public synchronized double getRotationalOutput() {
         return headingController.getRotationalOutput();
     }
@@ -281,6 +284,14 @@ public class SwerveDrive extends Subsystem {
     private boolean shouldReverse(double goalAngle, double currentAngle) {
         return Util.shouldReverse(goalAngle, currentAngle);
     }
+
+    public Translation2d getCenterOfRotation() {
+		return this.centerOfRotation;
+	}
+
+	public void setCenterOfRotation(Translation2d centerOfRotation) {
+		this.centerOfRotation = centerOfRotation;
+	}
 
     
 
