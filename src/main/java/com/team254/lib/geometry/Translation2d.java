@@ -272,4 +272,5 @@ public class Translation2d implements ITranslation2d<Translation2d> {
     public Translation2d getTranslation() {
         return this;
     }
+    
 }

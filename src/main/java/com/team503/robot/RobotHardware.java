@@ -70,6 +70,10 @@ public abstract class RobotHardware {
     public Translation2d kVehicleToModuleThree;
 
     public List<Translation2d> kModulePositions;
+    public double kV_PurePursuit;
+    public double kA_PurePursuit;
+    public double kMaxVelocityInchesPerSec;
+	
 
     /**
      * @return the MAC address of the robot
