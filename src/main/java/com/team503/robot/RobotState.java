@@ -4,12 +4,12 @@ import com.team503.lib.util.FFDashboard;
 import com.team503.lib.util.Pose;
 
 public class RobotState {
-    private Bot currentRobot;
-    private Pose currentPose;
-    private double currentTheta;
-    private static RobotState instance = new RobotState();
+	private Bot currentRobot;
+	private Pose currentPose;
+	private double currentTheta;
+	private static RobotState instance = new RobotState();
 
-    private GameElement gameElement;
+	private GameElement gameElement;
 	private ArmDirection armDirection;
 	private TargetHeight targetHeight;
 	private boolean hasElement;
@@ -20,39 +20,27 @@ public class RobotState {
 	private boolean grabberDeployed;
 	private boolean isManualControl = true;
 
-    public static RobotState getInstance() {
-        return instance;
-    }
+	public static RobotState getInstance() {
+		return instance;
+	}
 
-    public Pose getCurrentPose() {
-        return currentPose;
-    }
+	public Pose getCurrentPose() {
+		return currentPose;
+	}
 
-    public void setCurrentPose(Pose currentPose) {
-        this.currentPose = currentPose;
-    }
+	public void setCurrentPose(Pose currentPose) {
+		this.currentPose = currentPose;
+	}
 
-    public synchronized double getCurrentTheta() {
-        return currentTheta;
-    }
+	public synchronized double getCurrentTheta() {
+		return currentTheta;
+	}
 
-    public synchronized void setCurrentTheta(double currentTheta) {
-        this.currentTheta = currentTheta;
-    }
+	public synchronized void setCurrentTheta(double currentTheta) {
+		this.currentTheta = currentTheta;
+	}
 
-    public void setCurrentRobot(final Bot currentRobot) {
-        this.currentRobot = currentRobot;
-    }
-
-    public Bot getCurrentRobot() {
-        return this.currentRobot;
-    }
-    
-    public static enum Bot {
-        Automatic, ProgrammingBot;
-    }
-
-    public boolean getHasElement() {
+	public boolean getHasElement() {
 		return hasElement;
 	}
 
@@ -90,9 +78,9 @@ public class RobotState {
 
 	public void setGrabberDeployed(boolean state) {
 		this.grabberDeployed = state;
-    }
-    
-    public static enum GameElement {
+	}
+
+	public static enum GameElement {
 		CARGO, HATCH;
 	}
 
@@ -105,13 +93,14 @@ public class RobotState {
 	}
 
 	public static enum SuperStructurePreset {// FRONT_CARGO_INTAKE(-32, -58, 0.)
-		HATCH_HOME(-47., 90, 0.), CARGO_HOME(-45, 45, 0), VIEW_AUTO_REAR(187., 90., 0.), 		
-		FRONT_CARGO_BUS(48.2, -21.8, 0.), BACK_CARGO_BUS(111, 53. + 180., 0.),
-		FRONT_CARGO_INTAKE(-38, -14. + 3.5, 0.), FRONT_CARGO_LOW(0., -3., 0.), FRONT_CARGO_MID(69., -5., 0.), // 0., -3., 0.
+		HATCH_HOME(-47., 90, 0.), CARGO_HOME(-45, 45, 0), VIEW_AUTO_REAR(187., 90., 0.),
+		FRONT_CARGO_BUS(48.2, -21.8, 0.), BACK_CARGO_BUS(111, 53. + 180., 0.), FRONT_CARGO_INTAKE(-38, -14. + 3.5, 0.),
+		FRONT_CARGO_LOW(0., -3., 0.), FRONT_CARGO_MID(69., -5., 0.), // 0., -3., 0.
 		FRONT_CARGO_HIGH(84.0, 48.0, 12.7), BACK_CARGO_INTAKE(222, 183, 0.), BACK_CARGO_LOW(170., 180., 0.),
 		BACK_CARGO_MID(92., 180., 0.), BACK_CARGO_HIGH(90.6, 126.5, 12.7), FRONT_HATCH_INTAKE(-32, 85.0, 6.),
-		FRONT_HATCH_LOW(-32, 73, 6.), FRONT_HATCH_MID(17.0 /*13*/, 77. /*90*/, 0.), FRONT_HATCH_HIGH(59., 87.0, 12.3),
-		BACK_HATCH_INTAKE(187., 90. + 180., 0.), BACK_HATCH_LOW(187., 255., 0.), BACK_HATCH_MID(119.5, 90. + 180., 4.),//180., 87., 0.
+		FRONT_HATCH_LOW(-32, 73, 6.), FRONT_HATCH_MID(17.0 /* 13 */, 77. /* 90 */, 0.),
+		FRONT_HATCH_HIGH(59., 87.0, 12.3), BACK_HATCH_INTAKE(187., 90. + 180., 0.), BACK_HATCH_LOW(187., 255., 0.),
+		BACK_HATCH_MID(119.5, 90. + 180., 4.), // 180., 87., 0.
 		BACK_HATCH_HIGH(95, 90. + 180., 0.);// 175., 77., 0
 
 		double aPos, wPos, ePos;
@@ -182,5 +171,18 @@ public class RobotState {
 		this.armDirection = armDirection;
 		FFDashboard.getInstance().putString("Direction", armDirection.toString());
 	}
+
+	public void setCurrentRobot(final Bot currentRobot) {
+        this.currentRobot = currentRobot;
+    }
+
+    public Bot getCurrentRobot() {
+        return this.currentRobot;
+    }
     
+    public static enum Bot {
+        Automatic, ProgrammingBot;
+    }
+
+
 }

@@ -21,30 +21,7 @@ import com.team503.robot.RobotState.Bot;
  */
 public abstract class RobotHardware {
 
-    private static RobotHardware instance = null;
     public final double POSE_LOOP_DT = 0.01;
-
-    public RobotHardware() {
-    }
-
-    public static RobotHardware getInstance() {
-        if (instance == null) {
-            if (RobotState.getInstance().getCurrentRobot().equals(Bot.Automatic)) {
-                RobotState.getInstance().setCurrentRobot(Util.parseRobotNameToEnum(Util.readRobotName()));
-            }
-            switch (RobotState.getInstance().getCurrentRobot()) {
-            case ProgrammingBot:
-                instance = new RobotHardwareProgammingBot();
-                break;
-            case Automatic:
-                System.err.println("Robot should not be set to automatic... something went wrong");
-                break;
-            }
-            instance.initalizeConstants();
-            Util.setPseudoInverseForwardKinematicsMatrix();
-        }
-        return instance;
-    }
 
     public abstract void initalizeConstants();
 
@@ -84,7 +61,6 @@ public abstract class RobotHardware {
     public double kV_PurePursuit;
     public double kA_PurePursuit;
     public double kMaxVelocityInchesPerSec;
-	
 
     /* Gamespec vars */
 
@@ -204,6 +180,27 @@ public abstract class RobotHardware {
             e.printStackTrace();
         }
         return "";
+    }
+
+    private static RobotHardware instance = null;
+
+    public static RobotHardware getInstance() {
+        if (instance == null) {
+            if (RobotState.getInstance().getCurrentRobot().equals(Bot.Automatic)) {
+                RobotState.getInstance().setCurrentRobot(Util.parseRobotNameToEnum(Util.readRobotName()));
+            }
+            switch (RobotState.getInstance().getCurrentRobot()) {
+            case ProgrammingBot:
+                instance = new RobotHardwareProgammingBot();
+                break;
+            case Automatic:
+                System.err.println("Robot should not be set to automatic... something went wrong");
+                break;
+            }
+            instance.initalizeConstants();
+            Util.setPseudoInverseForwardKinematicsMatrix();
+        }
+        return instance;
     }
 
 }

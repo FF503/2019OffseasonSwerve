@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.team254.lib.geometry.Translation2d;
+import com.team503.lib.util.SnappingPosition;
 import com.team503.lib.util.SwerveHeadingController;
 import com.team503.lib.util.Util;
 import com.team503.robot.Robot;
@@ -44,8 +45,6 @@ public class SwerveDrive extends Subsystem {
         this.mode = mode;
     }
 
-    
-
     // Swerve Dimensions
     public final double L = 21.0;
     public final double W = 21.0;
@@ -54,22 +53,14 @@ public class SwerveDrive extends Subsystem {
     private SwerveModule backRight, backLeft, frontRight, frontLeft;
     private List<SwerveModule> modules;
 
-    public double[][] getWheelComponentVelocities(){
-        double[][] returner = {
-            {frontRight.getXComponentVelocity()},
-            {frontRight.getYComponentVelocity()},
-            {frontLeft.getXComponentVelocity()},
-            {frontLeft.getYComponentVelocity()},
-            {backLeft.getXComponentVelocity()},
-            {backLeft.getYComponentVelocity()},
-            {backRight.getXComponentVelocity()},
-            {backRight.getYComponentVelocity()}
-        };
+    public double[][] getWheelComponentVelocities() {
+        double[][] returner = { { frontRight.getXComponentVelocity() }, { frontRight.getYComponentVelocity() },
+                { frontLeft.getXComponentVelocity() }, { frontLeft.getYComponentVelocity() },
+                { backLeft.getXComponentVelocity() }, { backLeft.getYComponentVelocity() },
+                { backRight.getXComponentVelocity() }, { backRight.getYComponentVelocity() } };
         return returner;
 
     }
-        
-    
 
     // Constructor
     public SwerveDrive() {
@@ -130,7 +121,6 @@ public class SwerveDrive extends Subsystem {
     public void toggleFieldCentric() {
         this.fieldCentric = !this.fieldCentric;
     }
-
 
     public void drive(Translation2d translationVector, double rotatationalInput) {
         double str = translationVector.x();
@@ -214,16 +204,7 @@ public class SwerveDrive extends Subsystem {
         }
 
         // Send speeds and angles to the drive motors
-        if (mode == DriveMode.Defense) {
-            backRightSpeed = 0;
-            backLeftSpeed = 0;
-            frontRightSpeed = 0;
-            frontLeftSpeed = 0;
-            backRightAngle = -45;
-            backLeftAngle = 45;
-            frontLeftAngle = -45;
-            frontRightAngle = 45;
-        }
+
         backRight.drive(backRightSpeed, backRightAngle);
         backLeft.drive(backLeftSpeed, backLeftAngle);
         frontRight.drive(frontRightSpeed, frontRightAngle);
@@ -243,17 +224,21 @@ public class SwerveDrive extends Subsystem {
         if (mode == DriveMode.Defense) {
             double backRightSpeed = 0, backLeftSpeed = 0, frontRightSpeed = 0, frontLeftSpeed = 0, backRightAngle = -45,
                     backLeftAngle = 45, frontLeftAngle = -45, frontRightAngle = 45;
-        
-        backRight.drive(backRightSpeed, backRightAngle);
-        backLeft.drive(backLeftSpeed, backLeftAngle);
-        frontRight.drive(frontRightSpeed, frontRightAngle);
-        frontLeft.drive(frontLeftSpeed, frontLeftAngle);
+
+            backRight.drive(backRightSpeed, backRightAngle);
+            backLeft.drive(backLeftSpeed, backLeftAngle);
+            frontRight.drive(frontRightSpeed, frontRightAngle);
+            frontLeft.drive(frontLeftSpeed, frontLeftAngle);
         }
     }
 
     
     public synchronized double getRotationalOutput() {
         return headingController.getRotationalOutput();
+    }
+
+    public synchronized void rotate(SnappingPosition snappingPosition) {
+        rotate(snappingPosition.getAngle());
     }
 
     // Various methods to control the heading controller

@@ -4,12 +4,7 @@ import com.team254.lib.geometry.Translation2d;
 import com.team503.lib.util.Pose;
 import com.team503.robot.Robot;
 
-import motionProfiling.Trajectory;
-
-
-
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import motionProfiling.Trajectory;
 import motionProfiling.Trajectory.Segment;
 
@@ -29,14 +24,12 @@ public class PurePursuitController {
     private Pose pose;
     private static Pose lastPose = new Pose(0, 0, 0.0);
 
-    
-    
     public PurePursuitController(Trajectory traj, double lookAheadDist, double trackwidth) {
         this.traj = traj;
-        
+
         this.minLookaheadDistance = lookAheadDist;
         this.lookAheadDist = lookAheadDist;
-       
+
         this.trackwidth = trackwidth;
     }
 
@@ -47,14 +40,15 @@ public class PurePursuitController {
 
     private Translation2d getLookAhead(Pose robotPose) {
         double tValue = 0;
-        Translation2d startSeg = new Translation2d(traj.getSegment(lookAheadIndex).x, traj.getSegment(lookAheadIndex).y);
+        Translation2d startSeg = new Translation2d(traj.getSegment(lookAheadIndex).x,
+                traj.getSegment(lookAheadIndex).y);
         Translation2d dSegmentVector = new Translation2d(0, 0);
         for (int i = closestSegmentIndex; i < traj.getNumSegments() - 1; i++) {
             Translation2d curPathSeg = new Translation2d(traj.getSegment(i).x, traj.getSegment(i).y);
             Translation2d nextPathSeg = new Translation2d(traj.getSegment(i + 1).x, traj.getSegment(i + 1).y);
             Translation2d curToNextSegment = new Translation2d(nextPathSeg.x() - curPathSeg.x(),
                     nextPathSeg.y() - curPathSeg.y());
-                    Translation2d f = new Translation2d(curPathSeg.x() - robotPose.getX(), curPathSeg.y() - robotPose.getY());
+            Translation2d f = new Translation2d(curPathSeg.x() - robotPose.getX(), curPathSeg.y() - robotPose.getY());
 
             double a = Translation2d.dot(curToNextSegment, curToNextSegment);
             double b = 2 * Translation2d.dot(f, curToNextSegment);
@@ -80,7 +74,7 @@ public class PurePursuitController {
                     lookAheadIndex = i;
                     break;
                 }
-                
+
             }
         }
         Translation2d lookAhead = new Translation2d(startSeg);
@@ -152,7 +146,6 @@ public class PurePursuitController {
 
         localcurvature = side * (2 * x) / (Math.pow(lookAheadPoint.distance(pose.toVector()), 2));
 
-
         return localcurvature;
     }
 
@@ -178,7 +171,10 @@ public class PurePursuitController {
         lastTime = currentTime;
         double kv;
         kv = Robot.bot.kV_PurePursuit;
-        return (kv * targetVel) /*+(Robot.bot.kP_PurePursuit * velError) + (Robot.bot.kD_PurePursuit * errorDerivative)*/;
+        return (kv * targetVel) /*
+                                 * +(Robot.bot.kP_PurePursuit * velError) + (Robot.bot.kD_PurePursuit *
+                                 * errorDerivative)
+                                 */;
     }
 
     public void setIsReversed(boolean rev) {
