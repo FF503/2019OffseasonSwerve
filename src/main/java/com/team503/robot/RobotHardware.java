@@ -59,6 +59,17 @@ public abstract class RobotHardware {
 
     public abstract String getFrontRightName();
 
+    // Gamespec
+    public abstract boolean hasArm();
+
+    public abstract boolean hasWrist();
+
+    public abstract boolean hasIntake();
+
+    public abstract boolean hasCompressor();
+
+    public abstract boolean hasExtension();
+
     // Swerve Calculations Constants (measurements are in inches)
     public double kWheelbaseLength;
     public double kWheelbaseWidth;
@@ -74,6 +85,95 @@ public abstract class RobotHardware {
     public double kA_PurePursuit;
     public double kMaxVelocityInchesPerSec;
 	
+
+    /* Gamespec vars */
+
+    public int kEncoderUnitsPerRev;
+
+    public int gTimeoutMs;
+    public int gSlotIdx;
+
+    // Arm
+    public int armMasterID;
+    public int armSlaveID;
+    public int kArmCruiseVel;
+    public int kArmAcceleration;
+
+    public double kArmF;
+    public double kArmP;
+    public double kArmI;
+    public double kArmD;
+
+    public double gArmAngularOffset;
+
+    public boolean armMasterInverted;
+    public boolean armSlaveInverted;
+    public boolean armMasterSensorPhase;
+
+    // Wrist/Intake
+    public int rollerIntakeID;
+
+    public int intakePdpChannel;
+    public int vacuumPdpChannel;
+
+    public double intakePower;
+    public double intakeStallPower;
+    public double intakeOutPower;
+    public double intakeVaccPower;
+
+    public int hatchVacId;
+    public int releaseId;
+
+    public double rollerCurrentThres;
+    public double vacuumCurrentThres;
+
+    public int wristID;
+
+    public double kWristCruiseVel;
+    public double kWristAcceleration;
+
+    public double kWristF;
+    public double kWristP;
+    public double kWristI;
+    public double kWristD;
+
+    public double gWristMinLimit;
+    public double gWristMaxLimit;
+
+    public double gWristMaxLimitCargo;
+
+    public double gWristAngularOffset;
+    public double gWristGroundOffset;
+
+    public boolean wristMotorInverted;
+
+    public boolean wristSensorPhase;
+    public double MAX_WRIST_POWER;
+
+    // Extension
+    public int extensionID;
+
+    public boolean extensionSensorPhase;
+    public boolean extensionMotorInverted;
+
+    public double kExtF;
+    public double kExtP;
+    public double kExtI;
+    public double kExtD;
+
+    public int kExtCruiseVel;
+    public int kExtAcceleration;
+
+    public double gExtGearRatio;
+    public double gExtSpoolDiameter;
+    public double gExtOffset;
+    public double gExtMinLim;
+    public double gExtMaxLim;
+
+    public double gArmExtLength;
+
+    // Power Distribution Panel
+    public int PdpID;
 
     /**
      * @return the MAC address of the robot
