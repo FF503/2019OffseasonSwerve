@@ -24,11 +24,11 @@ public class RobotState {
 		return instance;
 	}
 
-	public Pose getCurrentPose() {
+	public synchronized Pose getCurrentPose() {
 		return currentPose;
 	}
 
-	public void setCurrentPose(Pose currentPose) {
+	public synchronized void setCurrentPose(Pose currentPose) {
 		this.currentPose = currentPose;
 	}
 
@@ -173,16 +173,15 @@ public class RobotState {
 	}
 
 	public void setCurrentRobot(final Bot currentRobot) {
-        this.currentRobot = currentRobot;
-    }
+		this.currentRobot = currentRobot;
+	}
 
-    public Bot getCurrentRobot() {
-        return this.currentRobot;
-    }
-    
-    public static enum Bot {
-        Automatic, ProgrammingBot;
-    }
+	public Bot getCurrentRobot() {
+		return this.currentRobot;
+	}
 
+	public static enum Bot {
+		Automatic, ProgrammingBot;
+	}
 
 }

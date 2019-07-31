@@ -9,6 +9,7 @@ import com.team503.lib.util.SnappingPosition;
 import com.team503.lib.util.SwerveHeadingController;
 import com.team503.lib.util.Util;
 import com.team503.robot.Robot;
+import com.team503.robot.RobotHardware;
 import com.team503.robot.RobotState;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -44,10 +45,6 @@ public class SwerveDrive extends Subsystem {
     public void setMode(DriveMode mode) {
         this.mode = mode;
     }
-
-    // Swerve Dimensions
-    public final double L = 21.0;
-    public final double W = 21.0;
 
     // Module declaration
     private SwerveModule backRight, backLeft, frontRight, frontLeft;
@@ -122,6 +119,12 @@ public class SwerveDrive extends Subsystem {
         this.fieldCentric = !this.fieldCentric;
     }
 
+    public void drive(Translation2d translationVector) {
+        double str = translationVector.x();
+        double fwd = translationVector.y();
+        drive(str, fwd, getRotationalOutput());
+    }
+
     public void drive(Translation2d translationVector, double rotatationalInput) {
         double str = translationVector.x();
         double fwd = translationVector.y();
@@ -130,7 +133,8 @@ public class SwerveDrive extends Subsystem {
 
     // Takes joystick input an calculates drive wheel speed and turn motor angle
     public void drive(double str, double fwd, double rcw) {
-        double r = Math.sqrt((L * L) + (W * W));
+        final double length = Robot.bot.kWheelbaseLength, width = Robot.bot.kWheelbaseWidth;
+        double r = Math.sqrt((length * length) + (width * width));
 
         if (fieldCentric) {
             double angle = Math.toRadians(RobotState.getInstance().getCurrentTheta());
@@ -142,10 +146,10 @@ public class SwerveDrive extends Subsystem {
         translationalVector = new Translation2d(str, fwd);
         rotationalInput = rcw;
 
-        double a = str - rcw * (L / r);
-        double b = str + rcw * (L / r);
-        double c = fwd - rcw * (W / r);
-        double d = fwd + rcw * (W / r);
+        double a = str - rcw * (length / r);
+        double b = str + rcw * (length / r);
+        double c = fwd - rcw * (width / r);
+        double d = fwd + rcw * (width / r);
 
         double backRightSpeed = Math.sqrt((a * a) + (c * c));
         double backLeftSpeed = Math.sqrt((a * a) + (d * d));
@@ -232,7 +236,6 @@ public class SwerveDrive extends Subsystem {
         }
     }
 
-    
     public synchronized double getRotationalOutput() {
         return headingController.getRotationalOutput();
     }
@@ -248,6 +251,15 @@ public class SwerveDrive extends Subsystem {
         else {
             stabilize(goalHeading);
         }
+    }
+
+    public void setPathHeading(SnappingPosition pos) {
+        setPathHeading(pos.getAngle());
+    }
+
+    public void setPathHeading(double goalHeading) {
+        headingController.setSnapTarget(
+                Util.placeInAppropriate0To360Scope(RobotState.getInstance().getCurrentTheta(), goalHeading));
     }
 
     public synchronized void stabilize(double goalHeading) {
@@ -271,13 +283,13 @@ public class SwerveDrive extends Subsystem {
     }
 
     public Translation2d getCenterOfRotation() {
-	return this.centerOfRotation;
+        return this.centerOfRotation;
     }
 
     public void setCenterOfRotation(Translation2d centerOfRotation) {
-	this.centerOfRotation = centerOfRotation;
+        this.centerOfRotation = centerOfRotation;
     }
-	
+
     public void setCenterOfRotation(double x, double y) {
         setCenterOfRotation(new Translation2d(x, y));
     }
@@ -290,7 +302,7 @@ public class SwerveDrive extends Subsystem {
         modules.forEach((mod) -> mod.coastDrive());
     }
 
-    public void setCurrentLimit(int limit) {
+    private void setCurrentLimit(int limit) {
         modules.forEach((mod) -> mod.setDriveMotorCurrentLimit(limit));
     }
 

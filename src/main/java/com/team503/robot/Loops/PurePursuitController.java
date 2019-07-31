@@ -12,26 +12,29 @@ public class PurePursuitController {
     private Trajectory traj;
     private double lookAheadDist;
     private double minLookaheadDistance;
-    private int runCount = 0;
     private double curAngle;
     private double curvature;
     private double currentTargetVelocity;
     private int theoreticalSegmentIndex = 0, lookAheadIndex = 0, closestSegmentIndex = 0;
     private boolean isReversed = false;
-    private Translation2d lookAheadPoint;
+    private Translation2d lookaheadPoint;
     private static Double lastTime = Timer.getFPGATimestamp();
     private Pose pose;
     private static Pose lastPose = new Pose(0, 0, 0.0);
 
     public PurePursuitController(Trajectory traj, double lookAheadDist) {
         this.traj = traj;
-
         this.minLookaheadDistance = lookAheadDist;
         this.lookAheadDist = lookAheadDist;
     }
 
-    public PurePursuitController(Translation2d fixedLookAhead) {
-        this.lookAheadPoint = fixedLookAhead;
+    public Translation2d calculateDriveVector(Pose robotPose) {
+        this.lookaheadPoint = getLookAhead(robotPose);
+        Translation2d robotToLookahead = new Translation2d(lookaheadPoint);
+        robotToLookahead.translateBy(robotPose.toVector().inverse());
+
+        Translation2d velocityVector = scaleVectorToDesiredVelocity(robotToLookahead, getClosestSegment().vel);
+        return new Translation2d(0, 0);
     }
 
     private Translation2d getLookAhead(Pose robotPose) {
@@ -82,7 +85,11 @@ public class PurePursuitController {
         return lookAhead;
     }
 
-    public Segment getClosestSegment() {
+    public Translation2d getCalculatedLookahead() {
+        return lookaheadPoint;
+    }
+
+    private Segment getClosestSegment() {
         Segment closestSeg = traj.getSegment(closestSegmentIndex);
         for (int i = closestSegmentIndex; i < this.traj.getNumSegments(); i++) {
             Segment curSegment = traj.getSegment(i);
@@ -96,89 +103,19 @@ public class PurePursuitController {
         return closestSeg;
     }
 
-    public Translation2d getCalculatedLookAhead() {
-        return lookAheadPoint;
+    private Translation2d scaleVectorToDesiredVelocity(Translation2d vector, double desiredVelocity) {
+        double mag = vector.norm();
+        return vector.scale(desiredVelocity / mag);
     }
 
-    public double getCalculatedCurvatures() {
-        return curvature;
-    }
-
-    public double getCurvature(Translation2d lookAheadPoint, Pose robotPose) {
-        double localcurvature = 0;// getSegment().curvature;
-        double Lx = lookAheadPoint.x();
-        double Ly = lookAheadPoint.y();
-        double Rx = robotPose.getX();
-        double Ry = robotPose.getY();
-        double Rtheta = Math.toRadians(robotPose.getTheta());
-
-        double a = -Math.tan(Rtheta);
-        double b = 1;
-        double c = Math.tan(Rtheta) * Rx - Ry;
-
-        double x = Math.abs(a * Lx + b * Ly + c) / Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
-        double side = Math.signum(Math.sin(Rtheta) * (Lx - Rx) - Math.cos(Rtheta) * (Ly - Ry));
-
-        localcurvature = side * (2 * x) / (Math.pow(lookAheadDist, 2));
-
-        System.out.println("Curvature " + localcurvature);
-        return localcurvature;
-    }
-
-    public double getCurvatureFixedLookAhead(Translation2d lookAheadPoint, Pose robotPose) {
-        double localcurvature = 0;// getSegment().curvature;
-        double Lx = lookAheadPoint.x();
-        double Ly = lookAheadPoint.y();
-        double Rx = robotPose.getX();
-        double Ry = robotPose.getY();
-        double Rtheta = Math.toRadians(robotPose.getTheta());
-
-        double a = -Math.tan(Rtheta);
-        double b = 1;
-        double c = Math.tan(Rtheta) * Rx - Ry;
-
-        double x = Math.abs(a * Lx + b * Ly + c) / Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
-        double side = Math.signum(Math.sin(Rtheta) * (Lx - Rx) - Math.cos(Rtheta) * (Ly - Ry));
-
-        localcurvature = side * (2 * x) / (Math.pow(lookAheadPoint.distance(pose.toVector()), 2));
-
-        return localcurvature;
-    }
-
-    public int getFinalRunCount() {
-        return runCount;
-    }
-
-    public void resetRunCount() {
-        runCount = 0;
+    public boolean isDone() {
+        return getSegmentIndex() == traj.getNumSegments() - 1;
     }
 
     private double lastError = 0.0;
 
-    public double getVelocityBasedPowerCalculation() {
-        double targetVel = getSegment().vel;
-        currentTargetVelocity = targetVel;
-        double distanceTraveled = pose.toVector().distance(lastPose.toVector());
-        double currentTime = Timer.getFPGATimestamp();
-        double velocityMagnitude = distanceTraveled / (currentTime - lastTime);
-        double velError = targetVel - velocityMagnitude;
-        double errorDerivative = (velError - lastError) / (currentTime - lastTime);
-        lastError = velError;
-        lastTime = currentTime;
-        double kv;
-        kv = Robot.bot.kV_PurePursuit;
-        return (kv * targetVel);
-        // * +(Robot.bot.kP_PurePursuit * velError) + (Robot.bot.kD_PurePursuit *
-        // * errorDerivative)
-        // ;
-    }
-
     public void setIsReversed(boolean rev) {
         isReversed = rev;
-    }
-
-    public double getAccelerationBasedPowerCalculation() {
-        return getSegment().acc * Robot.bot.kA_PurePursuit;
     }
 
     public Segment getSegment() {
