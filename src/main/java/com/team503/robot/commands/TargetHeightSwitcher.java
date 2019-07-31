@@ -5,25 +5,52 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package com.team503.commands;
+package com.team503.robot.commands;
 
 import com.team503.robot.RobotState;
-import com.team503.robot.RobotState.ArmDirection;
+import com.team503.robot.RobotState.GameElement;
+import com.team503.robot.RobotState.TargetHeight;
 
 import edu.wpi.first.wpilibj.command.Command;
 
-public class SetArmDirection extends Command {
-  ArmDirection direction;
-  public SetArmDirection(RobotState.ArmDirection direction) {
+public class TargetHeightSwitcher extends Command {
+
+  private TargetHeight height;
+  private boolean gotoBus;
+
+  public TargetHeightSwitcher(TargetHeight h) {
     // Use requires() here to declare subsystem dependencies
     // eg. requires(chassis);
-    this.direction = direction;
+    this.height = h;
+    this.gotoBus = false;
+  }
+
+  public TargetHeightSwitcher(boolean bus) {
+    // Use requires() here to declare subsystem dependencies
+    // eg. requires(chassis);
+    this.gotoBus = bus;
   }
 
   // Called just before this Command runs the first time
   @Override
   protected void initialize() {
-    RobotState.getInstance().setArmDirection(direction);
+    if (this.gotoBus) {
+      if (RobotState.getInstance().getGameElement() == GameElement.CARGO) {
+        RobotState.getInstance().setTargetHeight(TargetHeight.MIDDLE);
+      } else {
+        RobotState.getInstance().setTargetHeight(TargetHeight.LOW);
+      }
+    } else {
+      RobotState.getInstance().setTargetHeight(height);
+    }
+
+    // if(RobotState.getInstance().getArmDirection() == ArmDirection.FRONT) {
+    // //  LimelightTurret.getInstance().turnToFront();
+    // } else {
+    // //  LimelightTurret.getInstance().turnToBack();
+    // }
+
+    RobotState.getInstance().setPositionChanged(true);
   }
 
   // Called repeatedly when this Command is scheduled to run

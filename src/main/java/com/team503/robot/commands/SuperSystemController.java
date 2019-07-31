@@ -5,33 +5,19 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package com.team503.commands;
-
-
-
-import com.team503.robot.RobotState;
-import com.team503.robot.subsystems.Arm;
-import com.team503.robot.subsystems.Extension;
-import com.team503.robot.subsystems.Wrist;
+package com.team503.robot.commands;
 
 import edu.wpi.first.wpilibj.command.Command;
 
-public class ResetEncoderCommand extends Command {
-  public ResetEncoderCommand() {
+public class SuperSystemController extends Command {
+  public SuperSystemController() {
     // Use requires() here to declare subsystem dependencies
-    // requires(Arm.getInstance());
-    // requires(Wrist.getInstance());
-    // requires(Extension.getInstance());
+    // eg. requires(chassis);
   }
 
   // Called just before this Command runs the first time
   @Override
   protected void initialize() {
-    if (RobotState.getInstance().getIsManual()) {
-      Arm.getInstance().resetEncoder();
-      Wrist.getInstance().resetEncoder();
-      Extension.getInstance().resetEncoder();
-    }
   }
 
   // Called repeatedly when this Command is scheduled to run
@@ -42,7 +28,7 @@ public class ResetEncoderCommand extends Command {
   // Make this return true when this Command no longer needs to run execute()
   @Override
   protected boolean isFinished() {
-    return true;
+    return false;
   }
 
   // Called once after isFinished returns true
@@ -54,6 +40,5 @@ public class ResetEncoderCommand extends Command {
   // subsystems is scheduled to run
   @Override
   protected void interrupted() {
-    end();
   }
 }

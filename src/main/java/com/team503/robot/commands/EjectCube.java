@@ -5,52 +5,40 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package com.team503.commands;
+package com.team503.robot.commands;
+
 
 import com.team503.robot.RobotState;
-import com.team503.robot.RobotState.GameElement;
-import com.team503.robot.RobotState.TargetHeight;
+import com.team503.robot.subsystems.Intake;
 
 import edu.wpi.first.wpilibj.command.Command;
 
-public class TargetHeightSwitcher extends Command {
-
-  private TargetHeight height;
-  private boolean gotoBus;
-
-  public TargetHeightSwitcher(TargetHeight h) {
+public class EjectCube extends Command {
+  public EjectCube() {
     // Use requires() here to declare subsystem dependencies
     // eg. requires(chassis);
-    this.height = h;
-    this.gotoBus = false;
-  }
-
-  public TargetHeightSwitcher(boolean bus) {
-    // Use requires() here to declare subsystem dependencies
-    // eg. requires(chassis);
-    this.gotoBus = bus;
+    requires(Intake.getInstance());
   }
 
   // Called just before this Command runs the first time
   @Override
   protected void initialize() {
-    if (this.gotoBus) {
-      if (RobotState.getInstance().getGameElement() == GameElement.CARGO) {
-        RobotState.getInstance().setTargetHeight(TargetHeight.MIDDLE);
-      } else {
-        RobotState.getInstance().setTargetHeight(TargetHeight.LOW);
-      }
-    } else {
-      RobotState.getInstance().setTargetHeight(height);
-    }
+    // GameElement gameElement = RobotState.getInstance().getGameElement();
+    // switch (gameElement) {
+    // case CARGO:
+    //   Intake.getInstance().outtakeCargo();
+    //   break;
 
-    // if(RobotState.getInstance().getArmDirection() == ArmDirection.FRONT) {
-    // //  LimelightTurret.getInstance().turnToFront();
-    // } else {
-    // //  LimelightTurret.getInstance().turnToBack();
+    // case HATCH_R:
+    //   Intake.getInstance().outtakeHatch();
+    //   break;
+
+    // case HATCH_C:
+    // Intake.getInstance().stopIntake();
+    //   break;
     // }
-
-    RobotState.getInstance().setPositionChanged(true);
+    
+    Intake.getInstance().outtakeCargo();
   }
 
   // Called repeatedly when this Command is scheduled to run
@@ -61,17 +49,20 @@ public class TargetHeightSwitcher extends Command {
   // Make this return true when this Command no longer needs to run execute()
   @Override
   protected boolean isFinished() {
-    return true;
+    return false;
   }
 
   // Called once after isFinished returns true
   @Override
   protected void end() {
+    Intake.getInstance().stopIntake();
+    RobotState.getInstance().setHatchDependence(true);
   }
 
   // Called when another command which requires one or more of the same
   // subsystems is scheduled to run
   @Override
   protected void interrupted() {
+    end();
   }
 }

@@ -5,29 +5,32 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package com.team503.commands;
-
+package com.team503.robot.commands;
 
 
 import com.team503.robot.RobotState;
-import com.team503.robot.RobotState.GameElement;
+import com.team503.robot.subsystems.Arm;
+import com.team503.robot.subsystems.Extension;
+import com.team503.robot.subsystems.Wrist;
 
 import edu.wpi.first.wpilibj.command.Command;
 
-public class GameElementSwitcher extends Command {
-  
-  private GameElement element;
-
-  public GameElementSwitcher(GameElement e) {
+public class ResetEncoderCommand extends Command {
+  public ResetEncoderCommand() {
     // Use requires() here to declare subsystem dependencies
-    // eg. requires(chassis);
-    this.element = e;
+    // requires(Arm.getInstance());
+    // requires(Wrist.getInstance());
+    // requires(Extension.getInstance());
   }
 
   // Called just before this Command runs the first time
   @Override
   protected void initialize() {
-    RobotState.getInstance().setGameElement(element);
+    if (RobotState.getInstance().getIsManual()) {
+      Arm.getInstance().resetEncoder();
+      Wrist.getInstance().resetEncoder();
+      Extension.getInstance().resetEncoder();
+    }
   }
 
   // Called repeatedly when this Command is scheduled to run
@@ -50,5 +53,6 @@ public class GameElementSwitcher extends Command {
   // subsystems is scheduled to run
   @Override
   protected void interrupted() {
+    end();
   }
 }

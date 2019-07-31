@@ -5,7 +5,7 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package com.team503.commands;
+package com.team503.robot.commands;
 
 import com.team503.robot.OI;
 import com.team503.robot.RobotState;

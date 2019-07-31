@@ -5,15 +5,15 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package com.team503.commands;
+package com.team503.robot.commands;
 
-import com.team503.robot.RobotState;
-import com.team503.robot.subsystems.Wrist;
+import com.team503.robot.subsystems.Intake;
 
 import edu.wpi.first.wpilibj.command.Command;
 
-public class ResetWristEncoderCommand extends Command {
-  public ResetWristEncoderCommand() {
+public class ReleaseGrabberCommand extends Command {
+
+  public ReleaseGrabberCommand() {
     // Use requires() here to declare subsystem dependencies
     // eg. requires(chassis);
   }
@@ -21,9 +21,7 @@ public class ResetWristEncoderCommand extends Command {
   // Called just before this Command runs the first time
   @Override
   protected void initialize() {
-    if(RobotState.getInstance().getIsManual()) {
-      Wrist.getInstance().resetEncoder();
-    }
+    Intake.getInstance().releaseHatch();
   }
 
   // Called repeatedly when this Command is scheduled to run
@@ -40,13 +38,11 @@ public class ResetWristEncoderCommand extends Command {
   // Called once after isFinished returns true
   @Override
   protected void end() {
-    // it just ends
   }
 
   // Called when another command which requires one or more of the same
   // subsystems is scheduled to run
   @Override
   protected void interrupted() {
-    end();
   }
 }

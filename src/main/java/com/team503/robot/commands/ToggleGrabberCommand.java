@@ -5,16 +5,16 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package com.team503.commands;
+package com.team503.robot.commands;
 
-
+import com.team503.robot.RobotState;
 import com.team503.robot.subsystems.Intake;
 
 import edu.wpi.first.wpilibj.command.Command;
 
-public class GrabGrabberCommand extends Command {
+public class ToggleGrabberCommand extends Command {
 
-  public GrabGrabberCommand() {
+  public ToggleGrabberCommand() {
     // Use requires() here to declare subsystem dependencies
     // eg. requires(chassis);
   }
@@ -22,7 +22,15 @@ public class GrabGrabberCommand extends Command {
   // Called just before this Command runs the first time
   @Override
   protected void initialize() {
-    Intake.getInstance().startVacuum();
+    if (RobotState.getInstance().getGrabberDeployed()) {
+      Intake.getInstance().releaseHatch();
+      // LED.getInstance().set(RobotState.LedColors.BLACK);
+      RobotState.getInstance().setGrabberDeployed(false);
+    } else {
+      Intake.getInstance().startVacuum();
+      // LED.getInstance().set(RobotState.LedColors.GREEN);
+      RobotState.getInstance().setGrabberDeployed(true);
+    }
   }
 
   // Called repeatedly when this Command is scheduled to run

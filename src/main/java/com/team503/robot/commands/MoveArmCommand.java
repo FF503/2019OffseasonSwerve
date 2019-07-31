@@ -5,7 +5,7 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package com.team503.commands;
+package com.team503.robot.commands;
 
 import com.team503.robot.RobotState.ArmDirection;
 import com.team503.robot.RobotState.GameElement;

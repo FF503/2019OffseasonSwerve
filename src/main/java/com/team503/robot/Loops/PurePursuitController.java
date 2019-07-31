@@ -14,7 +14,6 @@ public class PurePursuitController {
     private double minLookaheadDistance;
     private int runCount = 0;
     private double curAngle;
-    private double trackwidth;
     private double curvature;
     private double currentTargetVelocity;
     private int theoreticalSegmentIndex = 0, lookAheadIndex = 0, closestSegmentIndex = 0;
@@ -24,18 +23,15 @@ public class PurePursuitController {
     private Pose pose;
     private static Pose lastPose = new Pose(0, 0, 0.0);
 
-    public PurePursuitController(Trajectory traj, double lookAheadDist, double trackwidth) {
+    public PurePursuitController(Trajectory traj, double lookAheadDist) {
         this.traj = traj;
 
         this.minLookaheadDistance = lookAheadDist;
         this.lookAheadDist = lookAheadDist;
-
-        this.trackwidth = trackwidth;
     }
 
-    public PurePursuitController(Translation2d fixedLookAhead, double trackwidth) {
+    public PurePursuitController(Translation2d fixedLookAhead) {
         this.lookAheadPoint = fixedLookAhead;
-        this.trackwidth = trackwidth;
     }
 
     private Translation2d getLookAhead(Pose robotPose) {
@@ -171,10 +167,10 @@ public class PurePursuitController {
         lastTime = currentTime;
         double kv;
         kv = Robot.bot.kV_PurePursuit;
-        return (kv * targetVel) /*
-                                 * +(Robot.bot.kP_PurePursuit * velError) + (Robot.bot.kD_PurePursuit *
-                                 * errorDerivative)
-                                 */;
+        return (kv * targetVel);
+        // * +(Robot.bot.kP_PurePursuit * velError) + (Robot.bot.kD_PurePursuit *
+        // * errorDerivative)
+        // ;
     }
 
     public void setIsReversed(boolean rev) {

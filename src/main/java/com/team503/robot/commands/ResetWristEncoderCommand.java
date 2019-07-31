@@ -5,27 +5,24 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package com.team503.commands;
-
+package com.team503.robot.commands;
 
 import com.team503.robot.RobotState;
+import com.team503.robot.subsystems.Wrist;
 
 import edu.wpi.first.wpilibj.command.Command;
 
-public class ToggleControlModeCommand extends Command {
-  public ToggleControlModeCommand() {
+public class ResetWristEncoderCommand extends Command {
+  public ResetWristEncoderCommand() {
     // Use requires() here to declare subsystem dependencies
     // eg. requires(chassis);
-
   }
 
   // Called just before this Command runs the first time
   @Override
   protected void initialize() {
-    if (RobotState.getInstance().getIsManual()) {
-      RobotState.getInstance().setIsManual(false);
-    } else {
-      RobotState.getInstance().setIsManual(true);
+    if(RobotState.getInstance().getIsManual()) {
+      Wrist.getInstance().resetEncoder();
     }
   }
 
@@ -43,11 +40,13 @@ public class ToggleControlModeCommand extends Command {
   // Called once after isFinished returns true
   @Override
   protected void end() {
+    // it just ends
   }
 
   // Called when another command which requires one or more of the same
   // subsystems is scheduled to run
   @Override
   protected void interrupted() {
+    end();
   }
 }

@@ -5,32 +5,29 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package com.team503.commands;
+package com.team503.robot.commands;
+
+
 
 import com.team503.robot.RobotState;
-import com.team503.robot.subsystems.Intake;
+import com.team503.robot.RobotState.GameElement;
 
 import edu.wpi.first.wpilibj.command.Command;
 
-public class ToggleGrabberCommand extends Command {
+public class GameElementSwitcher extends Command {
+  
+  private GameElement element;
 
-  public ToggleGrabberCommand() {
+  public GameElementSwitcher(GameElement e) {
     // Use requires() here to declare subsystem dependencies
     // eg. requires(chassis);
+    this.element = e;
   }
 
   // Called just before this Command runs the first time
   @Override
   protected void initialize() {
-    if (RobotState.getInstance().getGrabberDeployed()) {
-      Intake.getInstance().releaseHatch();
-      // LED.getInstance().set(RobotState.LedColors.BLACK);
-      RobotState.getInstance().setGrabberDeployed(false);
-    } else {
-      Intake.getInstance().startVacuum();
-      // LED.getInstance().set(RobotState.LedColors.GREEN);
-      RobotState.getInstance().setGrabberDeployed(true);
-    }
+    RobotState.getInstance().setGameElement(element);
   }
 
   // Called repeatedly when this Command is scheduled to run
