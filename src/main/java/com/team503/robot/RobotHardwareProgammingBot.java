@@ -13,7 +13,7 @@ import com.team254.lib.geometry.Translation2d;
 
 public class RobotHardwareProgammingBot extends RobotHardware {
     /* All distance measurements are in inches, unless otherwise noted */
-    
+
     // Swerve Module JSON file names
     private class SwerveFileNames {
         public static final String backLeft = "BackLeftAndyA";
@@ -41,6 +41,12 @@ public class RobotHardwareProgammingBot extends RobotHardware {
         gSlotIdx = 0;
 
         kEncoderUnitsPerRev = 4096;
+
+        // Pure Pursuit
+        kMaxVelocityInchesPerSec = 10;
+        kV_PurePursuit = 1 / kMaxVelocityInchesPerSec;
+        kA_PurePursuit = 0;
+        kP_PurePursuit = 0;
 
         // Arm
         armMasterID = 11;

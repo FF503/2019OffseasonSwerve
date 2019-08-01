@@ -9,6 +9,7 @@ package com.team503.robot;
 
 import java.util.Arrays;
 
+import com.team254.lib.geometry.Translation2d;
 import com.team503.robot.Loops.PoseController;
 import com.team503.robot.RobotState.Bot;
 import com.team503.robot.subsystems.Pigeon;
@@ -150,7 +151,6 @@ public class Robot extends TimedRobot {
     double swerveYInput = -OI.getDriverLeftYVal();
     double swerveXInput = OI.getDriverLeftXVal();
     double swerveRotationInput = OI.getDriverRightXVal();
-    boolean lowPower = OI.getDriverLeftTriggerPressed();
     double deadband = 0.010;
 
     if (swerveRotationInput > -deadband && swerveRotationInput < deadband) {
@@ -192,6 +192,6 @@ public class Robot extends TimedRobot {
 
     // mSwerve.inputDrive(swerveXInput, swerveYInput, swerveRotationInput,
     // lowPower);
-    mSwerve.drive(swerveXInput, swerveYInput, swerveRotationInput);
+    mSwerve.drive(new Translation2d(swerveXInput, swerveYInput), swerveRotationInput);
   }
 }

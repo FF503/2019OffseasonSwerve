@@ -12,15 +12,11 @@ public class PurePursuitController {
     private Trajectory traj;
     private double lookAheadDist;
     private double minLookaheadDistance;
-    private double curAngle;
-    private double curvature;
-    private double currentTargetVelocity;
     private int theoreticalSegmentIndex = 0, lookAheadIndex = 0, closestSegmentIndex = 0;
     private boolean isReversed = false;
     private Translation2d lookaheadPoint;
-    private static Double lastTime = Timer.getFPGATimestamp();
     private Pose pose;
-    private static Pose lastPose = new Pose(0, 0, 0.0);
+    private Pose lastPose = new Pose(Timer.getFPGATimestamp(), 0, 0, 0.0);
 
     public PurePursuitController(Trajectory traj, double lookAheadDist) {
         this.traj = traj;
@@ -30,11 +26,11 @@ public class PurePursuitController {
 
     public Translation2d calculateDriveVector(Pose robotPose) {
         this.lookaheadPoint = getLookAhead(robotPose);
-        Translation2d robotToLookahead = new Translation2d(lookaheadPoint);
-        robotToLookahead.translateBy(robotPose.toVector().inverse());
+        Translation2d robotToLookahead = new Translation2d(lookaheadPoint).translateBy(robotPose.toVector().inverse());
 
         Translation2d velocityVector = scaleVectorToDesiredVelocity(robotToLookahead, getClosestSegment().vel);
-        return new Translation2d(0, 0);
+        lastPose = robotPose.copy();
+        return applyFeedForward(velocityVector);
     }
 
     private Translation2d getLookAhead(Pose robotPose) {
@@ -106,6 +102,19 @@ public class PurePursuitController {
     private Translation2d scaleVectorToDesiredVelocity(Translation2d vector, double desiredVelocity) {
         double mag = vector.norm();
         return vector.scale(desiredVelocity / mag);
+    }
+
+    private Translation2d applyFeedForward(Translation2d velocityVector) {
+        return velocityVector.scale(Robot.bot.kV_PurePursuit);
+    }
+
+    private void applyFeedback(Pose robotPose, Translation2d targetVector) {
+        double currentVelocity = (robotPose.toVector().translateBy(lastPose.toVector().inverse()).norm())
+                / (robotPose.getTimestamp() - lastPose.getTimestamp());
+
+        double targetVelocity = targetVector.norm();
+        double error = targetVelocity - currentVelocity;
+        double output = error * Robot.bot.kP_PurePursuit;
     }
 
     public boolean isDone() {

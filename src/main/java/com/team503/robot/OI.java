@@ -30,7 +30,7 @@ public class OI {
 	private static JoystickButton driverStart = new JoystickButton(driverJoystick, 8);
 
 	public static void initialize() {
-
+		
 	}
 
 	public static double getDriverLeftXVal() {

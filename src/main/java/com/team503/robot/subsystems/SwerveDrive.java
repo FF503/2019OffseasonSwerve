@@ -120,19 +120,19 @@ public class SwerveDrive extends Subsystem {
     }
 
     public void drive(Translation2d translationVector) {
-        double str = translationVector.x();
-        double fwd = translationVector.y();
-        drive(str, fwd, getRotationalOutput());
+        drive(translationVector, getRotationalOutput());
     }
 
     public void drive(Translation2d translationVector, double rotatationalInput) {
+        translationVector = translationVector.normalize();
+
         double str = translationVector.x();
         double fwd = translationVector.y();
         drive(str, fwd, rotationalInput);
     }
 
     // Takes joystick input an calculates drive wheel speed and turn motor angle
-    public void drive(double str, double fwd, double rcw) {
+    private void drive(double str, double fwd, double rcw) {
         final double length = Robot.bot.kWheelbaseLength, width = Robot.bot.kWheelbaseWidth;
         double r = Math.sqrt((length * length) + (width * width));
 
