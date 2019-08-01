@@ -7,7 +7,6 @@
 
 package com.team503.robot.subsystems;
 
-
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
@@ -16,8 +15,8 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.team503.lib.util.FFDashboard;
 import com.team503.lib.util.MotionMagicPID;
 import com.team503.robot.Robot;
+import com.team503.robot.commands.SuperStructureCommand;
 
-import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
@@ -33,26 +32,26 @@ public class Arm extends Subsystem implements SuperStructureSystem {
 
   public Arm() {
     // if (!RobotState.getInstance().getCurrentRobot().equals(Bot.ProgrammingBot)) {
-      armMaster = new TalonSRX(Robot.bot.armMasterID);
-      armSlave = new TalonSRX(Robot.bot.armSlaveID);
-      armMaster.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative /* CTRE_MagEncoder_Absolute */, Robot.bot.gSlotIdx,
-          Robot.bot.gTimeoutMs);
+    armMaster = new TalonSRX(Robot.bot.armMasterID);
+    armSlave = new TalonSRX(Robot.bot.armSlaveID);
+    armMaster.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative /* CTRE_MagEncoder_Absolute */,
+        Robot.bot.gSlotIdx, Robot.bot.gTimeoutMs);
 
-      armMaster.setSensorPhase(Robot.bot.armMasterSensorPhase);
-      armMaster.setInverted(Robot.bot.armMasterInverted);
-      armSlave.setInverted(Robot.bot.armSlaveInverted);
-      armMaster.setNeutralMode(NeutralMode.Brake);
-      armSlave.setNeutralMode(NeutralMode.Brake);
-      armMaster.selectProfileSlot(0, 0); 
+    armMaster.setSensorPhase(Robot.bot.armMasterSensorPhase);
+    armMaster.setInverted(Robot.bot.armMasterInverted);
+    armSlave.setInverted(Robot.bot.armSlaveInverted);
+    armMaster.setNeutralMode(NeutralMode.Brake);
+    armSlave.setNeutralMode(NeutralMode.Brake);
+    armMaster.selectProfileSlot(0, 0);
 
-      // armMaster.getSensorCollection().setPulseWidthPosition(0, 10);
+    // armMaster.getSensorCollection().setPulseWidthPosition(0, 10);
 
-      armSlave.set(ControlMode.Follower, Robot.bot.armMasterID);
-      armPID = new MotionMagicPID(this, Robot.bot.kArmP, Robot.bot.kArmI, Robot.bot.kArmD, Robot.bot.kArmF,
-          Robot.bot.kArmCruiseVel, Robot.bot.kArmAcceleration);
+    armSlave.set(ControlMode.Follower, Robot.bot.armMasterID);
+    armPID = new MotionMagicPID(this, Robot.bot.kArmP, Robot.bot.kArmI, Robot.bot.kArmD, Robot.bot.kArmF,
+        Robot.bot.kArmCruiseVel, Robot.bot.kArmAcceleration);
 
-      armPID.configPIDs();
-      armMaster.config_IntegralZone(Robot.bot.gSlotIdx, 50);
+    armPID.configPIDs();
+    armMaster.config_IntegralZone(Robot.bot.gSlotIdx, 50);
     // }
   }
 
@@ -64,7 +63,7 @@ public class Arm extends Subsystem implements SuperStructureSystem {
   }
 
   public double getEncoderCounts() {
-    if(Robot.bot.hasArm()) {
+    if (Robot.bot.hasArm()) {
       return armMaster.getSelectedSensorPosition(0);
     } else {
       return 0;
@@ -72,7 +71,7 @@ public class Arm extends Subsystem implements SuperStructureSystem {
   }
 
   public double getEncoderDeg() {
-    if(Robot.bot.hasArm()){
+    if (Robot.bot.hasArm()) {
       return c2d(getEncoderCounts()) - Robot.bot.gArmAngularOffset;
     } else {
       return 0.0;
@@ -80,16 +79,16 @@ public class Arm extends Subsystem implements SuperStructureSystem {
   }
 
   public void resetEncoder() {
-    if(Robot.bot.hasArm()) {
+    if (Robot.bot.hasArm()) {
       armMaster.setSelectedSensorPosition(0);
-     // armMaster.getSensorCollection().setPulseWidthPosition(0, 10);
+      // armMaster.getSensorCollection().setPulseWidthPosition(0, 10);
     }
   }
 
   public double getMotorOutput() {
-    if(Robot.bot.hasArm()) {
+    if (Robot.bot.hasArm()) {
       return armMaster.getMotorOutputVoltage() / armMaster.getBusVoltage();
-    } else { 
+    } else {
       return 0;
     }
   }
@@ -100,13 +99,13 @@ public class Arm extends Subsystem implements SuperStructureSystem {
    * @param power Desired percent output to assign to the arm motors
    */
   public void setMotorOutput(double power) {
-    if(Robot.bot.hasArm()) {
+    if (Robot.bot.hasArm()) {
       armMaster.set(ControlMode.PercentOutput, power);
     }
   }
 
   public double getEncoderVelocity() {
-    if(Robot.bot.hasArm()) {
+    if (Robot.bot.hasArm()) {
       return armMaster.getSelectedSensorVelocity(0);
     } else {
       return 0;
@@ -169,8 +168,8 @@ public class Arm extends Subsystem implements SuperStructureSystem {
 
   @Override
   public void setTargetPosition(double tgt) {
-    double encTgt = d2c(tgt/*+Robot.bot.gArmAngularOffset*/);
-   // System.err.println("enc targ:" + encTgt);
+    double encTgt = d2c(tgt/* +Robot.bot.gArmAngularOffset */);
+    // System.err.println("enc targ:" + encTgt);
     armMaster.set(ControlMode.MotionMagic, encTgt);
   }
 
@@ -181,11 +180,11 @@ public class Arm extends Subsystem implements SuperStructureSystem {
 
   @Override
   public double getMagicError() {
-    if(Robot.bot.hasArm()) {
+    if (Robot.bot.hasArm()) {
       return armMaster.getClosedLoopError(Robot.bot.gSlotIdx);
-    } else { 
+    } else {
       return 0;
-    }  
+    }
   }
 
   @Override
@@ -210,10 +209,10 @@ public class Arm extends Subsystem implements SuperStructureSystem {
    * @return The motor output current in amps ()
    */
   public double getMotorCurrent() {
-    if(Robot.bot.hasArm()) {
+    if (Robot.bot.hasArm()) {
       return armMaster.getOutputCurrent();
     } else {
-      return 0.0; 
+      return 0.0;
     }
   }
 
@@ -221,7 +220,7 @@ public class Arm extends Subsystem implements SuperStructureSystem {
   public void initDefaultCommand() {
     // Set the default command for a subsystem here.
     // setDefaultCommand(new MySpecialCommand());
-
+    setDefaultCommand(new SuperStructureCommand());
   }
 
   public boolean isEncoderFault() {
@@ -252,10 +251,20 @@ public class Arm extends Subsystem implements SuperStructureSystem {
     SmartDashboard.putNumber("Arm Position", getEncoderDeg());
     // SmartDashboard.putNumber("Arm Velocity", getAngularVelocity());
     // SmartDashboard.putNumber("Arm Enc Position", getEncoderCounts());
-    if(Robot.bot.hasArm()) { 
+    if (Robot.bot.hasArm()) {
       table.putNumber("Arm Output Voltage", armMaster.getMotorOutputVoltage());
     } else {
       table.putNumber("Arm Output Voltage", 0);
     }
+  }
+
+  @Override
+  public void outputTelemetry() {
+    sendDashboardData();
+  }
+
+  @Override
+  public void stop() {
+    setMotorOutput(0);
   }
 }

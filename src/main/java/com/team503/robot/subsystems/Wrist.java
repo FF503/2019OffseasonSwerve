@@ -17,7 +17,6 @@ import com.team503.robot.Robot;
 import com.team503.robot.RobotState;
 import com.team503.robot.RobotState.GameElement;
 
-import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
@@ -275,6 +274,16 @@ public class Wrist extends Subsystem implements SuperStructureSystem {
     } else {
        table.putNumber("Wrist Output Voltage", 0.0);
     }   
+  }
+
+  @Override
+  public void outputTelemetry() {
+    sendDashboardData();
+  }
+
+  @Override
+  public void stop() {
+    setMotorOutput(0);
   }
 
 }

@@ -346,4 +346,9 @@ public class SwerveDrive extends Subsystem {
         modules.forEach((m) -> m.setDriveMotorSpeed(0));
         // setCoastMode();
     }
+
+    @Override
+    protected void initDefaultCommand() {
+        
+    }
 }

@@ -167,12 +167,13 @@ public class SuperStructureCommand extends Command {
 			if (Robot.bot.hasWrist()) {
 				double wristPower = Wrist.getInstance().getTalon().getOutputCurrent()
 						* Wrist.getInstance().getTalon().getMotorOutputVoltage();
-			//	System.out.println("Wrist Power Watts: " + wristPower);
+				// System.out.println("Wrist Power Watts: " + wristPower);
 				if (wristPower > Robot.bot.MAX_WRIST_POWER) {
 					Wrist.getInstance().setMotorOutput(0.0);
 					System.out.println("WRIST POWER TOO HIGH BURN OUT WARNING");
 				} else {
-					if (!(RobotState.getInstance().getSuperStructurePreset() == SuperStructurePreset.FRONT_CARGO_BUS && Arm.getInstance().getEncoderDeg() < -30)) {
+					if (!(RobotState.getInstance().getSuperStructurePreset() == SuperStructurePreset.FRONT_CARGO_BUS
+							&& Arm.getInstance().getEncoderDeg() < -30)) {
 						Wrist.getInstance().setTargetPosition(wTgt);
 					}
 
@@ -241,7 +242,7 @@ public class SuperStructureCommand extends Command {
 	protected void end() {
 		Arm.getInstance().setMotorOutput(0.0);
 		Wrist.getInstance().setMotorOutput(0.0);
-		Extension.getInstance().setMotorPower(0.0);
+		Extension.getInstance().setMotorOutput(0.0);
 	}
 
 	// Called when another command which requires one or more of the same

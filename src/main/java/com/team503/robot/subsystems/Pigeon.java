@@ -109,4 +109,9 @@ public class Pigeon extends Subsystem {
 	@Override
 	public void stop() {
 	}
+
+	@Override
+	protected void initDefaultCommand() {
+
+	}
 }

@@ -10,14 +10,19 @@ package com.team503.robot;
 import java.util.Arrays;
 
 import com.team254.lib.geometry.Translation2d;
-import com.team503.robot.Loops.PoseController;
 import com.team503.robot.RobotState.Bot;
+import com.team503.robot.Loops.PoseController;
+import com.team503.robot.subsystems.Arm;
+import com.team503.robot.subsystems.Extension;
+import com.team503.robot.subsystems.Intake;
 import com.team503.robot.subsystems.Pigeon;
 import com.team503.robot.subsystems.SubsystemManager;
 import com.team503.robot.subsystems.SwerveDrive;
 import com.team503.robot.subsystems.SwerveDrive.DriveMode;
+import com.team503.robot.subsystems.Wrist;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
@@ -45,7 +50,8 @@ public class Robot extends TimedRobot {
     bot = RobotHardware.getInstance();
     m_oi = new OI();
     mSwerve = SwerveDrive.getInstance();
-    subsystems = new SubsystemManager(Arrays.asList(mSwerve, Pigeon.getInstance()));
+    subsystems = new SubsystemManager(Arrays.asList(mSwerve, Pigeon.getInstance(), Arm.getInstance(),
+        Extension.getInstance(), Intake.getInstance(), Wrist.getInstance()));
     Pigeon.getInstance().zeroSensors();
     poseEngine = new PoseController();
   }
@@ -122,6 +128,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putString("pose", pose);
     System.out.println(pose);
     // mSwerve.updateTeleopControl();
+    Scheduler.getInstance().run();
   }
 
   @Override
