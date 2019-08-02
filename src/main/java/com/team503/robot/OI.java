@@ -8,6 +8,7 @@
 package com.team503.robot;
 
 import com.team503.lib.io.Xbox;
+import com.team503.robot.commands.EjectCube;
 
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
 
@@ -30,7 +31,8 @@ public class OI {
 	private static JoystickButton driverStart = new JoystickButton(driverJoystick, 8);
 
 	public static void initialize() {
-		
+		//Example
+		driverJoystick.bButton.longHold.whileHeld(new EjectCube());
 	}
 
 	public static double getDriverLeftXVal() {
