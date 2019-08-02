@@ -53,7 +53,7 @@ public class Robot extends TimedRobot {
     subsystems = new SubsystemManager(Arrays.asList(mSwerve, Pigeon.getInstance(), Arm.getInstance(),
         Extension.getInstance(), Intake.getInstance(), Wrist.getInstance()));
     Pigeon.getInstance().zeroSensors();
-    poseEngine = new PoseController();
+    poseEngine = PoseController.getInstance();
   }
 
   /**
@@ -120,6 +120,12 @@ public class Robot extends TimedRobot {
         break;
       }
       mSwerve.defensePosition();
+      break;
+    case Vision:
+      if (!OI.driverJoystick.getYButton()) {
+        mSwerve.setMode(DriveMode.TeleopDrive);
+        break;
+      }
       break;
     default:
       break;
@@ -188,7 +194,7 @@ public class Robot extends TimedRobot {
     } else if (OI.driverJoystick.getXButtonPressed()) {
       mSwerve.rotate(270);
       swerveRotationInput = mSwerve.getRotationalOutput();
-    } else if (OI.driverJoystick.getYButtonPressed()) {
+    } else if (OI.driverJoystick.yButton.shortReleased()) {
       mSwerve.rotate(0);
       swerveRotationInput = mSwerve.getRotationalOutput();
     } else if (OI.getDriverBackButton()) {

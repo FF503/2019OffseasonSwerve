@@ -6,6 +6,7 @@ import com.team503.lib.util.Pose;
 import com.team503.lib.util.Util;
 import com.team503.robot.Robot;
 import com.team503.robot.RobotState;
+import com.team503.robot.subsystems.Pigeon;
 import com.team503.robot.subsystems.SwerveDrive;
 
 import org.ejml.simple.SimpleMatrix;
@@ -21,18 +22,28 @@ public class PoseController {
     private boolean run = false;
     private PoseThread poseThread = new PoseThread();
 
+    private static PoseController instance;
+
+    public static PoseController getInstance() {
+        return instance == null ? instance = new PoseController() : instance;
+    }
+
     public PoseController() {
         threadRunner.setHandler(poseThread);
-        threadRunner.startPeriodic(Robot.bot.POSE_LOOP_DT);
     }
 
     public synchronized void start() {
+        threadRunner.startPeriodic(Robot.bot.POSE_LOOP_DT);
         run = true;
     }
 
     public synchronized void stop() {
         // threadRunner.stop();
         run = false;
+    }
+
+    public synchronized void resetPose(Pose reset) {
+        this.currentPose = reset;
     }
 
     public synchronized void updatePoseWithVelocity(Translation2d velocity) {
@@ -42,6 +53,7 @@ public class PoseController {
                 : velocity.scale(dt);
         currentPose = currentPose.toPose2D().transformBy(Pose2d.fromTranslation(positionChange)).toPose();
         currentPose.setTimestamp(currentTime);
+        currentPose.updateTheta(Pigeon.getInstance().getUnitCircleHeading());
         RobotState.getInstance().setCurrentPose(currentPose);
         lastPoseUpdate = currentTime;
     }
@@ -50,7 +62,8 @@ public class PoseController {
         @Override
         public void run() {
             if (run) {
-                SimpleMatrix wheelVelocities = new SimpleMatrix(SwerveDrive.getInstance().getWheelComponentVelocities());
+                SimpleMatrix wheelVelocities = new SimpleMatrix(
+                        SwerveDrive.getInstance().getWheelComponentVelocities());
                 Translation2d velocity = Util.getVelocity(wheelVelocities);
                 SmartDashboard.putNumber("Trans Velocity", velocity.norm());
                 updatePoseWithVelocity(velocity);

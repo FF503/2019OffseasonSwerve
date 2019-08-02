@@ -2,6 +2,7 @@ package com.team503.robot;
 
 import com.team503.lib.util.FFDashboard;
 import com.team503.lib.util.Pose;
+import com.team503.robot.auton.FroggyAuton.StartingDirection;
 
 public class RobotState {
 	private Bot currentRobot;
@@ -13,12 +14,12 @@ public class RobotState {
 	private ArmDirection armDirection;
 	private TargetHeight targetHeight;
 	private boolean hasElement;
-	private boolean hatchDependence;
 	private SuperStructurePreset sPreset;
 	private boolean armPositionChanged;
 	private boolean isArmFlip;
 	private boolean grabberDeployed;
 	private boolean isManualControl = true;
+	private volatile StartingDirection startingDirection = StartingDirection.FORWARD;
 
 	public static RobotState getInstance() {
 		return instance;
@@ -38,6 +39,14 @@ public class RobotState {
 
 	public synchronized void setCurrentTheta(double currentTheta) {
 		this.currentTheta = currentTheta;
+	}
+
+	public synchronized void setStartingDirection(StartingDirection startingDirection) {
+		this.startingDirection = startingDirection;
+	}
+
+	public double getGyroOffset() {
+		return this.startingDirection.getGyroOffset();
 	}
 
 	public boolean getHasElement() {
