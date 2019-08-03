@@ -262,14 +262,14 @@ public class Xbox extends XboxController {
 			return buttonActive;
 		}
 
-		public Button shortTap = new Button() {
+		private Button shortTap = new Button() {
 			@Override
 			public boolean get() {
 				return shortReleased();
 			}
 		};
 
-		public Button longHold = new Button() {
+		private Button longHold = new Button() {
 
 			@Override
 			public boolean get() {
@@ -277,7 +277,7 @@ public class Xbox extends XboxController {
 			}
 		};
 
-		public Button longRelease = new Button() {
+		private Button longRelease = new Button() {
 
 			@Override
 			public boolean get() {
@@ -286,6 +286,17 @@ public class Xbox extends XboxController {
 
 		};
 
+		public Button getLongReleaseButton() {
+			return longRelease;
+		}
+
+		public Button getLongHoldButton() {
+			return longHold;
+		}
+
+		public Button getShortTapButton() {
+			return shortTap;
+		}
 	}
 
 	public void update() {
