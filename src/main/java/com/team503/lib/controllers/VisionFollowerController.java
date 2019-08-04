@@ -16,15 +16,29 @@ public class VisionFollowerController {
 
     }
 
-    //Area based
-    public void getYComponent(double currentTa, double targetTa) {
+    //find conversion using real-life tests
+    private double distFromTarget(double currentTa){
+        return 0;
+    }
 
+    //Area based
+    public double getXComponentArea(double currentTa, double currentTx) {
+        return distFromTarget(currentTa)*Math.sin(currentTx*Math.PI/180);
+    }
+    //Area based
+    public double getYComponentArea(double currentTa, double currentTx) {
+        return distFromTarget(currentTa)*Math.cos(currentTx*Math.PI/180);
     }
 
     //Tx based
-    public void getXComponent(double currentTx, double targetTx) {
-
+    public double getXComponent(double currentTx, double d1, double d2) {
+        return d2-d1;
     }
+    //Tx based
+    public double getYComponent(double currentTx, double d1, double d2) {
+        return (d2-d1)/Math.tan(currentTx);
+    }
+
 
     public enum VisionMode {
         Linear;
