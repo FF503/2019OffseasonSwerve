@@ -8,14 +8,19 @@
 package com.team503.lib.controllers;
 
 import com.team254.lib.geometry.Translation2d;
+import com.team503.lib.util.FFDashboard;
 
 /**
  * Add your docs here.
  */
 public class VisionFollowerController {
+    private FFDashboard table = new FFDashboard("Vision");
 
     public VisionFollowerController() {
     }
+
+    // measure distance from centor of robot to limelight camera
+    private final double offsetX = 0, offsetY = 0;
 
     // find conversion using real-life tests
     private double distFromTarget(double currentTa) {
@@ -23,17 +28,21 @@ public class VisionFollowerController {
     }
 
     public Translation2d getVectorToTarget(double currentTa, double currentTx) {
-        return new Translation2d(getXComponentArea(currentTa, currentTx), getYComponentArea(currentTa, currentTx));
+        Translation2d vector = new Translation2d(getXComponentArea(currentTa, currentTx),
+                getYComponentArea(currentTa, currentTx));
+        table.putNumber("x", vector.x());
+        table.putNumber("y", vector.y());
+        return vector;
     }
 
     // Area based
     private double getXComponentArea(double currentTa, double currentTx) {
-        return distFromTarget(currentTa) * Math.sin(Math.toRadians(currentTx));
+        return distFromTarget(currentTa) * Math.sin(Math.toRadians(currentTx)) + offsetX;
     }
 
     // Area based
     private double getYComponentArea(double currentTa, double currentTx) {
-        return distFromTarget(currentTa) * Math.cos(Math.toRadians(currentTx));
+        return distFromTarget(currentTa) * Math.cos(Math.toRadians(currentTx)) + offsetY;
     }
 
     // Tx based
