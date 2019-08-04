@@ -1,9 +1,9 @@
 package com.team503.robot.Loops;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.team503.robot.Robot;
 import com.team503.robot.RobotState;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -97,6 +97,10 @@ public class LimelightProcessor {
 
 	public double getTV() {
 		return (combinedTarget.get(3).getDouble(0.0));
+	}
+
+	public boolean hasReachedAreaThreshold() {
+		return getTA() > Robot.bot.getAreaThreshold();
 	}
 
 	public enum Pipeline {

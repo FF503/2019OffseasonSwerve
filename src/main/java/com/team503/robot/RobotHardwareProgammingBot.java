@@ -22,6 +22,8 @@ public class RobotHardwareProgammingBot extends RobotHardware {
         public static final String frontRight = "FrontRightAndyA";
     }
 
+    public final double areaThreshold = 13;
+
     @Override
     public void initalizeConstants() {
         // Swerve Calculations Constants (measurements are in inches)
@@ -177,6 +179,12 @@ public class RobotHardwareProgammingBot extends RobotHardware {
     @Override
     public boolean hasExtension() {
         return true;
+    }
+
+    //Vision
+    @Override
+    public double getAreaThreshold() {
+        return areaThreshold; 
     }
 
 }
