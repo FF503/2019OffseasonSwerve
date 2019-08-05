@@ -89,19 +89,19 @@ public class RobotState {
 		this.grabberDeployed = state;
 	}
 
-	public static enum GameElement {
+	public enum GameElement {
 		CARGO, HATCH;
 	}
 
-	public static enum ArmDirection {
+	public enum ArmDirection {
 		FRONT, BACK;
 	}
 
-	public static enum TargetHeight {
+	public enum TargetHeight {
 		HOME, BUS, INTAKE, LOW, MIDDLE, HIGH;
 	}
 
-	public static enum SuperStructurePreset {// FRONT_CARGO_INTAKE(-32, -58, 0.)
+	public enum SuperStructurePreset {// FRONT_CARGO_INTAKE(-32, -58, 0.)
 		HATCH_HOME(-47., 90, 0.), CARGO_HOME(-45, 45, 0), VIEW_AUTO_REAR(187., 90., 0.),
 		FRONT_CARGO_BUS(48.2, -21.8, 0.), BACK_CARGO_BUS(111, 53. + 180., 0.), FRONT_CARGO_INTAKE(-38, -14. + 3.5, 0.),
 		FRONT_CARGO_LOW(0., -3., 0.), FRONT_CARGO_MID(69., -5., 0.), // 0., -3., 0.
@@ -189,7 +189,7 @@ public class RobotState {
 		return this.currentRobot;
 	}
 
-	public static enum Bot {
+	public enum Bot {
 		Automatic, ProgrammingBot;
 	}
 
