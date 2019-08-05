@@ -45,6 +45,9 @@ public abstract class RobotHardware {
 
     public abstract boolean hasExtension();
 
+    // Vision
+    public abstract double getAreaThreshold();
+
     // Swerve Calculations Constants (measurements are in inches)
     public double kWheelbaseLength;
     public double kWheelbaseWidth;

@@ -1,30 +1,25 @@
 package com.team503.robot.Loops;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.team503.robot.Robot;
 import com.team503.robot.RobotState;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
 public class LimelightProcessor {
-	static LimelightProcessor instance = new LimelightProcessor();
-	edu.wpi.first.networktables.NetworkTable table;
-	RobotState robotState = RobotState.getInstance();
-	NetworkTableEntry ledMode;
-	NetworkTableEntry pipeline;
-	NetworkTableEntry camMode;
-	NetworkTableEntry stream;
-	public List<NetworkTableEntry> target1, target2, combinedTarget;
-	public NetworkTableEntry cornerX, cornerY;
-
-	boolean updatesAllowed = true;
-
-	public void enableUpdates(boolean enable) {
-		updatesAllowed = enable;
-	}
+	private static LimelightProcessor instance = new LimelightProcessor();
+	private edu.wpi.first.networktables.NetworkTable table;
+	private RobotState robotState = RobotState.getInstance();
+	private NetworkTableEntry ledMode;
+	private NetworkTableEntry pipeline;
+	private NetworkTableEntry camMode;
+	private NetworkTableEntry stream;
+	private NetworkTableEntry ct;
+	private List<NetworkTableEntry> target1, target2, combinedTarget;
+	private NetworkTableEntry cornerX, cornerY;
 
 	public static LimelightProcessor getInstance() {
 		return instance;
@@ -100,6 +95,14 @@ public class LimelightProcessor {
 		return (combinedTarget.get(3).getDouble(0.0));
 	}
 
+	public boolean hasReachedAreaThreshold() {
+		return getTA() > Robot.bot.getAreaThreshold();
+	}
+
+	public boolean seesTarget() {
+		return getTV() == 1.0;
+	}
+
 	public enum Pipeline {
 		LEFTMOST(0), RIGHTMOST(1), CLOSEST(2), LOWEST(3), HIGHEST(4);
 
@@ -108,11 +111,6 @@ public class LimelightProcessor {
 		private Pipeline(int id) {
 			this.id = id;
 		}
-	}
-
-	public boolean seesTarget() {
-		boolean targetInSight = (getTV() == 1.0) ? true : false;
-		return targetInSight;
 	}
 
 }
