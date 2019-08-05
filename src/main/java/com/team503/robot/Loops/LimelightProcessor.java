@@ -10,13 +10,14 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
 public class LimelightProcessor {
-	static LimelightProcessor instance = new LimelightProcessor();
-	edu.wpi.first.networktables.NetworkTable table;
-	RobotState robotState = RobotState.getInstance();
-	NetworkTableEntry ledMode;
-	NetworkTableEntry pipeline;
-	NetworkTableEntry camMode;
-	NetworkTableEntry stream;
+	private static LimelightProcessor instance = new LimelightProcessor();
+	private edu.wpi.first.networktables.NetworkTable table;
+	private RobotState robotState = RobotState.getInstance();
+	private NetworkTableEntry ledMode;
+	private NetworkTableEntry pipeline;
+	private NetworkTableEntry camMode;
+	private NetworkTableEntry stream;
+	private NetworkTableEntry ct;
 	public List<NetworkTableEntry> target1, target2, combinedTarget;
 	public NetworkTableEntry cornerX, cornerY;
 
