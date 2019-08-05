@@ -286,6 +286,18 @@ public class Xbox extends XboxController {
 
 		};
 
+		private Button pressed = new Button() {
+
+			@Override
+			public boolean get() {
+				return isBeingPressed();
+			}
+		};
+
+		public Button getPressed() {
+			return pressed;
+		}
+
 		public Button getLongReleaseButton() {
 			return longRelease;
 		}

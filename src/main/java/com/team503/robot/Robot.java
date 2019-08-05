@@ -36,7 +36,6 @@ public class Robot extends TimedRobot {
 
   private SwerveDrive mSwerve;
   private SubsystemManager subsystems;
-  public static OI m_oi;
   public static RobotHardware bot;
   private PoseController poseEngine;
 
@@ -48,12 +47,12 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     RobotState.getInstance().setCurrentRobot(Bot.Automatic);
     bot = RobotHardware.getInstance();
-    m_oi = new OI();
     mSwerve = SwerveDrive.getInstance();
-    subsystems = new SubsystemManager(Arrays.asList(mSwerve, Pigeon.getInstance(), Arm.getInstance(),
-        Extension.getInstance(), Intake.getInstance(), Wrist.getInstance()));
+    subsystems = new SubsystemManager(mSwerve, Pigeon.getInstance(), Arm.getInstance(), Extension.getInstance(),
+        Intake.getInstance(), Wrist.getInstance());
     Pigeon.getInstance().zeroSensors();
-    poseEngine = PoseController.getInstance();
+    OI.initialize();
+    // poseEngine = PoseController.getInstance();
   }
 
   /**
@@ -91,6 +90,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousPeriodic() {
+    Scheduler.getInstance().run();
   }
 
   /**
@@ -98,7 +98,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopInit() {
-    poseEngine.start();
+    // poseEngine.start();
     mSwerve.setBrakeMode();
   }
 
@@ -110,7 +110,7 @@ public class Robot extends TimedRobot {
     OI.driverJoystick.update();
     RobotState.getInstance().setCurrentTheta(Pigeon.getInstance().getYaw());
 
-    switch (SwerveDrive.getInstance().getMode()) {
+    switch (mSwerve.getMode()) {
     case TeleopDrive:
       joystickInput();
       break;
@@ -122,7 +122,7 @@ public class Robot extends TimedRobot {
       mSwerve.defensePosition();
       break;
     case Vision:
-      if (!OI.driverJoystick.getYButton()) {
+      if (!OI.driverJoystick.yButton.isBeingPressed()) {
         mSwerve.setMode(DriveMode.TeleopDrive);
         break;
       }
@@ -130,9 +130,15 @@ public class Robot extends TimedRobot {
     default:
       break;
     }
-    String pose = RobotState.getInstance().getCurrentPose().toString();
-    SmartDashboard.putString("pose", pose);
-    System.out.println(pose);
+
+    if (OI.driverJoystick.leftCenterClick.isBeingPressed()) {
+      mSwerve.setMode(DriveMode.TeleopDrive);
+    }
+
+    // String pose = RobotState.getInstance().getCurrentPose().toString();
+    // SmartDashboard.putString("pose", pose);
+    // System.out.println(pose);
+
     // mSwerve.updateTeleopControl();
     Scheduler.getInstance().run();
   }
@@ -158,6 +164,7 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledPeriodic() {
     // Pigeon.getInstance().outputToSmartDashboard();
+    Scheduler.getInstance().run();
   }
 
   private void joystickInput() {
@@ -173,38 +180,11 @@ public class Robot extends TimedRobot {
       mSwerve.rotate(RobotState.getInstance().getCurrentTheta());
     }
 
-    if (OI.driverJoystick.leftBumper.shortReleased()) {
-      mSwerve.rotate(-24);
-      swerveRotationInput = mSwerve.getRotationalOutput();
-    } else if (OI.driverJoystick.leftBumper.longPressed()) {
-      mSwerve.rotate(-151.0);
-      swerveRotationInput = mSwerve.getRotationalOutput();
-    } else if (OI.driverJoystick.rightBumper.shortReleased()) {
-      mSwerve.rotate(24);
-      swerveRotationInput = mSwerve.getRotationalOutput();
-    } else if (OI.driverJoystick.rightBumper.longPressed()) {
-      mSwerve.rotate(151.0);
-      swerveRotationInput = mSwerve.getRotationalOutput();
-    } else if (OI.driverJoystick.getAButtonPressed()) {
-      mSwerve.rotate(180);
-      swerveRotationInput = mSwerve.getRotationalOutput();
-    } else if (OI.driverJoystick.getBButtonPressed()) {
-      mSwerve.rotate(90);
-      swerveRotationInput = mSwerve.getRotationalOutput();
-    } else if (OI.driverJoystick.getXButtonPressed()) {
-      mSwerve.rotate(270);
-      swerveRotationInput = mSwerve.getRotationalOutput();
-    } else if (OI.driverJoystick.yButton.shortReleased()) {
-      mSwerve.rotate(0);
-      swerveRotationInput = mSwerve.getRotationalOutput();
-    } else if (OI.getDriverBackButton()) {
-      mSwerve.toggleFieldCentric();
-    } else if (OI.driverJoystick.getStartButtonPressed()) {
+    if (OI.driverJoystick.getStartButtonPressed()) {
       mSwerve.setMode(DriveMode.Defense);
     }
 
-    // mSwerve.inputDrive(swerveXInput, swerveYInput, swerveRotationInput,
-    // lowPower);
-    mSwerve.drive(new Translation2d(swerveXInput, swerveYInput), swerveRotationInput);
+    mSwerve.setFieldCentric(!OI.getDriverLeftTriggerPressed());
+    mSwerve.drive(new Translation2d(swerveXInput, swerveYInput), swerveRotationInput, OI.getDriverLeftTriggerPressed());
   }
 }

@@ -8,22 +8,25 @@
 package com.team503.robot;
 
 import com.team503.lib.io.Xbox;
+import com.team503.lib.util.SnappingPosition;
 import com.team503.robot.RobotState.ArmDirection;
 import com.team503.robot.RobotState.GameElement;
 import com.team503.robot.RobotState.TargetHeight;
 import com.team503.robot.commands.EjectCube;
+import com.team503.robot.commands.SimpleFollowTarget;
 import com.team503.robot.commands.GameElementSwitcher;
 import com.team503.robot.commands.MoveArmCommand;
 import com.team503.robot.commands.PassiveIntake;
 import com.team503.robot.commands.ReleaseHatchCommand;
+import com.team503.robot.commands.ResetEncoderCommand;
+import com.team503.robot.commands.SetHeadingCommand;
 import com.team503.robot.commands.SwitchArmDirection;
 import com.team503.robot.commands.TargetHeightSwitcher;
 import com.team503.robot.commands.ToggleControlModeCommand;
 import com.team503.robot.commands.ToggleIntakeCommand;
 
-import edu.wpi.first.wpilibj.buttons.JoystickButton;
 import edu.wpi.first.wpilibj.buttons.Button;
-
+import edu.wpi.first.wpilibj.buttons.JoystickButton;
 
 /**
  * This class is the glue that binds the controls on the physical operator
@@ -45,7 +48,7 @@ public class OI {
 	private static JoystickButton driverBack = new JoystickButton(driverJoystick, 7);
 	private static JoystickButton driverStart = new JoystickButton(driverJoystick, 8);
 
-	private static Button driverRightTrigger = new Button(){
+	private static Button driverRightTrigger = new Button() {
 		@Override
 		public boolean get() {
 			return getDriverRightTriggerPressed();
@@ -75,13 +78,29 @@ public class OI {
 		}
 	};
 
-	public static void initialize() {
+	private static Button resetEnc = new Button() {
+		@Override
+		public boolean get() {
+			return operatorJoystick.rightCenterClick.isBeingPressed();
+		}
+	};
 
+	public static void initialize() {
 		// Driver
-		driverJoystick.bButton.getLongHoldButton().whileHeld(new EjectCube());
-		driverJoystick.xButton.getLongHoldButton().toggleWhenPressed(new ToggleIntakeCommand());
-		driverJoystick.aButton.getLongHoldButton().whenPressed(new ReleaseHatchCommand());
+		driverA.whenPressed(new ReleaseHatchCommand());
+		driverB.whileHeld(new EjectCube());
+		driverX.toggleWhenPressed(new ToggleIntakeCommand());
+		driverY.whenPressed(new SimpleFollowTarget());
 		driverRightTrigger.whileHeld(new PassiveIntake());
+
+		driverJoystick.POV0.getPressed().whenPressed(new SetHeadingCommand(1));
+		driverJoystick.POV90.getPressed().whenPressed(new SetHeadingCommand(90));
+		driverJoystick.POV270.getPressed().whenPressed(new SetHeadingCommand(270));
+		driverJoystick.POV180.getPressed().whenPressed(new SetHeadingCommand(179));
+		driverJoystick.leftBumper.getShortTapButton().whenPressed(new SetHeadingCommand(SnappingPosition.LEFT_NEAR_ROCKET));
+		driverJoystick.leftBumper.getLongHoldButton().whenPressed(new SetHeadingCommand(SnappingPosition.LEFT_FAR_ROCKET));
+		driverJoystick.rightBumper.getShortTapButton().whenPressed(new SetHeadingCommand(SnappingPosition.RIGHT_NEAR_ROCKET));
+		driverJoystick.rightBumper.getLongHoldButton().whenPressed(new SetHeadingCommand(SnappingPosition.RIGHT_FAR_ROCKET));
 
 		// Operator
 		low.whenPressed(new TargetHeightSwitcher(TargetHeight.LOW));
@@ -96,6 +115,7 @@ public class OI {
 		hatch.whenPressed(new GameElementSwitcher(GameElement.HATCH));
 
 		manual.whenPressed(new ToggleControlModeCommand());
+		resetEnc.whenPressed(new ResetEncoderCommand());
 	}
 
 	public static double getDriverLeftXVal() {

@@ -62,7 +62,7 @@ public class RobotHardwareProgammingBot extends RobotHardware {
         kArmI = 0;
         kArmD = 10;
 
-        gArmAngularOffset = 47.0;
+        gArmAngularOffset = 56.0;
 
         armMasterInverted = false;
         armSlaveInverted = false;

@@ -7,27 +7,37 @@
 
 package com.team503.robot.commands;
 
-import com.team503.robot.RobotState;
+import com.team503.lib.util.SnappingPosition;
+import com.team503.robot.subsystems.SwerveDrive;
 
 import edu.wpi.first.wpilibj.command.InstantCommand;
 
 /**
  * Add your docs here.
  */
-public class ToggleControlModeCommand extends InstantCommand {
+public class SetHeadingCommand extends InstantCommand {
   /**
    * Add your docs here.
    */
-  public ToggleControlModeCommand() {
+  private double heading;
+  public SetHeadingCommand(double heading) {
     super();
     // Use requires() here to declare subsystem dependencies
     // eg. requires(chassis);
+    this.heading = heading;
+  }
+
+  public SetHeadingCommand(SnappingPosition pos) {
+    super();
+    // Use requires() here to declare subsystem dependencies
+    // eg. requires(chassis);
+    this.heading = pos.getAngle();
   }
 
   // Called once when the command executes
   @Override
   protected void initialize() {
-    RobotState.getInstance().setIsManual(!RobotState.getInstance().getIsManual());
+    SwerveDrive.getInstance().rotate(heading);
   }
 
 }

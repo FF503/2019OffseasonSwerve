@@ -8,17 +8,19 @@
 package com.team503.robot.commands;
 
 import com.team503.lib.controllers.VisionFollowerController;
+import com.team503.robot.OI;
 import com.team503.robot.Loops.LimelightProcessor;
 import com.team503.robot.Loops.LimelightProcessor.Pipeline;
 import com.team503.robot.subsystems.SwerveDrive;
+import com.team503.robot.subsystems.SwerveDrive.DriveMode;
 
 import edu.wpi.first.wpilibj.command.Command;
 
-public class FollowTarget extends Command {
-  VisionFollowerController controller;
-  SwerveDrive mSwerve;
+public class SimpleFollowTarget extends Command {
+  private VisionFollowerController controller;
+  private SwerveDrive mSwerve;
 
-  public FollowTarget() {
+  public SimpleFollowTarget() {
     // Use requires() here to declare subsystem dependencies
     controller = new VisionFollowerController();
     mSwerve = SwerveDrive.getInstance();
@@ -29,6 +31,8 @@ public class FollowTarget extends Command {
   protected void initialize() {
     LimelightProcessor.getInstance().setVisionMode();
     LimelightProcessor.getInstance().setPipeline(Pipeline.CLOSEST);
+    mSwerve.setFieldCentric(false);
+    mSwerve.setMode(DriveMode.Vision);
   }
 
   // Called repeatedly when this Command is scheduled to run
@@ -41,14 +45,19 @@ public class FollowTarget extends Command {
   // Make this return true when this Command no longer needs to run execute()
   @Override
   protected boolean isFinished() {
-    return (timeSinceInitialized() > 0.2 && !LimelightProcessor.getInstance().seesTarget())
-        || LimelightProcessor.getInstance().hasReachedAreaThreshold();
+    return (mSwerve.getMode() != DriveMode.Vision)
+        || (timeSinceInitialized() > 0.2 && !LimelightProcessor.getInstance().seesTarget())
+        || (LimelightProcessor.getInstance().hasReachedAreaThreshold());
   }
 
   // Called once after isFinished returns true
   @Override
   protected void end() {
     mSwerve.stop();
+    mSwerve.setFieldCentric(true);
+    mSwerve.setMode(DriveMode.TeleopDrive);
+    LimelightProcessor.getInstance().setPipeline(Pipeline.DRIVER);
+    OI.driverJoystick.rumble(1, 0.25);
   }
 
   // Called when another command which requires one or more of the same

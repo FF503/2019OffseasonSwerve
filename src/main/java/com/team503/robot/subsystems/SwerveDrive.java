@@ -92,11 +92,6 @@ public class SwerveDrive extends Subsystem {
         modules = Arrays.asList(backRight, backLeft, frontLeft, frontRight);
     }
 
-    private double maxSpeedFactor = 1.0;
-
-    public void setMaxSpeed(double max) {
-        maxSpeedFactor = max;
-    }
 
     private boolean fieldCentric = true;
 
@@ -123,17 +118,31 @@ public class SwerveDrive extends Subsystem {
     }
 
     public void drive(Translation2d translationVector, double rotatationalInput) {
+        drive(translationVector, rotatationalInput, false);
+    }
+
+    public void drive(Translation2d translationVector, double rotatationalInput, boolean lowPower) {
         translationVector = translationVector.normalize();
 
         double str = translationVector.x();
         double fwd = translationVector.y();
-        drive(str, fwd, rotationalInput);
+        drive(str, fwd, rotationalInput, lowPower);
+    }
+
+
+    public void drive(double str, double fwd, double rcw) {
+        drive(str, fwd, rcw, false);
     }
 
     // Takes joystick input an calculates drive wheel speed and turn motor angle
-    private void drive(double str, double fwd, double rcw) {
+    private void drive(double str, double fwd, double rcw, boolean lowPower) {
         final double length = Robot.bot.kWheelbaseLength, width = Robot.bot.kWheelbaseWidth;
         double r = Math.sqrt((length * length) + (width * width));
+
+        double scalar = lowPower ? 0.5 : 1.0;
+        str *= scalar;
+        fwd *= scalar;
+        rcw *= scalar;
 
         if (fieldCentric) {
             double angle = Math.toRadians(RobotState.getInstance().getCurrentTheta());
@@ -348,6 +357,6 @@ public class SwerveDrive extends Subsystem {
 
     @Override
     protected void initDefaultCommand() {
-        
+
     }
 }

@@ -104,7 +104,7 @@ public class LimelightProcessor {
 	}
 
 	public enum Pipeline {
-		LEFTMOST(0), RIGHTMOST(1), CLOSEST(2), LOWEST(3), HIGHEST(4);
+		DRIVER(0), LEFTMOST(0), RIGHTMOST(0), CLOSEST(2), LOWEST(0), HIGHEST(0);
 
 		int id;
 

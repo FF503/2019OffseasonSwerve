@@ -24,15 +24,17 @@ public class VisionFollowerController {
 
     // find conversion using real-life tests
     private double distFromTarget(double currentTa) {
-        return 0.25 / currentTa;
+        return 1.0 / currentTa;
     }
 
     public Translation2d getVectorToTarget(double currentTa, double currentTx) {
         Translation2d vector = new Translation2d(getXComponentArea(currentTa, currentTx),
                 getYComponentArea(currentTa, currentTx));
+        table.putNumber("currentTA", currentTa);
+        table.putNumber("currentTX", currentTx);
         table.putNumber("x", vector.x());
         table.putNumber("y", vector.y());
-        return vector;
+        return vector.inverse();
     }
 
     // Area based
@@ -42,15 +44,17 @@ public class VisionFollowerController {
 
     // Area based
     private double getYComponentArea(double currentTa, double currentTx) {
-        return distFromTarget(currentTa) * Math.cos(Math.toRadians(currentTx)) + offsetY;
+        return 0.6 * distFromTarget(currentTa) * Math.cos(Math.toRadians(currentTx)) + offsetY;
     }
 
     // Tx based
+    @Deprecated
     private double getXComponent(double currentTx, double d1, double d2) {
         return d2 - d1;
     }
 
     // Tx based
+    @Deprecated
     private double getYComponent(double currentTx, double d1, double d2) {
         return (d2 - d1) / Math.tan(currentTx);
     }

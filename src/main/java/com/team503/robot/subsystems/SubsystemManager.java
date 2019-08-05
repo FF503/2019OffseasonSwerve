@@ -1,5 +1,6 @@
 package com.team503.robot.subsystems;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -17,6 +18,10 @@ public class SubsystemManager {
 
     public SubsystemManager(List<Subsystem> allSubsystems) {
         mAllSubsystems = allSubsystems;
+    }
+
+    public SubsystemManager(Subsystem... allSubsystems) {
+        this(Arrays.asList(allSubsystems));
     }
 
     public void outputToSmartDashboard() {
