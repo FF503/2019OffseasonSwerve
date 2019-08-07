@@ -24,7 +24,6 @@ import com.team503.robot.RobotState.TargetHeight;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
-import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
@@ -233,12 +232,6 @@ public class Arm extends Subsystem implements SuperStructureSystem {
     }
   }
 
-  @Override
-  public void initDefaultCommand() {
-    // Set the default command for a subsystem here.
-    // setDefaultCommand(new MySpecialCommand());
-
-  }
 
   public boolean isEncoderFault() {
     return getEncoderDeg() > 0.0 && Extension.getInstance().getExtPosition() < 8.0;
@@ -454,5 +447,22 @@ public class Arm extends Subsystem implements SuperStructureSystem {
     } else {
       table.putNumber("Arm Output Voltage", 0);
     }
+  }
+
+  @Override
+  public void zeroSensors() {
+    resetEncoder();
+  }
+
+  @Override
+  public void outputTelemetry() {
+    sendDashboardData();
+  }
+
+  @Override
+  public void stop() {
+    Arm.getInstance().setMotorOutput(0.0);
+		Wrist.getInstance().setMotorOutput(0.0);
+		Extension.getInstance().setMotorPower(0.0);
   }
 }

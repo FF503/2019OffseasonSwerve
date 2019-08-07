@@ -15,7 +15,6 @@ import com.team503.lib.util.FFDashboard;
 import com.team503.lib.util.MotionMagicPID;
 import com.team503.robot.Robot;
 
-import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
@@ -34,8 +33,8 @@ public class Extension extends Subsystem implements SuperStructureSystem {
   public Extension() {
     if (Robot.bot.hasExtension()) {
       extMotor = new TalonSRX(Robot.bot.extensionID);
-      extMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative/* CTRE_MagEncoder_Absolute */, Robot.bot.gSlotIdx,
-          Robot.bot.gTimeoutMs);
+      extMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative/* CTRE_MagEncoder_Absolute */,
+          Robot.bot.gSlotIdx, Robot.bot.gTimeoutMs);
       extMotor.setInverted(Robot.bot.extensionMotorInverted);
       extMotor.setSensorPhase(Robot.bot.extensionSensorPhase);
       extMotor.setNeutralMode(NeutralMode.Brake);
@@ -58,13 +57,13 @@ public class Extension extends Subsystem implements SuperStructureSystem {
   }
 
   public void setMotorPower(double power) {
-    if(Robot.bot.hasArm()) {
+    if (Robot.bot.hasArm()) {
       extMotor.set(ControlMode.PercentOutput, power);
     }
   }
 
   public double getEncoderCounts() {
-    if(Robot.bot.hasArm()) {
+    if (Robot.bot.hasArm()) {
       return extMotor.getSelectedSensorPosition(0);
     } else {
       return 0.0;
@@ -76,7 +75,7 @@ public class Extension extends Subsystem implements SuperStructureSystem {
   }
 
   public double getMotorOutput() {
-    if(Robot.bot.hasArm()) {
+    if (Robot.bot.hasArm()) {
       return extMotor.getMotorOutputVoltage() / extMotor.getBusVoltage();
     } else {
       return 0.0;
@@ -93,7 +92,7 @@ public class Extension extends Subsystem implements SuperStructureSystem {
   }
 
   public double getEncoderVelocity() {
-    if(Robot.bot.hasArm()) {
+    if (Robot.bot.hasArm()) {
       return extMotor.getSelectedSensorVelocity(0);
     } else {
       return 0.0;
@@ -170,19 +169,19 @@ public class Extension extends Subsystem implements SuperStructureSystem {
    * @return Highest recorded deceleration in Units per 100ms per second.
    */
   // public double getMaxDecel() {
-  //   double mCurrAccel = getEncoderAcceleration();
-  //   minAccel = (mCurrAccel < minAccel) ? mCurrAccel : minAccel;
-  //   return minAccel;
+  // double mCurrAccel = getEncoderAcceleration();
+  // minAccel = (mCurrAccel < minAccel) ? mCurrAccel : minAccel;
+  // return minAccel;
   // }
 
   @Override
   public boolean getMagicStall() {
-    if(Robot.bot.hasArm()) {
+    if (Robot.bot.hasArm()) {
       return (extMotor.getMotorOutputVoltage() / extMotor.getBusVoltage() < 0.05);
     } else {
-      return true; 
+      return true;
     }
-  
+
   }
 
   @Override
@@ -192,12 +191,12 @@ public class Extension extends Subsystem implements SuperStructureSystem {
 
   @Override
   public double getMagicError() {
-    if(Robot.bot.hasArm()) {
+    if (Robot.bot.hasArm()) {
       return extMotor.getClosedLoopError();
     } else {
       return 0.0;
     }
-  
+
   }
 
   /**
@@ -206,16 +205,16 @@ public class Extension extends Subsystem implements SuperStructureSystem {
    * @return The motor output current in amps ()
    */
   public double getMotorCurrent() {
-    if(Robot.bot.hasArm()) {
+    if (Robot.bot.hasArm()) {
       return extMotor.getOutputCurrent();
     } else {
       return 0.0;
-  }
-  
+    }
+
   }
 
   public double c2i(double counts) {
-    return counts / Robot.bot.kEncoderUnitsPerRev * Robot.bot.gExtGearRatio * Math.PI * Robot.bot.gExtSpoolDiameter;          
+    return counts / Robot.bot.kEncoderUnitsPerRev * Robot.bot.gExtGearRatio * Math.PI * Robot.bot.gExtSpoolDiameter;
   }
 
   public double i2c(double inches) {
@@ -244,15 +243,26 @@ public class Extension extends Subsystem implements SuperStructureSystem {
     table.putNumber("Extension Error", getMagicError());
     SmartDashboard.putNumber("Extension Current", getMotorCurrent());
     SmartDashboard.putNumber("Ext Position", getExtPosition());
-    if(Robot.bot.hasArm()) {
+    if (Robot.bot.hasArm()) {
       table.putNumber("Extension Output Voltage", extMotor.getMotorOutputVoltage());
-    }else {
+    } else {
       table.putNumber("Extension Output Voltage", 0.0);
     }
   }
 
   @Override
-  protected void initDefaultCommand() {
+  public void outputTelemetry() {
+    sendDashboardData();
+  }
+
+  @Override
+  public void zeroSensors() {
+    resetEncoder();
+  }
+
+  @Override
+  public void stop() {
+
   }
 
 }

@@ -17,7 +17,6 @@ import com.team503.robot.Robot;
 import com.team503.robot.RobotState;
 import com.team503.robot.RobotState.GameElement;
 
-import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
@@ -203,13 +202,6 @@ public class Wrist extends Subsystem implements SuperStructureSystem {
     return wristMotor;
   }
 
-
-  @Override
-  public void initDefaultCommand() {
-    // Set the default command rfo a subsystem here.
-    // setDefaultCommand(new MySpecialCommand());
-  }
-
   private double d2c(double val) {
     return (val - Robot.bot.gWristGroundOffset) * Robot.bot.kEncoderUnitsPerRev / 360;
   }
@@ -275,6 +267,21 @@ public class Wrist extends Subsystem implements SuperStructureSystem {
     } else {
        table.putNumber("Wrist Output Voltage", 0.0);
     }   
+  }
+
+  @Override
+  public void outputTelemetry() {
+    sendDashboardData();
+  }
+
+  @Override
+  public void stop() {
+
+  }
+
+  @Override
+  public void zeroSensors() {
+    resetEncoder();
   }
 
 }
