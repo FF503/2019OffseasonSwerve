@@ -10,6 +10,7 @@ package com.team503.robot;
 import java.util.Arrays;
 
 import com.team503.robot.RobotState.Bot;
+import com.team503.robot.commands.TargetHeightSwitcher;
 import com.team503.robot.Loops.PoseController;
 import com.team503.robot.subsystems.Arm;
 import com.team503.robot.subsystems.Extension;
@@ -49,11 +50,16 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     RobotState.getInstance().setCurrentRobot(Bot.Automatic);
     bot = RobotHardware.getInstance();
-    m_oi = new OI();
+    m_oi = new OI(); m_oi.initialize();
+    OI.initialize();
     mSwerve = SwerveDrive.getInstance();
+    mArm = Arm.getInstance();
+    mWrist = Wrist.getInstance();
+    mExtension = Extension.getInstance();
     subsystems = new SubsystemManager(Arrays.asList(mSwerve, Pigeon.getInstance(), mArm, mWrist, mExtension));
+    subsystems.resetSensor();
     Pigeon.getInstance().zeroSensors();
-    poseEngine = new PoseController();
+   // poseEngine = new PoseController();
   }
 
   /**
@@ -98,7 +104,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopInit() {
-    poseEngine.start();
+   // poseEngine.start();
     mSwerve.setBrakeMode();
   }
 
@@ -124,10 +130,12 @@ public class Robot extends TimedRobot {
     default:
       break;
     }
-    String pose = RobotState.getInstance().getCurrentPose().toString();
-    SmartDashboard.putString("pose", pose);
-    System.out.println(pose);
+    //String pose = RobotState.getInstance().getCurrentPose().toString();
+    //SmartDashboard.putString("pose", pose);
+    //System.out.println(pose);
     // mSwerve.updateTeleopControl();
+    operatorInput();
+    mArm.updateSuperstruture();
 
   }
 
@@ -155,8 +163,8 @@ public class Robot extends TimedRobot {
   }
 
   private void joystickInput() {
-    double swerveYInput = -OI.getDriverLeftYVal();
-    double swerveXInput = OI.getDriverLeftXVal();
+    double swerveYInput = OI.getDriverLeftYVal();
+    double swerveXInput = -OI.getDriverLeftXVal();
     double swerveRotationInput = OI.getDriverRightXVal();
     boolean lowPower = OI.getDriverLeftTriggerPressed();
     double deadband = 0.010;
@@ -201,5 +209,26 @@ public class Robot extends TimedRobot {
     // mSwerve.inputDrive(swerveXInput, swerveYInput, swerveRotationInput,
     // lowPower);
     mSwerve.drive(swerveXInput, swerveYInput, swerveRotationInput);
+  }
+  public void operatorInput(){
+    if (OI.getOperatorA()){
+      TargetHeightSwitcher.set(RobotState.TargetHeight.LOW);
+    }
+    else if (OI.getOperatorB()){
+      TargetHeightSwitcher.set(RobotState.TargetHeight.MIDDLE);
+    }
+    else if (OI.getOperatorX()){
+      TargetHeightSwitcher.set(RobotState.TargetHeight.BUS);
+    }
+    else if (OI.getOperatorY()){
+      TargetHeightSwitcher.set(RobotState.TargetHeight.HIGH);
+    }
+    else if (OI.getOperatorRightBumper()){
+      TargetHeightSwitcher.set(RobotState.TargetHeight.HOME);
+    }
+    else{
+      System.out.println("NO SET");
+    }
+
   }
 }

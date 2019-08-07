@@ -8,8 +8,23 @@
 package com.team503.robot;
 
 import com.team503.lib.io.Xbox;
+import com.team503.robot.RobotState.ArmDirection;
+import com.team503.robot.RobotState.TargetHeight;
+import com.team503.robot.commands.ConstantIntakeCommand;
+import com.team503.robot.commands.EjectCube;
+import com.team503.robot.commands.GameElementSwitcher;
+import com.team503.robot.commands.MoveArmCommand;
+import com.team503.robot.commands.ReleaseHatchCommand;
+import com.team503.robot.commands.ResetEncoderCommand;
+import com.team503.robot.commands.SwitchArmDirection;
+import com.team503.robot.commands.TargetHeightSwitcher;
+import com.team503.robot.commands.ToggleControlModeCommand;
+import com.team503.robot.commands.ToggleIntakeCommand;
 
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.buttons.Button;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
+
 
 /**
  * This class is the glue that binds the controls on the physical operator
@@ -19,7 +34,9 @@ import edu.wpi.first.wpilibj.buttons.JoystickButton;
 public class OI {
 
 	public static Xbox driverJoystick = new Xbox(0);
-	public static Xbox operatorJoystick = new Xbox(1);
+	//public static Xbox operatorJoystick = new Xbox(1);
+	public static XboxController driver = new XboxController(0);
+	public static XboxController operator = new XboxController(1);
 	private static JoystickButton driverA = new JoystickButton(driverJoystick, 1);
 	private static JoystickButton driverB = new JoystickButton(driverJoystick, 2);
 	private static JoystickButton driverX = new JoystickButton(driverJoystick, 3);
@@ -29,8 +46,33 @@ public class OI {
 	private static JoystickButton driverBack = new JoystickButton(driverJoystick, 7);
 	private static JoystickButton driverStart = new JoystickButton(driverJoystick, 8);
 
-	public static void initialize() {
+	private static JoystickButton operatorY = new JoystickButton(operator, 4);
+	private static JoystickButton operatorX = new JoystickButton(operator, 3);
+	private static JoystickButton operatorB = new JoystickButton(operator, 2);
+	private static JoystickButton operatorA = new JoystickButton(operator, 1);
+	private static JoystickButton operatorMenu = new JoystickButton(operator, 8);
+	private static JoystickButton operatorSelect = new JoystickButton(operator, 7);
+	private static JoystickButton operatorLB = new JoystickButton(operator, 5);
+	private static JoystickButton operatorRB = new JoystickButton(operator, 6);
+	private static JoystickButton operatorRJ = new JoystickButton(operator, 10);
 
+	public static void initialize() {
+		driverX.toggleWhenPressed(new ToggleIntakeCommand());
+		operatorSelect.whenPressed(new ToggleControlModeCommand());
+		operatorLB.whenPressed(new SwitchArmDirection());
+		driverA.whenPressed(new ReleaseHatchCommand());
+		driverB.whileHeld(new EjectCube());
+		passiveIntake.whileHeld(new ConstantIntakeCommand());
+		//operatorMenu.whenPressed(new TargetHeightSwitcher(RobotState.TargetHeight.INTAKE));
+		// operatorA.whenPressed(new TargetHeightSwitcher(RobotState.TargetHeight.LOW));
+		// operatorB.whenPressed(new TargetHeightSwitcher(RobotState.TargetHeight.MIDDLE));
+		// operatorY.whenPressed(new TargetHeightSwitcher(RobotState.TargetHeight.HIGH));
+		// operatorX.whenPressed(new TargetHeightSwitcher(RobotState.TargetHeight.BUS));
+
+		setToCargo.whenPressed(new GameElementSwitcher(RobotState.GameElement.CARGO));
+		setToHPC.whenPressed(new GameElementSwitcher(RobotState.GameElement.HATCH));
+		operatorRB.whenPressed(new MoveArmCommand(ArmDirection.FRONT, TargetHeight.HOME));
+		operatorRJ.whenPressed(new ResetEncoderCommand());
 	}
 
 	public static double getDriverLeftXVal() {
@@ -97,4 +139,45 @@ public class OI {
 		return driverStart.get();
 	}
 
+	public static Button passiveIntake = new Button() {
+
+		@Override
+		public boolean get() {
+			return getDriverRightTriggerPressed();
+		}
+	};
+
+	public static Button setToHPC = new Button() {
+		@Override
+		public boolean get() {
+			return operator.getRawAxis(2) >= 0.9;
+		}
+	};
+
+	public static Button setToCargo = new Button() {
+		@Override
+		public boolean get() {
+			return operator.getRawAxis(3) >= 0.9;
+		}
+	};
+
+	public static boolean getOperatorA(){
+		return operatorA.get();
+	}
+
+	public static boolean getOperatorB(){
+		return operatorB.get();
+	}
+	
+	public static boolean getOperatorY(){
+		return operatorY.get();
+	}
+
+	public static boolean getOperatorX(){
+		return operatorX.get();
+	}
+
+	public static boolean getOperatorRightBumper(){
+		return operatorRB.get();
+	}
 }

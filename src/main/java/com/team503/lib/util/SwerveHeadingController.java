@@ -70,7 +70,7 @@ public class SwerveHeadingController {
         case Off:
             break;
         case Stabilize:
-            output = stabilizationPID.calculateOutput(heading, true);
+            output = 0;// stabilizationPID.calculateOutput(heading, true);
             break;
         case TemporaryDisable:
             targetHeading = heading;
@@ -79,14 +79,14 @@ public class SwerveHeadingController {
             }
             break;
         case Stationary:
-            output = rotateInPlace.calculateOutput(heading, true);
+            output = 0;//rotateInPlace.calculateOutput(heading, true);
             break;
         case Snap:
             if (snappingPID.onTarget()) {
                 setState(State.Stabilize);
                 break;
             }
-            output = snappingPID.calculateOutput(heading, true);
+            output = 0;// snappingPID.calculateOutput(heading, true);
             break;
         }
 

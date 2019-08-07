@@ -214,14 +214,14 @@ public class SuperStructureCommand extends Command {
 
 				// eIsMax = Extension.getInstance().getExtPosition() > eLim;
 				// eIsMin = Extension.getInstance().getExtPosition() < Robot.bot.gExtMinLim;
-				Arm.getInstance().setMotorOutput(-OI.operatorJoystick.getY(Hand.kLeft));
-				Wrist.getInstance().setMotorOutput(-OI.operatorJoystick.getY(Hand.kRight));
+				Arm.getInstance().setMotorOutput(-OI.operator.getY(Hand.kLeft));
+				Wrist.getInstance().setMotorOutput(-OI.operator.getY(Hand.kRight));
 
 				// Extension.getInstance().setTargetPosition(eLim);
 
-				if (OI.operatorJoystick.getPOV() == 0) {// && !eIsMax) {
+				if (OI.operator.getPOV() == 0) {// && !eIsMax) {
 					Extension.getInstance().setMotorOutput(0.50);
-				} else if (OI.operatorJoystick.getPOV() == 180 /* && !eIsMin */) {
+				} else if (OI.operator.getPOV() == 180 /* && !eIsMin */) {
 					Extension.getInstance().setMotorOutput(-0.50);
 				} else {
 					Extension.getInstance().setMotorOutput(0.00);

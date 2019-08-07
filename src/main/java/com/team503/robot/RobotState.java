@@ -93,7 +93,7 @@ public class RobotState {
 	}
 
 	public static enum SuperStructurePreset {// FRONT_CARGO_INTAKE(-32, -58, 0.)
-		HATCH_HOME(-47., 90, 0.), CARGO_HOME(-45, 45, 0), VIEW_AUTO_REAR(187., 90., 0.),
+		HATCH_HOME(-56., 90, 0.), CARGO_HOME(-45, 45, 0), VIEW_AUTO_REAR(187., 90., 0.),
 		FRONT_CARGO_BUS(48.2, -21.8, 0.), BACK_CARGO_BUS(111, 53. + 180., 0.), FRONT_CARGO_INTAKE(-38, -14. + 3.5, 0.),
 		FRONT_CARGO_LOW(0., -3., 0.), FRONT_CARGO_MID(69., -5., 0.), // 0., -3., 0.
 		FRONT_CARGO_HIGH(84.0, 48.0, 12.7), BACK_CARGO_INTAKE(222, 183, 0.), BACK_CARGO_LOW(170., 180., 0.),
@@ -143,6 +143,7 @@ public class RobotState {
 
 	public void setTargetHeight(TargetHeight height) {
 		targetHeight = height;
+		System.out.println("SETTING TARGET");
 		FFDashboard.getInstance().putString("Arm Level", height.toString());
 	}
 

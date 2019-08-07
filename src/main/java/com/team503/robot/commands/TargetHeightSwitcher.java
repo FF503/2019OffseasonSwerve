@@ -13,65 +13,22 @@ import com.team503.robot.RobotState.TargetHeight;
 
 import edu.wpi.first.wpilibj.command.Command;
 
-public class TargetHeightSwitcher extends Command {
+public class TargetHeightSwitcher{
 
-  private TargetHeight height;
-  private boolean gotoBus;
-
-  public TargetHeightSwitcher(TargetHeight h) {
-    // Use requires() here to declare subsystem dependencies
-    // eg. requires(chassis);
-    this.height = h;
-    this.gotoBus = false;
+  public static void set(TargetHeight h) {
+    RobotState.getInstance().setTargetHeight(h);
+    RobotState.getInstance().setPositionChanged(true);
   }
 
-  public TargetHeightSwitcher(boolean bus) {
-    // Use requires() here to declare subsystem dependencies
-    // eg. requires(chassis);
-    this.gotoBus = bus;
-  }
-
-  // Called just before this Command runs the first time
-  @Override
-  protected void initialize() {
-    if (this.gotoBus) {
+  public static void set(boolean gotoBus) {
+    if (gotoBus) {
       if (RobotState.getInstance().getGameElement() == GameElement.CARGO) {
         RobotState.getInstance().setTargetHeight(TargetHeight.MIDDLE);
       } else {
         RobotState.getInstance().setTargetHeight(TargetHeight.LOW);
       }
-    } else {
-      RobotState.getInstance().setTargetHeight(height);
-    }
-
-    // if(RobotState.getInstance().getArmDirection() == ArmDirection.FRONT) {
-    // //  LimelightTurret.getInstance().turnToFront();
-    // } else {
-    // //  LimelightTurret.getInstance().turnToBack();
-    // }
-
+    } 
     RobotState.getInstance().setPositionChanged(true);
   }
 
-  // Called repeatedly when this Command is scheduled to run
-  @Override
-  protected void execute() {
-  }
-
-  // Make this return true when this Command no longer needs to run execute()
-  @Override
-  protected boolean isFinished() {
-    return true;
-  }
-
-  // Called once after isFinished returns true
-  @Override
-  protected void end() {
-  }
-
-  // Called when another command which requires one or more of the same
-  // subsystems is scheduled to run
-  @Override
-  protected void interrupted() {
-  }
 }

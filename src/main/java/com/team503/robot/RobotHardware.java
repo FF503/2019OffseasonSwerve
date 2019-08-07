@@ -198,7 +198,7 @@ public abstract class RobotHardware {
                 break;
             }
             instance.initalizeConstants();
-            Util.setPseudoInverseForwardKinematicsMatrix();
+            //Util.setPseudoInverseForwardKinematicsMatrix();
         }
         return instance;
     }

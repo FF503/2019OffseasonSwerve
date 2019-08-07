@@ -46,7 +46,7 @@ public class SwerveModule {
         this.motorEncoder = new CANEncoder(this.driveMotor);
         this.turnMotor = new TalonSRX(turnMotorID);
 
-        driveMotor.setIdleMode(IdleMode.kBrake);
+        driveMotor.setIdleMode(IdleMode.kCoast);
         turnMotor.setNeutralMode(NeutralMode.Brake);
         // this is the encoder count when the wheel is aligned forward at the start
         this.kBaseEncoderClicks = startingEncoderClick;

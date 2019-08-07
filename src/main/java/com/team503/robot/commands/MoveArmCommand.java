@@ -18,25 +18,25 @@ public class MoveArmCommand extends CommandGroup {
 
   public MoveArmCommand(ArmDirection armDirection, TargetHeight targetHeight) {
     addSequential(new SetArmDirection(armDirection));
-    addSequential(new TargetHeightSwitcher(targetHeight));
+   // addSequential(new TargetHeightSwitcher(targetHeight));
   }
 
   public MoveArmCommand(ArmDirection armDirection, GameElement gameElement, TargetHeight targetHeight) {
     addSequential(new SetArmDirection(armDirection));
     addSequential(new GameElementSwitcher(gameElement));
-    addSequential(new TargetHeightSwitcher(targetHeight));
+  //  addSequential(new TargetHeightSwitcher(targetHeight));
   }
 
   public MoveArmCommand(ArmDirection armDirection, TargetHeight targetHeight, double delay) {
     addSequential(new WaitCommand(delay));
     addSequential(new SetArmDirection(armDirection));
-    addSequential(new TargetHeightSwitcher(targetHeight));
+  //  addSequential(new TargetHeightSwitcher(targetHeight));
   }
 
   public MoveArmCommand(ArmDirection armDirection, GameElement gameElement, TargetHeight targetHeight, double delay) {
     addSequential(new WaitCommand(delay));
     addSequential(new SetArmDirection(armDirection));
     addSequential(new GameElementSwitcher(gameElement));
-    addSequential(new TargetHeightSwitcher(targetHeight));
+  //  addSequential(new TargetHeightSwitcher(targetHeight));
   }
 }

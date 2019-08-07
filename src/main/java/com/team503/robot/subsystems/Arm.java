@@ -64,7 +64,7 @@ public class Arm extends Subsystem implements SuperStructureSystem {
     armPID.configPIDs();
     armMaster.config_IntegralZone(Robot.bot.gSlotIdx, 50);
 
-    aTgt = Arm.getInstance().getEncoderDeg();
+    aTgt = getEncoderDeg();
     eTgt = Robot.bot.gExtMinLim;
     wTgt = 90.0;
     RobotState.getInstance().setIsManual(false);
@@ -245,8 +245,9 @@ public class Arm extends Subsystem implements SuperStructureSystem {
     return (val / Robot.bot.kEncoderUnitsPerRev) * 360;
   }
 
-  public static void updateSuperstruture() {
+  public synchronized void updateSuperstruture() {
     if ((DriverStation.getInstance().isAutonomous() || !RobotState.getInstance().getIsManual())) {
+      System.out.println("ANKITTHHHH");
       manualIdx = 0;
       if (RobotState.getInstance().getPositionChanged()) {
         ArmDirection armDirection = RobotState.getInstance().getArmDirection();
@@ -359,7 +360,11 @@ public class Arm extends Subsystem implements SuperStructureSystem {
         wTgt = preset.getWristPosition();
         aTgt = preset.getArmPosition();
         eTgt = preset.getExtPosition();
+
+        System.out.println("a tgt:  " + aTgt);
+
       }
+      System.out.println("no change");
       if (Robot.bot.hasWrist()) {
         double wristPower = Wrist.getInstance().getTalon().getOutputCurrent()
             * Wrist.getInstance().getTalon().getMotorOutputVoltage();
@@ -407,17 +412,16 @@ public class Arm extends Subsystem implements SuperStructureSystem {
         aTgt = Arm.getInstance().getEncoderDeg();
         wTgt = Wrist.getInstance().getHRelEncoderDeg();
         eTgt = Extension.getInstance().getExtPosition();
-
         // eIsMax = Extension.getInstance().getExtPosition() > eLim;
         // eIsMin = Extension.getInstance().getExtPosition() < Robot.bot.gExtMinLim;
-        Arm.getInstance().setMotorOutput(-OI.operatorJoystick.getY(Hand.kLeft));
-        Wrist.getInstance().setMotorOutput(-OI.operatorJoystick.getY(Hand.kRight));
+        Arm.getInstance().setMotorOutput(-OI.operator.getY(Hand.kLeft));
+        Wrist.getInstance().setMotorOutput(-OI.operator.getY(Hand.kRight));
 
         // Extension.getInstance().setTargetPosition(eLim);
 
-        if (OI.operatorJoystick.getPOV() == 0) {// && !eIsMax) {
+        if (OI.operator.getPOV() == 0) {// && !eIsMax) {
           Extension.getInstance().setMotorOutput(0.50);
-        } else if (OI.operatorJoystick.getPOV() == 180 /* && !eIsMin */) {
+        } else if (OI.operator.getPOV() == 180 /* && !eIsMin */) {
           Extension.getInstance().setMotorOutput(-0.50);
         } else {
           Extension.getInstance().setMotorOutput(0.00);
