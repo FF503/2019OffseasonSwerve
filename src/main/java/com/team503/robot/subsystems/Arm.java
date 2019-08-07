@@ -38,9 +38,9 @@ public class Arm extends Subsystem implements SuperStructureSystem {
   private MotionMagicPID armPID;
   private double lastVel, currVel, accel, maxVel, maxAccel, minAccel = 0;
 
-  private double aTgt, eTgt, wTgt, eLim = 0;
-	private boolean eIsMax, eIsMin = false;
-	private int manualIdx = 0;
+  private static double aTgt, eTgt, wTgt, eLim = 0;
+	private static boolean eIsMax, eIsMin = false;
+	private static int manualIdx = 0;
 
   public Arm() {
     // if (!RobotState.getInstance().getCurrentRobot().equals(Bot.ProgrammingBot)) {
@@ -252,7 +252,7 @@ public class Arm extends Subsystem implements SuperStructureSystem {
     return (val / Robot.bot.kEncoderUnitsPerRev) * 360;
   }
 
-  public void updateSuperstruture() {
+  public static void updateSuperstruture() {
     if ((DriverStation.getInstance().isAutonomous() || !RobotState.getInstance().getIsManual())) {
       manualIdx = 0;
       if (RobotState.getInstance().getPositionChanged()) {
