@@ -11,6 +11,7 @@ import java.util.Arrays;
 
 import com.team503.robot.RobotState.Bot;
 import com.team503.robot.commands.TargetHeightSwitcher;
+import com.team503.robot.commands.VacuumPowerCommand;
 import com.team503.robot.Loops.PoseController;
 import com.team503.robot.subsystems.Arm;
 import com.team503.robot.subsystems.Extension;
@@ -59,6 +60,8 @@ public class Robot extends TimedRobot {
     subsystems = new SubsystemManager(Arrays.asList(mSwerve, Pigeon.getInstance(), mArm, mWrist, mExtension));
     subsystems.resetSensor();
     Pigeon.getInstance().zeroSensors();
+
+    (new VacuumPowerCommand()).start();
    // poseEngine = new PoseController();
   }
 
