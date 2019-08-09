@@ -11,8 +11,6 @@ import com.team503.robot.RobotState;
 import com.team503.robot.RobotState.GameElement;
 import com.team503.robot.RobotState.TargetHeight;
 
-import edu.wpi.first.wpilibj.command.Command;
-
 public class TargetHeightSwitcher{
 
   public static void set(TargetHeight h) {

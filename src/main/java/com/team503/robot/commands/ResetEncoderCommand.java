@@ -15,17 +15,9 @@ import com.team503.robot.subsystems.Wrist;
 
 import edu.wpi.first.wpilibj.command.Command;
 
-public class ResetEncoderCommand extends Command {
-  public ResetEncoderCommand() {
-    // Use requires() here to declare subsystem dependencies
-    // requires(Arm.getInstance());
-    // requires(Wrist.getInstance());
-    // requires(Extension.getInstance());
-  }
-
-  // Called just before this Command runs the first time
-  @Override
-  protected void initialize() {
+public class ResetEncoderCommand{
+  
+  public static void resetEncs() {
     if (RobotState.getInstance().getIsManual()) {
       Arm.getInstance().resetEncoder();
       Wrist.getInstance().resetEncoder();
@@ -33,26 +25,4 @@ public class ResetEncoderCommand extends Command {
     }
   }
 
-  // Called repeatedly when this Command is scheduled to run
-  @Override
-  protected void execute() {
-  }
-
-  // Make this return true when this Command no longer needs to run execute()
-  @Override
-  protected boolean isFinished() {
-    return true;
-  }
-
-  // Called once after isFinished returns true
-  @Override
-  protected void end() {
-  }
-
-  // Called when another command which requires one or more of the same
-  // subsystems is scheduled to run
-  @Override
-  protected void interrupted() {
-    end();
-  }
 }

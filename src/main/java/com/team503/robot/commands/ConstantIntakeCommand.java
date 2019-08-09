@@ -39,7 +39,7 @@ public class ConstantIntakeCommand extends Command {
   // Called once after isFinished returns true
   @Override
   protected void end() {
-    Intake.getInstance().stopIntake();
+    //Intake.getInstance().stopIntake();
   }
 
   // Called when another command which requires one or more of the same

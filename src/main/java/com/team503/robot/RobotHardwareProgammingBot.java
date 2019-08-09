@@ -60,18 +60,18 @@ public class RobotHardwareProgammingBot extends RobotHardware {
         armMasterSensorPhase = false;
 
         // Wrist/Intake
-        rollerIntakeID = 0;
+        rollerIntakeID = 2;
 
-        intakePdpChannel = 9;
-        vacuumPdpChannel = 11;
+        intakePdpChannel = 8;
+        vacuumPdpChannel = 7;
 
-        intakePower = 0.8;
-        intakeStallPower = 0.25;
-        intakeOutPower = -0.7;// 0.8;
+        intakePower = -0.8;
+        intakeStallPower = -0.25;
+        intakeOutPower = 0.7;// 0.8;
         intakeVaccPower = 0.45;
 
         hatchVacId = 1;
-        releaseId = 2;
+        releaseId = 0;
 
         rollerCurrentThres = 30.0;
         vacuumCurrentThres = 20.0;

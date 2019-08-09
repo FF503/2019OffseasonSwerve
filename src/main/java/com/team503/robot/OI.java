@@ -11,15 +11,13 @@ import com.team503.lib.io.Xbox;
 import com.team503.robot.RobotState.ArmDirection;
 import com.team503.robot.RobotState.TargetHeight;
 import com.team503.robot.commands.ConstantIntakeCommand;
-import com.team503.robot.commands.EjectCube;
 import com.team503.robot.commands.GameElementSwitcher;
 import com.team503.robot.commands.MoveArmCommand;
-import com.team503.robot.commands.ReleaseHatchCommand;
+import com.team503.robot.commands.ReleaseHatch;
 import com.team503.robot.commands.ResetEncoderCommand;
 import com.team503.robot.commands.SwitchArmDirection;
 import com.team503.robot.commands.TargetHeightSwitcher;
-import com.team503.robot.commands.ToggleControlModeCommand;
-import com.team503.robot.commands.ToggleIntakeCommand;
+import com.team503.robot.commands.ToggleIntake;
 
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.buttons.Button;
@@ -57,22 +55,21 @@ public class OI {
 	private static JoystickButton operatorRJ = new JoystickButton(operator, 10);
 
 	public static void initialize() {
-		driverX.toggleWhenPressed(new ToggleIntakeCommand());
-		operatorSelect.whenPressed(new ToggleControlModeCommand());
-		operatorLB.whenPressed(new SwitchArmDirection());
-		driverA.whenPressed(new ReleaseHatchCommand());
-		driverB.whileHeld(new EjectCube());
-		passiveIntake.whileHeld(new ConstantIntakeCommand());
+		//driverX.toggleWhenPressed(new ToggleIntake());
+		//operatorSelect.whenPressed(new ToggleControlModeCommand());
+		//driverA.whenPressed(new ReleaseHatch());
+		//driverB.whileHeld(new EjectCube());
+		//passiveIntake.whileHeld(new ConstantIntakeCommand());
 		//operatorMenu.whenPressed(new TargetHeightSwitcher(RobotState.TargetHeight.INTAKE));
 		// operatorA.whenPressed(new TargetHeightSwitcher(RobotState.TargetHeight.LOW));
 		// operatorB.whenPressed(new TargetHeightSwitcher(RobotState.TargetHeight.MIDDLE));
 		// operatorY.whenPressed(new TargetHeightSwitcher(RobotState.TargetHeight.HIGH));
 		// operatorX.whenPressed(new TargetHeightSwitcher(RobotState.TargetHeight.BUS));
 
-		setToCargo.whenPressed(new GameElementSwitcher(RobotState.GameElement.CARGO));
-		setToHPC.whenPressed(new GameElementSwitcher(RobotState.GameElement.HATCH));
-		operatorRB.whenPressed(new MoveArmCommand(ArmDirection.FRONT, TargetHeight.HOME));
-		operatorRJ.whenPressed(new ResetEncoderCommand());
+		//setToCargo.whenPressed(new GameElementSwitcher(RobotState.GameElement.CARGO));
+		//setToHPC.whenPressed(new GameElementSwitcher(RobotState.GameElement.HATCH));
+		//operatorRB.whenPressed(new MoveArmCommand(ArmDirection.FRONT, TargetHeight.HOME));
+		//operatorRJ.whenPressed(new ResetEncoderCommand());
 	}
 
 	public static double getDriverLeftXVal() {
@@ -180,4 +177,30 @@ public class OI {
 	public static boolean getOperatorRightBumper(){
 		return operatorRB.get();
 	}
+
+	public static boolean getOperatorLeftBumper(){
+		return operatorLB.get();
+	}
+
+	public static boolean getOperatorHatchSwitch(){
+		return setToHPC.get();
+	}
+
+	public static boolean getOperatorCargoSwitch(){
+		return setToCargo.get();
+	}
+
+	public static boolean getOperatorMenu(){
+		return operatorMenu.get();
+	}
+
+	public static boolean getOperatorSelect(){
+		return operatorSelect.get();
+	}
+
+	public static boolean getOperatorRJ(){
+		return operatorRJ.get();
+	}
+
+	
 }

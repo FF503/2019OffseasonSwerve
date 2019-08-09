@@ -8,18 +8,24 @@
 package com.team503.robot.commands;
 
 
-
 import com.team503.robot.RobotState;
-import com.team503.robot.RobotState.GameElement;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Command;
 
-public class GameElementSwitcher  {
-  
-  private GameElement element;
+public class ToggleControlMode{
+  private static double lastPress = 0.0;
 
-  public static void setGameElement(GameElement e) {
-    RobotState.getInstance().setGameElement(e);
+  public static void toggle() {
+    lastPress = Timer.getFPGATimestamp();
+    if (Timer.getFPGATimestamp() - lastPress > 0.2){
+      
+    }
+    if (RobotState.getInstance().getIsManual()) {
+      RobotState.getInstance().setIsManual(false);
+    } else {
+      RobotState.getInstance().setIsManual(true);
+    }
   }
 
 }

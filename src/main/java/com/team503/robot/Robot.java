@@ -10,7 +10,15 @@ package com.team503.robot;
 import java.util.Arrays;
 
 import com.team503.robot.RobotState.Bot;
+import com.team503.robot.RobotState.GameElement;
+import com.team503.robot.commands.EjectBall;
+import com.team503.robot.commands.GameElementSwitcher;
+import com.team503.robot.commands.ReleaseHatch;
+import com.team503.robot.commands.ResetEncoderCommand;
+import com.team503.robot.commands.SwitchArmDirection;
 import com.team503.robot.commands.TargetHeightSwitcher;
+import com.team503.robot.commands.ToggleControlMode;
+import com.team503.robot.commands.ToggleIntake;
 import com.team503.robot.commands.VacuumPowerCommand;
 import com.team503.robot.Loops.PoseController;
 import com.team503.robot.subsystems.Arm;
@@ -203,12 +211,10 @@ public class Robot extends TimedRobot {
     } else if (OI.driverJoystick.getYButtonPressed()) {
       mSwerve.rotate(0);
       swerveRotationInput = mSwerve.getRotationalOutput();
-    } else if (OI.getDriverBackButton()) {
-      mSwerve.toggleFieldCentric();
     } else if (OI.driverJoystick.getStartButtonPressed()) {
       mSwerve.setMode(DriveMode.Defense);
     }
-
+    mSwerve.setFieldCentric(!OI.getDriverLeftTriggerPressed());
     // mSwerve.inputDrive(swerveXInput, swerveYInput, swerveRotationInput,
     // lowPower);
     mSwerve.drive(swerveXInput, swerveYInput, swerveRotationInput);
@@ -226,12 +232,41 @@ public class Robot extends TimedRobot {
     else if (OI.getOperatorY()){
       TargetHeightSwitcher.set(RobotState.TargetHeight.HIGH);
     }
+    else if(OI.getOperatorMenu()){
+      TargetHeightSwitcher.set(RobotState.TargetHeight.INTAKE);
+    }
     else if (OI.getOperatorRightBumper()){
       TargetHeightSwitcher.set(RobotState.TargetHeight.HOME);
     }
-    else{
-      System.out.println("NO SET");
+    else if (OI.getOperatorLeftBumper()){
+      SwitchArmDirection.flip();
     }
-
+    else if (OI.getOperatorHatchSwitch()){
+      GameElementSwitcher.setGameElement(GameElement.HATCH);
+    }
+    else if (OI.getOperatorCargoSwitch()){
+      GameElementSwitcher.setGameElement(GameElement.CARGO);
+    }
+    else if (OI.getOperatorSelect()){
+      ToggleControlMode.toggle();
+    }
+    else if (OI.getDriverXButton()){
+      System.out.println("x");
+      ToggleIntake.toggleIntake();
+    }
+    ToggleIntake.handleIntakeFinish();
+    if (OI.getDriverBButton()){
+      EjectBall.eject();
+    }
+    else{
+      EjectBall.stopEject();
+    }
+    if (OI.getDriverAButton()){
+      ReleaseHatch.startRelease();
+    }
+    ReleaseHatch.handleFinish();
+    if (OI.getOperatorRJ()){
+      ResetEncoderCommand.resetEncs();
+    }
   }
 }

@@ -247,7 +247,7 @@ public class Arm extends Subsystem implements SuperStructureSystem {
 
   public synchronized void updateSuperstruture() {
     if ((DriverStation.getInstance().isAutonomous() || !RobotState.getInstance().getIsManual())) {
-      System.out.println("ANKITTHHHH");
+      
       manualIdx = 0;
       if (RobotState.getInstance().getPositionChanged()) {
         ArmDirection armDirection = RobotState.getInstance().getArmDirection();
@@ -364,7 +364,6 @@ public class Arm extends Subsystem implements SuperStructureSystem {
         System.out.println("a tgt:  " + aTgt);
 
       }
-      System.out.println("no change");
       if (Robot.bot.hasWrist()) {
         double wristPower = Wrist.getInstance().getTalon().getOutputCurrent()
             * Wrist.getInstance().getTalon().getMotorOutputVoltage();
@@ -389,7 +388,7 @@ public class Arm extends Subsystem implements SuperStructureSystem {
       }
       if (Robot.bot.hasArm()) {
         Arm.getInstance().setTargetPosition(aTgt);
-        if (Arm.getInstance().getEncoderDeg() > -40) {
+        if (Arm.getInstance().getEncoderDeg() > -50) {
           Extension.getInstance().setTargetPosition(eTgt);
         } else {
           Extension.getInstance().setTargetPosition(0.0);

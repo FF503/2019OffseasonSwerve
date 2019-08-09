@@ -8,18 +8,22 @@
 package com.team503.robot.commands;
 
 
-
 import com.team503.robot.RobotState;
-import com.team503.robot.RobotState.GameElement;
+import com.team503.robot.subsystems.Intake;
 
 import edu.wpi.first.wpilibj.command.Command;
 
-public class GameElementSwitcher  {
-  
-  private GameElement element;
-
-  public static void setGameElement(GameElement e) {
-    RobotState.getInstance().setGameElement(e);
+public class EjectBall{
+ 
+  public static void eject() {
+    Intake.getInstance().outtakeCargo();
+  }
+  public static void stopEject() {
+    if (!ToggleIntake.getRunning()){
+      Intake.getInstance().stopIntake();
+      RobotState.getInstance().setHatchDependence(true);
+    }
+    
   }
 
 }
