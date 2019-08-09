@@ -187,31 +187,33 @@ public class Robot extends TimedRobot {
       mSwerve.rotate(RobotState.getInstance().getCurrentTheta());
     }
 
-    if (OI.driverJoystick.leftBumper.shortReleased()) {
-      mSwerve.rotate(-24);
-      swerveRotationInput = mSwerve.getRotationalOutput();
-    } else if (OI.driverJoystick.leftBumper.longPressed()) {
-      mSwerve.rotate(-151.0);
-      swerveRotationInput = mSwerve.getRotationalOutput();
-    } else if (OI.driverJoystick.rightBumper.shortReleased()) {
-      mSwerve.rotate(24);
-      swerveRotationInput = mSwerve.getRotationalOutput();
-    } else if (OI.driverJoystick.rightBumper.longPressed()) {
-      mSwerve.rotate(151.0);
-      swerveRotationInput = mSwerve.getRotationalOutput();
-    } else if (OI.driverJoystick.getAButtonPressed()) {
-      mSwerve.rotate(180);
-      swerveRotationInput = mSwerve.getRotationalOutput();
-    } else if (OI.driverJoystick.getBButtonPressed()) {
-      mSwerve.rotate(90);
-      swerveRotationInput = mSwerve.getRotationalOutput();
-    } else if (OI.driverJoystick.getXButtonPressed()) {
-      mSwerve.rotate(270);
-      swerveRotationInput = mSwerve.getRotationalOutput();
-    } else if (OI.driverJoystick.getYButtonPressed()) {
-      mSwerve.rotate(0);
-      swerveRotationInput = mSwerve.getRotationalOutput();
-    } else if (OI.driverJoystick.getStartButtonPressed()) {
+    // if (OI.driverJoystick.leftBumper.shortReleased()) {
+    //   mSwerve.rotate(-24);
+    //   swerveRotationInput = mSwerve.getRotationalOutput();
+    // } else if (OI.driverJoystick.leftBumper.longPressed()) {
+    //   mSwerve.rotate(-151.0);
+    //   swerveRotationInput = mSwerve.getRotationalOutput();
+    // } else if (OI.driverJoystick.rightBumper.shortReleased()) {
+    //   mSwerve.rotate(24);
+    //   swerveRotationInput = mSwerve.getRotationalOutput();
+    // } else if (OI.driverJoystick.rightBumper.longPressed()) {
+    //   mSwerve.rotate(151.0);
+    //   swerveRotationInput = mSwerve.getRotationalOutput();
+    // } else if (OI.driverJoystick.getAButtonPressed()) {
+    //   mSwerve.rotate(180);
+    //   swerveRotationInput = mSwerve.getRotationalOutput();
+    // } else if (OI.driverJoystick.getBButtonPressed()) {
+    //   mSwerve.rotate(90);
+    //   swerveRotationInput = mSwerve.getRotationalOutput();
+    // } else if (OI.driverJoystick.getXButtonPressed()) {
+    //   mSwerve.rotate(270);
+    //   swerveRotationInput = mSwerve.getRotationalOutput();
+    // } else if (OI.driverJoystick.getYButtonPressed()) {
+    //   mSwerve.rotate(0);
+    //   swerveRotationInput = mSwerve.getRotationalOutput();
+    //} else 
+    System.out.println(OI.driverJoystick.getPOV());
+    if (OI.driverJoystick.getStartButtonPressed()) {
       mSwerve.setMode(DriveMode.Defense);
     }
     mSwerve.setFieldCentric(!OI.getDriverLeftTriggerPressed());

@@ -64,6 +64,7 @@ public class SwerveModule {
 
         // configure drive motor
         driveMotor.setInverted(kDriveMotorInverted);
+        driveMotor.setOpenLoopRampRate(0.5);
 
         // configure turn motor
         turnMotor.configSelectedFeedbackSensor(FeedbackDevice.Analog);
