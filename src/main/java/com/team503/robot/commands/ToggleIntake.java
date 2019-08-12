@@ -36,7 +36,7 @@ public class ToggleIntake  {
         
       }
       else{
-        System.out.println("setting power");
+        //System.out.println("setting power");
         
         Intake.getInstance().intakeCargo();
         RobotState.getInstance().setHatchDependence(false);
@@ -57,7 +57,7 @@ public class ToggleIntake  {
  
   public static void handleIntakeFinish() {
     if (running && isFinished()){
-      System.out.println("handle stop");
+      //System.out.println("handle stop");
       end();
     }
    
@@ -65,9 +65,9 @@ public class ToggleIntake  {
 
   private static void end(){
     Intake.getInstance().stopIntake();
-    System.out.println("off step 1");
+    //System.out.println("off step 1");
       if (hasCargo) {
-        System.out.println("Turning off");
+        //System.out.println("Turning off");
         RobotState.getInstance().setHasElement(true);
         SwitchArmDirection.set(ArmDirection.FRONT);
         TargetHeightSwitcher.set(TargetHeight.HOME);

@@ -34,7 +34,7 @@ public class Pigeon extends Subsystem {
 			// pigeon = new PigeonIMU(BallIntake.getInstance().getPigeonTalon());
 			pigeon = new PigeonIMU(22/* Ports.PIGEON_ID */);
 		} catch (Exception e) {
-			System.out.println(e);
+			//System.out.println(e);
 		}
 	}
 
@@ -80,7 +80,7 @@ public class Pigeon extends Subsystem {
 	public void setAngle(double angle) {
 		pigeon.setFusedHeading(-angle * 64.0, 10);
 		pigeon.setYaw(-angle, 10);
-		System.out.println("Pigeon angle set to: " + angle);
+		//.println("Pigeon angle set to: " + angle);
 	}
 
 	private double boundTo360(double angle_degrees) {

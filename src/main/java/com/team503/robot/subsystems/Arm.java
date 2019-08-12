@@ -361,7 +361,7 @@ public class Arm extends Subsystem implements SuperStructureSystem {
         aTgt = preset.getArmPosition();
         eTgt = preset.getExtPosition();
 
-        System.out.println("a tgt:  " + aTgt);
+        //.println("a tgt:  " + aTgt);
 
       }
       if (Robot.bot.hasWrist()) {
@@ -370,7 +370,7 @@ public class Arm extends Subsystem implements SuperStructureSystem {
         // System.out.println("Wrist Power Watts: " + wristPower);
         if (wristPower > Robot.bot.MAX_WRIST_POWER) {
           Wrist.getInstance().setMotorOutput(0.0);
-          System.out.println("WRIST POWER TOO HIGH BURN OUT WARNING");
+          //System.out.println("WRIST POWER TOO HIGH BURN OUT WARNING");
         } else {
           if (!(RobotState.getInstance().getSuperStructurePreset() == SuperStructurePreset.FRONT_CARGO_BUS
               && Arm.getInstance().getEncoderDeg() < -30)) {

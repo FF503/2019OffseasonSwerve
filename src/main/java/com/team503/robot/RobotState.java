@@ -143,7 +143,7 @@ public class RobotState {
 
 	public void setTargetHeight(TargetHeight height) {
 		targetHeight = height;
-		System.out.println("SETTING TARGET");
+		//System.out.println("SETTING TARGET");
 		FFDashboard.getInstance().putString("Arm Level", height.toString());
 	}
 

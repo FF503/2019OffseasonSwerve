@@ -121,7 +121,7 @@ public class PurePursuitController {
 
         localcurvature = side * (2 * x) / (Math.pow(lookAheadDist, 2));
 
-        System.out.println("Curvature " + localcurvature);
+        //.println("Curvature " + localcurvature);
         return localcurvature;
     }
 

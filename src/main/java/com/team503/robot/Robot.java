@@ -212,7 +212,7 @@ public class Robot extends TimedRobot {
     //   mSwerve.rotate(0);
     //   swerveRotationInput = mSwerve.getRotationalOutput();
     //} else 
-    System.out.println(OI.driverJoystick.getPOV());
+    //System.out.println(OI.driverJoystick.getPOV());
     if (OI.driverJoystick.getStartButtonPressed()) {
       mSwerve.setMode(DriveMode.Defense);
     }
@@ -253,7 +253,7 @@ public class Robot extends TimedRobot {
       ToggleControlMode.toggle();
     }
     else if (OI.getDriverXButton()){
-      System.out.println("x");
+      //System.out.println("x");
       ToggleIntake.toggleIntake();
     }
     ToggleIntake.handleIntakeFinish();

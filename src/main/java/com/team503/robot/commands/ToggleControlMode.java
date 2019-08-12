@@ -19,13 +19,13 @@ public class ToggleControlMode{
   public static void toggle() {
     lastPress = Timer.getFPGATimestamp();
     if (Timer.getFPGATimestamp() - lastPress > 0.2){
-      
+      if (RobotState.getInstance().getIsManual()) {
+        RobotState.getInstance().setIsManual(false);
+      } else {
+        RobotState.getInstance().setIsManual(true);
+      }
     }
-    if (RobotState.getInstance().getIsManual()) {
-      RobotState.getInstance().setIsManual(false);
-    } else {
-      RobotState.getInstance().setIsManual(true);
-    }
+    
   }
 
 }

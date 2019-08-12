@@ -119,7 +119,7 @@ public class Intake extends Subsystem {
   }
 
   public void stopIntake() {
-    System.out.println("raw stop");
+    //System.out.println("raw stop");
     setMotorPower(Robot.bot.intakeStallPower);
   }
 

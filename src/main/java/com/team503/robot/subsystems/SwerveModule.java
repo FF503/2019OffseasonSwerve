@@ -18,6 +18,7 @@ public class SwerveModule {
     private static final double kAzimuthClicksPerDegree = kTurnEncoderClicksperRevolution / 360.0;
     private static final int kSlotIdx = 0;
     private static final int kTimeoutMs = 30;
+    private static double power = 0.0;
 
     private CANSparkMax driveMotor;
     private TalonSRX turnMotor;
@@ -64,7 +65,7 @@ public class SwerveModule {
 
         // configure drive motor
         driveMotor.setInverted(kDriveMotorInverted);
-        driveMotor.setOpenLoopRampRate(0.5);
+        driveMotor.setOpenLoopRampRate(1.0);
 
         // configure turn motor
         turnMotor.configSelectedFeedbackSensor(FeedbackDevice.Analog);
@@ -88,6 +89,7 @@ public class SwerveModule {
     }
 
     public void drive(double speed, double angle) {
+        this.power = speed;
         setDriveMotorSpeed(speed);
 
         // angle is bound to -180 - +180 and degrees are from 0-360
@@ -223,4 +225,9 @@ public class SwerveModule {
     public double getYComponentVelocity() {
         return Math.sin(Math.toRadians(Util.unitCircleify(getTurnEncoderPositioninDegrees()))) * driveMotor.getEncoder().getVelocity();
     }
+
+    public double getMotorPower(){
+        return power;
+    }
+
 }

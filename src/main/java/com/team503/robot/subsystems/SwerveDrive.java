@@ -331,6 +331,10 @@ public class SwerveDrive extends Subsystem {
         SmartDashboard.putNumber("RR Turn Position (clicks)", backRight.getTurnEncoderPosition());
         SmartDashboard.putNumber("RR Turn Position (degrees)", backRight.getTurnEncoderPositioninDegrees());
         SmartDashboard.putNumber("RR Turn Closed Loop Error (clicks)", backRight.getTurnClosedLoopError());
+        SmartDashboard.putNumber("RF Power: " , frontRight.getMotorPower());
+        SmartDashboard.putNumber("RR Power: " , backRight.getMotorPower());
+        SmartDashboard.putNumber("LR Power: " , backLeft.getMotorPower());
+        SmartDashboard.putNumber("LF Power: " , frontLeft.getMotorPower());
     }
 
     @Override
