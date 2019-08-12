@@ -219,7 +219,7 @@ public class Robot extends TimedRobot {
     mSwerve.setFieldCentric(!OI.getDriverLeftTriggerPressed());
     // mSwerve.inputDrive(swerveXInput, swerveYInput, swerveRotationInput,
     // lowPower);
-    mSwerve.drive(swerveXInput, swerveYInput, swerveRotationInput);
+    mSwerve.drive(swerveXInput, swerveYInput, swerveRotationInput, lowPower);
   }
   public void operatorInput(){
     if (OI.getOperatorA()){

@@ -122,17 +122,22 @@ public class SwerveDrive extends Subsystem {
         this.fieldCentric = !this.fieldCentric;
     }
 
-    public void drive(Translation2d translationVector, double rotatationalInput) {
+    public void drive(Translation2d translationVector, double rotatationalInput, boolean lowPower) {
         double str = translationVector.x();
         double fwd = translationVector.y();
-        drive(str, fwd, rotationalInput);
+        drive(str, fwd, rotationalInput, lowPower);
     }
 
     // Takes joystick input an calculates drive wheel speed and turn motor angle
-    public void drive(double str, double fwd, double rcw) {
+    public void drive(double str, double fwd, double rcw, boolean lowPower) {
         double r = Math.sqrt((L * L) + (W * W));
 
-        if (fieldCentric) {
+        str *= lowPower ? 0.5 : 1.0;
+        fwd *= lowPower ? 0.5 : 1.0;
+        rcw *= lowPower ? 0.5 : 1.0;
+
+
+        if (fieldCentric) { 
             double angle = Math.toRadians(RobotState.getInstance().getCurrentTheta());
             double temp = fwd * Math.cos(angle) + str * Math.sin(angle);
             str = -fwd * Math.sin(angle) + str * Math.cos(angle);
@@ -232,7 +237,6 @@ public class SwerveDrive extends Subsystem {
         }
     }
 
-    
     public synchronized double getRotationalOutput() {
         return headingController.getRotationalOutput();
     }
@@ -271,13 +275,13 @@ public class SwerveDrive extends Subsystem {
     }
 
     public Translation2d getCenterOfRotation() {
-	return this.centerOfRotation;
+        return this.centerOfRotation;
     }
 
     public void setCenterOfRotation(Translation2d centerOfRotation) {
-	this.centerOfRotation = centerOfRotation;
+        this.centerOfRotation = centerOfRotation;
     }
-	
+
     public void setCenterOfRotation(double x, double y) {
         setCenterOfRotation(new Translation2d(x, y));
     }
