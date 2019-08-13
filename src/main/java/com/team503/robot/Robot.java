@@ -244,13 +244,9 @@ public class Robot extends TimedRobot {
     }
   }
 
-  public void visionFollow(double tgtHeading) {
-    mSwerve.setBrakeMode();
-    mSwerve.setFieldCentric(false);
-    mSwerve.stabilize(tgtHeading);
-    double swerveRotationInput = mSwerve.getRotationalOutput();
-    mSwerve.drive(-mSwerve.calculateVisionOffset()[0], -mSwerve.calculateVisionOffset()[1] * 0.6, 0.0, false);
-  }
+
+
+  
 
   public void operatorInput() {
     if (OI.getOperatorA()) {

@@ -8,6 +8,7 @@
 package com.team503.lib.util;
 
 import com.team503.robot.RobotState;
+import com.team503.robot.subsystems.SwerveDrive;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -17,8 +18,10 @@ import edu.wpi.first.networktables.NetworkTableInstance;
  */
 public class VisionLocalizer {
 
-    public VisionLocalizer() {
+    private SwerveDrive mSwerve;
 
+    public VisionLocalizer() {
+        mSwerve = new SwerveDrive();
     }
 
     private static VisionLocalizer instance = new VisionLocalizer();
@@ -41,7 +44,7 @@ public class VisionLocalizer {
 
     }
 
-     /**
+    /**
      * Sets the index of the limelight pipeline w/ networktables, use this to (not
      * robotstate) to actually change values
      * 
@@ -51,5 +54,13 @@ public class VisionLocalizer {
         getTable().getEntry("pipeline").setNumber(pipeline);
         RobotState.getInstance().setCurrentPipeline(pipeline);
 
+    }
+
+    public void visionFollow(double tgtHeading) {
+        mSwerve.setBrakeMode();
+        mSwerve.setFieldCentric(false);
+        mSwerve.stabilize(tgtHeading);
+        mSwerve.drive(-mSwerve.calculateVisionOffset()[0], -mSwerve.calculateVisionOffset()[1] * 0.6,
+                mSwerve.getRotationalOutput(), false);
     }
 }
