@@ -186,7 +186,7 @@ public class Robot extends TimedRobot {
     }
 
     if (OI.getDriverYButton()) {
-      Limelight.getInstance().visionFollow(lastSnapTarget);
+      mSwerve.visionFollow(lastSnapTarget);
     } else {
       if (OI.driverJoystick.leftBumper.shortReleased()) {
         mSwerve.rotate(-24);

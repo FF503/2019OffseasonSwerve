@@ -18,10 +18,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
  */
 public class Limelight {
 
-    private SwerveDrive mSwerve;
-
     public Limelight() {
-        mSwerve = SwerveDrive.getInstance();
     }
 
     private static Limelight instance = new Limelight();
@@ -56,17 +53,15 @@ public class Limelight {
 
     }
 
+    public double[] calculateVisionOffset() {
+        double tx = Limelight.getInstance().getTX();
+        double ta = Limelight.getInstance().getTA();
+        final double k = 1.0;
+        double tDist = k / ta;
 
-    /**
-     * Targets the closest vision target and aproaches it using 
-     * swerve/strafe control and locking the angle
-     * 
-     * @param tgtHeading the heading for the robot to maintin while following
-     */
-    public void visionFollow(double tgtHeading) {
-        mSwerve.setFieldCentric(false);
-        mSwerve.stabilize(tgtHeading);
-        mSwerve.drive(-mSwerve.calculateVisionOffset()[0], -mSwerve.calculateVisionOffset()[1] * 0.6,
-                mSwerve.getRotationalOutput(), false);
+        double xOffset = Math.sin(Math.toRadians(tx)) * tDist;
+        double yOffset = Math.cos(Math.toRadians(tx)) * tDist;
+
+        return new double[] { xOffset, yOffset };
     }
 }

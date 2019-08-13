@@ -19,6 +19,7 @@ public class SwerveDrive extends Subsystem {
     // Instance declaration
     private static SwerveDrive instance = null;
     private SwerveHeadingController headingController = new SwerveHeadingController();
+    private Limelight mLimelight;
 
     // Teleop driving variables
     private Translation2d translationalVector = new Translation2d();
@@ -65,32 +66,14 @@ public class SwerveDrive extends Subsystem {
 
     // Constructor
     public SwerveDrive() {
-        // before module inversion
-        // this.backRight = new
-        // SwerveModule(3,7,20.0,0.0,2.200,6.577,748,300,900,true,true,true,false,false);
-        // this.backLeft = new
-        // SwerveModule(4,8,20.0,0.0,2.200,6.577,980,300,900,true,true,true,false,false);
+        mLimelight = Limelight.getInstance();
 
-        // this.backRight = new SwerveModule(3, 7, 20.0, 0.0, 2.200, 6.577, 748, 300,
-        // 900, true, false, false, false,
-        // false);
-        // this.backLeft = new SwerveModule(4, 8, 20.0, 0.0, 2.200, 6.577, 980, 300,
-        // 900, true, false, false, false,
-        // false);
-        // // was 275 FR
-        // this.frontRight = new SwerveModule(2, 6, 20.0, 0.0, 2.200, 6.577, 787, 300,
-        // 900, true, false, true, false,
-        // false);
-        // this.frontLeft = new SwerveModule(1, 5, 2.0, 0.0, 2.200, 6.577, 222, 300,
-        // 900, true, false, false, false,
-        // false); // change drive inverted to false
         try {
             this.backRight = Util.readSwerveJSON(Robot.bot.getBackRightName());
             this.backLeft = Util.readSwerveJSON(Robot.bot.getBackLeftName());
             this.frontRight = Util.readSwerveJSON(Robot.bot.getFrontRightName());
             this.frontLeft = Util.readSwerveJSON(Robot.bot.getFrontLeftName());
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
@@ -265,6 +248,19 @@ public class SwerveDrive extends Subsystem {
     }
 
     /**
+     * Targets the closest vision target and aproaches it using swerve/strafe
+     * control and locking the angle
+     * 
+     * @param tgtHeading the heading for the robot to maintin while following
+     */
+    public synchronized void visionFollow(double tgtHeading) {
+        setFieldCentric(false);
+        stabilize(tgtHeading);
+        drive(-mLimelight.calculateVisionOffset()[0], -mLimelight.calculateVisionOffset()[1] * 0.6,
+                getRotationalOutput(), false);
+    }
+
+    /**
      * 
      * @param goalAngle    Target Angle through drive vectors
      * @param currentAngle Current Angle of swerve module
@@ -298,48 +294,25 @@ public class SwerveDrive extends Subsystem {
         modules.forEach((mod) -> mod.setDriveMotorCurrentLimit(limit));
     }
 
-    public double[] calculateVisionOffset() {
-        double tx = Limelight.getInstance().getTX();
-        double ta = Limelight.getInstance().getTA();
-        final double k = 1.0;
-        double tDist = k / ta;
-
-        double xOffset = Math.sin(Math.toRadians(tx)) * tDist;
-        double yOffset = Math.cos(Math.toRadians(tx)) * tDist;
-
-        return new double[] { xOffset, yOffset };
-    }
-
     @Override
     public void outputTelemetry() {
         SmartDashboard.putNumber("LF Drive Position (clicks)", frontLeft.getDriveEncoderPosition());
         SmartDashboard.putNumber("LF Drive Velocity", frontLeft.getDriveEncoderVelocity());
-        // SmartDashboard.putNumber("LF Drive Position (inches)",
-        // ticksToInches(getDriveEncoderPosition()));
         SmartDashboard.putNumber("LF Turn Position (clicks)", frontLeft.getTurnEncoderPosition());
         SmartDashboard.putNumber("LF Turn Position (degrees)", frontLeft.getTurnEncoderPositioninDegrees());
         SmartDashboard.putNumber("LF Turn Closed Loop Error (clicks)", frontLeft.getTurnClosedLoopError());
-
         SmartDashboard.putNumber("RF Drive Position (clicks)", frontRight.getDriveEncoderPosition());
         SmartDashboard.putNumber("RF Drive Velocity", frontRight.getDriveEncoderVelocity());
-        // SmartDashboard.putNumber("RF Drive Position (inches)",
-        // ticksToInches(getDriveEncoderPosition()));
         SmartDashboard.putNumber("RF Turn Position (clicks)", frontRight.getTurnEncoderPosition());
         SmartDashboard.putNumber("RF Turn Position (degrees)", frontRight.getTurnEncoderPositioninDegrees());
         SmartDashboard.putNumber("RF Turn Closed Loop Error (clicks)", frontRight.getTurnClosedLoopError());
-
         SmartDashboard.putNumber("LR Drive Position (clicks)", backLeft.getDriveEncoderPosition());
         SmartDashboard.putNumber("LR Drive Velocity", backLeft.getDriveEncoderVelocity());
-        // SmartDashboard.putNumber("LR Drive Position (inches)",
-        // ticksToInches(getDriveEncoderPosition()));
         SmartDashboard.putNumber("LR Turn Position (clicks)", backLeft.getTurnEncoderPosition());
         SmartDashboard.putNumber("LR Turn Position (degrees)", backLeft.getTurnEncoderPositioninDegrees());
         SmartDashboard.putNumber("LR Turn Closed Loop Error (clicks)", backLeft.getTurnClosedLoopError());
-
         SmartDashboard.putNumber("RR Drive Position (clicks)", backRight.getDriveEncoderPosition());
         SmartDashboard.putNumber("RR Drive Velocity", backRight.getDriveEncoderVelocity());
-        // SmartDashboard.putNumber("RR Drive Position (inches)",
-        // ticksToInches(getDriveEncoderPosition()));
         SmartDashboard.putNumber("RR Turn Position (clicks)", backRight.getTurnEncoderPosition());
         SmartDashboard.putNumber("RR Turn Position (degrees)", backRight.getTurnEncoderPositioninDegrees());
         SmartDashboard.putNumber("RR Turn Closed Loop Error (clicks)", backRight.getTurnClosedLoopError());
@@ -347,16 +320,10 @@ public class SwerveDrive extends Subsystem {
         SmartDashboard.putNumber("RR Power: ", backRight.getMotorPower());
         SmartDashboard.putNumber("LR Power: ", backLeft.getMotorPower());
         SmartDashboard.putNumber("LF Power: ", frontLeft.getMotorPower());
-
-        // SmartDashboard.putNumber("VISON Y OFFSET", yOffset);
-        // SmartDashboard.putNumber("VISION X OFFSET", xOffset);
-
-        calculateVisionOffset();
     }
 
     @Override
     public void stop() {
         modules.forEach((m) -> m.setDriveMotorSpeed(0));
-        // setCoastMode();
     }
 }

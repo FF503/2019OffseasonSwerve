@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj.command.Command;
 public class ConstantIntakeCommand extends Command {
 
   public ConstantIntakeCommand() {
-    requires(Intake.getInstance());
   }
 
   // Called just before this Command runs the first time
