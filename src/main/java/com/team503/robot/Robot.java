@@ -9,10 +9,9 @@ package com.team503.robot;
 
 import java.util.Arrays;
 
+import com.team503.lib.util.VisionLocalizer;
 import com.team503.robot.RobotState.Bot;
 import com.team503.robot.RobotState.GameElement;
-import com.team503.lib.util.VisionLocalizer;
-import com.team503.robot.Loops.PoseController;
 import com.team503.robot.commands.EjectBall;
 import com.team503.robot.commands.GameElementSwitcher;
 import com.team503.robot.commands.ReleaseHatch;
@@ -21,9 +20,9 @@ import com.team503.robot.commands.SwitchArmDirection;
 import com.team503.robot.commands.TargetHeightSwitcher;
 import com.team503.robot.commands.ToggleControlMode;
 import com.team503.robot.commands.ToggleIntake;
-import com.team503.robot.commands.VacuumPowerCommand;
 import com.team503.robot.subsystems.Arm;
 import com.team503.robot.subsystems.Extension;
+import com.team503.robot.subsystems.Intake;
 import com.team503.robot.subsystems.Pigeon;
 import com.team503.robot.subsystems.SubsystemManager;
 import com.team503.robot.subsystems.SwerveDrive;
@@ -45,12 +44,11 @@ public class Robot extends TimedRobot {
   private Arm mArm;
   private Wrist mWrist;
   private Extension mExtension;
-  private double initialTheta = 0;
+  private Intake mIntake;
+  private Pigeon mPigeon;
 
   private SubsystemManager subsystems;
-  public static OI m_oi;
   public static RobotHardware bot;
-  private PoseController poseEngine;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -60,19 +58,18 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     RobotState.getInstance().setCurrentRobot(Bot.Automatic);
     bot = RobotHardware.getInstance();
-    m_oi = new OI();
-    m_oi.initialize();
     OI.initialize();
+
     mSwerve = SwerveDrive.getInstance();
     mArm = Arm.getInstance();
     mWrist = Wrist.getInstance();
     mExtension = Extension.getInstance();
-    subsystems = new SubsystemManager(Arrays.asList(mSwerve, Pigeon.getInstance(), mArm, mWrist, mExtension));
-    subsystems.resetSensor();
-    Pigeon.getInstance().zeroSensors();
+    mIntake = Intake.getInstance();
+    mPigeon = Pigeon.getInstance();
 
-    (new VacuumPowerCommand()).start();
-    // poseEngine = new PoseController();
+    // Subsytem Manager
+    subsystems = new SubsystemManager(Arrays.asList(mSwerve, mPigeon, mArm, mWrist, mExtension, mIntake));
+    subsystems.resetSensor();
   }
 
   /**
@@ -104,8 +101,6 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     mSwerve.setBrakeMode();
-
-    initialTheta = RobotState.getInstance().getCurrentTheta();
   }
 
   /**
@@ -113,7 +108,6 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousPeriodic() {
-    System.out.println("ROBOT HEADING" + RobotState.getInstance().getCurrentTheta());
 
   }
 
@@ -122,8 +116,8 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopInit() {
-    // poseEngine.start();
     mSwerve.setBrakeMode();
+    mIntake.startVacuum();
     VisionLocalizer.getInstance().setPipeline(2);
   }
 
@@ -150,10 +144,6 @@ public class Robot extends TimedRobot {
     default:
       break;
     }
-    // String pose = RobotState.getInstance().getCurrentPose().toString();
-    // SmartDashboard.putString("pose", pose);
-    // System.out.println(pose);
-    // mSwerve.updateTeleopControl();
     operatorInput();
     mArm.updateSuperstruture();
 
@@ -179,7 +169,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
-    // Pigeon.getInstance().outputToSmartDashboard();
   }
 
   private void joystickInput() {
@@ -192,7 +181,6 @@ public class Robot extends TimedRobot {
 
     if (swerveRotationInput > -deadband && swerveRotationInput < deadband) {
       swerveRotationInput = mSwerve.getRotationalOutput();// 0.0;
-      // SmartDashboard.putNumber("Rotational Output", mSwerve.getRotationalOutput());
     } else {
       mSwerve.rotate(RobotState.getInstance().getCurrentTheta());
     }
@@ -200,7 +188,6 @@ public class Robot extends TimedRobot {
     if (OI.getDriverYButton()) {
       VisionLocalizer.getInstance().visionFollow(lastSnapTarget);
     } else {
-
       if (OI.driverJoystick.leftBumper.shortReleased()) {
         mSwerve.rotate(-24);
         lastSnapTarget = -24;
@@ -233,14 +220,10 @@ public class Robot extends TimedRobot {
         mSwerve.rotate(1);
         lastSnapTarget = 1;
         swerveRotationInput = mSwerve.getRotationalOutput();
-      } else
-      // System.out.println(OI.driverJoystick.getPOV());
-      if (OI.driverJoystick.getStartButtonPressed()) {
+      } else if (OI.driverJoystick.getStartButtonPressed()) {
         mSwerve.setMode(DriveMode.Defense);
       }
       mSwerve.setFieldCentric(!OI.getDriverLeftTriggerPressed());
-      // mSwerve.inputDrive(swerveXInput, swerveYInput, swerveRotationInput,
-      // lowPower);
       mSwerve.drive(swerveXInput, swerveYInput, swerveRotationInput, lowPower);
     }
   }

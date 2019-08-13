@@ -7,8 +7,6 @@
 
 package com.team503.robot.commands;
 
-import com.team503.robot.Robot;
-import com.team503.robot.RobotState;
 import com.team503.robot.subsystems.Intake;
 
 import edu.wpi.first.wpilibj.DriverStation;
