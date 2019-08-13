@@ -47,6 +47,10 @@ public abstract class RobotHardware {
 
     public abstract boolean hasExtension();
 
+    // Limelight Pipelines
+    public int DRIVE_VIEW = 0;
+    public int TARGETTING_VIEW = 2;
+
     // Swerve Calculations Constants (measurements are in inches)
     public double kWheelbaseLength;
     public double kWheelbaseWidth;

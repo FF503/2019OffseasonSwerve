@@ -7,6 +7,7 @@
 
 package com.team503.lib.util;
 
+import com.team503.robot.Robot;
 import com.team503.robot.RobotState;
 import com.team503.robot.subsystems.Subsystem;
 
@@ -77,7 +78,12 @@ public class Limelight extends Subsystem {
     }
 
     @Override
-    public void stop() {
+    public void zeroSensors() {
+        setPipeline(Robot.bot.DRIVE_VIEW);
+    }
 
+    @Override
+    public void stop() {
+        setPipeline(Robot.bot.DRIVE_VIEW);
     }
 }

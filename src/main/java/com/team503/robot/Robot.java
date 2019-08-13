@@ -46,6 +46,7 @@ public class Robot extends TimedRobot {
   private Extension mExtension;
   private Intake mIntake;
   private Pigeon mPigeon;
+  private Limelight mLime;
 
   private SubsystemManager subsystems;
   public static RobotHardware bot;
@@ -66,9 +67,10 @@ public class Robot extends TimedRobot {
     mExtension = Extension.getInstance();
     mIntake = Intake.getInstance();
     mPigeon = Pigeon.getInstance();
+    mLime = Limelight.getInstance();
 
     // Subsytem Manager
-    subsystems = new SubsystemManager(Arrays.asList(mSwerve, mPigeon, mArm, mWrist, mExtension, mIntake));
+    subsystems = new SubsystemManager(Arrays.asList(mSwerve, mPigeon, mArm, mWrist, mExtension, mIntake, mLime));
     subsystems.resetSensor();
   }
 
@@ -108,7 +110,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousPeriodic() {
-
+    
   }
 
   /**
