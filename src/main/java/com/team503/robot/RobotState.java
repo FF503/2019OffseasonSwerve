@@ -19,6 +19,7 @@ public class RobotState {
 	private boolean isArmFlip;
 	private boolean grabberDeployed;
 	private boolean isManualControl = true;
+	private int pipeline = 2;
 
 	public static RobotState getInstance() {
 		return instance;
@@ -184,6 +185,10 @@ public class RobotState {
     public static enum Bot {
         Automatic, ProgrammingBot;
     }
+
+	public void setCurrentPipeline(int pipeline) {
+		this.pipeline = pipeline;
+	}
 
 
 }

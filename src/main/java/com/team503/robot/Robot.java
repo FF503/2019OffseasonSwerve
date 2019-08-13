@@ -11,6 +11,8 @@ import java.util.Arrays;
 
 import com.team503.robot.RobotState.Bot;
 import com.team503.robot.RobotState.GameElement;
+import com.team503.lib.util.VisionLocalizer;
+import com.team503.robot.Loops.PoseController;
 import com.team503.robot.commands.EjectBall;
 import com.team503.robot.commands.GameElementSwitcher;
 import com.team503.robot.commands.ReleaseHatch;
@@ -20,7 +22,6 @@ import com.team503.robot.commands.TargetHeightSwitcher;
 import com.team503.robot.commands.ToggleControlMode;
 import com.team503.robot.commands.ToggleIntake;
 import com.team503.robot.commands.VacuumPowerCommand;
-import com.team503.robot.Loops.PoseController;
 import com.team503.robot.subsystems.Arm;
 import com.team503.robot.subsystems.Extension;
 import com.team503.robot.subsystems.Pigeon;
@@ -30,7 +31,6 @@ import com.team503.robot.subsystems.SwerveDrive.DriveMode;
 import com.team503.robot.subsystems.Wrist;
 
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -124,6 +124,7 @@ public class Robot extends TimedRobot {
   public void teleopInit() {
     // poseEngine.start();
     mSwerve.setBrakeMode();
+    VisionLocalizer.getInstance().setPipeline(2);
   }
 
   /*

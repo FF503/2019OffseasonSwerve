@@ -7,6 +7,8 @@
 
 package com.team503.lib.util;
 
+import com.team503.robot.RobotState;
+
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
@@ -33,9 +35,21 @@ public class VisionLocalizer {
         return getTable().getEntry("ta").getDouble(0.0);
     }
 
-    // main arm limelight
+    // Limelight network table
     public NetworkTable getTable() {
         return NetworkTableInstance.getDefault().getTable("limelight");
+
+    }
+
+     /**
+     * Sets the index of the limelight pipeline w/ networktables, use this to (not
+     * robotstate) to actually change values
+     * 
+     * @param pipeline index of the desired pipeline
+     */
+    public void setPipeline(int pipeline) {
+        getTable().getEntry("pipeline").setNumber(pipeline);
+        RobotState.getInstance().setCurrentPipeline(pipeline);
 
     }
 }
