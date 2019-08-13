@@ -137,9 +137,8 @@ public class Robot extends TimedRobot {
 
     switch (SwerveDrive.getInstance().getMode()) {
     case TeleopDrive:
-      if (!OI.getDriverYButton()) {
-        joystickInput();
-      }
+      joystickInput();
+
       break;
     case Defense:
       if (!OI.driverJoystick.getStartButton()) {
