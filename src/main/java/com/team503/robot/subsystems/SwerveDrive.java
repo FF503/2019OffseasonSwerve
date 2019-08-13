@@ -8,6 +8,7 @@ import com.team254.lib.geometry.Translation2d;
 import com.team503.lib.util.SnappingPosition;
 import com.team503.lib.util.SwerveHeadingController;
 import com.team503.lib.util.Util;
+import com.team503.lib.util.VisionLocalizer;
 import com.team503.robot.Robot;
 import com.team503.robot.RobotState;
 
@@ -136,8 +137,7 @@ public class SwerveDrive extends Subsystem {
         fwd *= lowPower ? 0.5 : 1.0;
         rcw *= lowPower ? 0.5 : 1.0;
 
-
-        if (fieldCentric) { 
+        if (fieldCentric) {
             double angle = Math.toRadians(RobotState.getInstance().getCurrentTheta());
             double temp = fwd * Math.cos(angle) + str * Math.sin(angle);
             str = -fwd * Math.sin(angle) + str * Math.cos(angle);
@@ -298,6 +298,21 @@ public class SwerveDrive extends Subsystem {
         modules.forEach((mod) -> mod.setDriveMotorCurrentLimit(limit));
     }
 
+    public double[] calculateVisionOffset() {
+        double tx = VisionLocalizer.getInstance().getTX();
+        double ta = VisionLocalizer.getInstance().getTA();
+        final double k = 1.0;
+        double tDist = k / ta;
+
+        double xOffset = Math.sin(Math.toRadians(tx)) * tDist;
+        double yOffset = Math.cos(Math.toRadians(tx)) * tDist;
+
+        SmartDashboard.putNumber("VISON Y OFFSET", yOffset);
+        SmartDashboard.putNumber("VISION X OFFSET", xOffset);
+
+        return new double[] { xOffset, yOffset };
+    }
+
     @Override
     public void outputTelemetry() {
         SmartDashboard.putNumber("LF Drive Position (clicks)", frontLeft.getDriveEncoderPosition());
@@ -331,10 +346,12 @@ public class SwerveDrive extends Subsystem {
         SmartDashboard.putNumber("RR Turn Position (clicks)", backRight.getTurnEncoderPosition());
         SmartDashboard.putNumber("RR Turn Position (degrees)", backRight.getTurnEncoderPositioninDegrees());
         SmartDashboard.putNumber("RR Turn Closed Loop Error (clicks)", backRight.getTurnClosedLoopError());
-        SmartDashboard.putNumber("RF Power: " , frontRight.getMotorPower());
-        SmartDashboard.putNumber("RR Power: " , backRight.getMotorPower());
-        SmartDashboard.putNumber("LR Power: " , backLeft.getMotorPower());
-        SmartDashboard.putNumber("LF Power: " , frontLeft.getMotorPower());
+        SmartDashboard.putNumber("RF Power: ", frontRight.getMotorPower());
+        SmartDashboard.putNumber("RR Power: ", backRight.getMotorPower());
+        SmartDashboard.putNumber("LR Power: ", backLeft.getMotorPower());
+        SmartDashboard.putNumber("LF Power: ", frontLeft.getMotorPower());
+
+        calculateVisionOffset();
     }
 
     @Override
