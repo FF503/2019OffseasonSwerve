@@ -189,16 +189,17 @@ public class Robot extends TimedRobot {
     boolean lowPower = OI.getDriverLeftTriggerPressed();
     double deadband = 0.010;
     double lastSnapTarget = 0;
+
+    if (swerveRotationInput > -deadband && swerveRotationInput < deadband) {
+      swerveRotationInput = mSwerve.getRotationalOutput();// 0.0;
+      // SmartDashboard.putNumber("Rotational Output", mSwerve.getRotationalOutput());
+    } else {
+      mSwerve.rotate(RobotState.getInstance().getCurrentTheta());
+    }
+
     if (OI.getDriverYButton()) {
       VisionLocalizer.getInstance().visionFollow(lastSnapTarget);
     } else {
-
-      if (swerveRotationInput > -deadband && swerveRotationInput < deadband) {
-        swerveRotationInput = mSwerve.getRotationalOutput();// 0.0;
-        // SmartDashboard.putNumber("Rotational Output", mSwerve.getRotationalOutput());
-      } else {
-        mSwerve.rotate(RobotState.getInstance().getCurrentTheta());
-      }
 
       if (OI.driverJoystick.leftBumper.shortReleased()) {
         mSwerve.rotate(-24);
@@ -218,7 +219,7 @@ public class Robot extends TimedRobot {
         swerveRotationInput = mSwerve.getRotationalOutput();
       } else if (OI.driverJoystick.getPOV() == 180) {
         mSwerve.rotate(179);
-        lastSnapTarget = -179;
+        lastSnapTarget = 179;
         swerveRotationInput = mSwerve.getRotationalOutput();
       } else if (OI.driverJoystick.getPOV() == 90) {
         mSwerve.rotate(90);
@@ -243,10 +244,6 @@ public class Robot extends TimedRobot {
       mSwerve.drive(swerveXInput, swerveYInput, swerveRotationInput, lowPower);
     }
   }
-
-
-
-  
 
   public void operatorInput() {
     if (OI.getOperatorA()) {
