@@ -188,9 +188,9 @@ public class Robot extends TimedRobot {
     double swerveRotationInput = OI.getDriverRightXVal();
     boolean lowPower = OI.getDriverLeftTriggerPressed();
     double deadband = 0.010;
-    double snapTarget = 0;
+    double lastSnapTarget = 0;
     if (OI.getDriverYButton()) {
-      visionFollow(snapTarget);
+      VisionLocalizer.getInstance().visionFollow(lastSnapTarget);
     } else {
 
       if (swerveRotationInput > -deadband && swerveRotationInput < deadband) {
@@ -202,35 +202,35 @@ public class Robot extends TimedRobot {
 
       if (OI.driverJoystick.leftBumper.shortReleased()) {
         mSwerve.rotate(-24);
-        snapTarget = -24;
+        lastSnapTarget = -24;
         swerveRotationInput = mSwerve.getRotationalOutput();
       } else if (OI.driverJoystick.leftBumper.longPressed()) {
         mSwerve.rotate(-151.0);
-        snapTarget = -151.0;
+        lastSnapTarget = -151.0;
         swerveRotationInput = mSwerve.getRotationalOutput();
       } else if (OI.driverJoystick.rightBumper.shortReleased()) {
         mSwerve.rotate(24);
-        snapTarget = 24;
+        lastSnapTarget = 24;
         swerveRotationInput = mSwerve.getRotationalOutput();
       } else if (OI.driverJoystick.rightBumper.longPressed()) {
         mSwerve.rotate(151.0);
-        snapTarget = 151;
+        lastSnapTarget = 151;
         swerveRotationInput = mSwerve.getRotationalOutput();
       } else if (OI.driverJoystick.getPOV() == 180) {
         mSwerve.rotate(179);
-        snapTarget = -179;
+        lastSnapTarget = -179;
         swerveRotationInput = mSwerve.getRotationalOutput();
       } else if (OI.driverJoystick.getPOV() == 90) {
         mSwerve.rotate(90);
-        snapTarget = 90;
+        lastSnapTarget = 90;
         swerveRotationInput = mSwerve.getRotationalOutput();
       } else if (OI.driverJoystick.getPOV() == 270) {
         mSwerve.rotate(270);
-        snapTarget = 270;
+        lastSnapTarget = 270;
         swerveRotationInput = mSwerve.getRotationalOutput();
       } else if (OI.driverJoystick.getPOV() == 0) {
         mSwerve.rotate(1);
-        snapTarget = 1;
+        lastSnapTarget = 1;
         swerveRotationInput = mSwerve.getRotationalOutput();
       } else
       // System.out.println(OI.driverJoystick.getPOV());

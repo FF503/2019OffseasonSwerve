@@ -56,8 +56,14 @@ public class VisionLocalizer {
 
     }
 
+
+    /**
+     * Targets the closest vision target and aproaches it using 
+     * swerve/strafe control and locking the angle
+     * 
+     * @param tgtHeaing the heading for the robot to maintin while following
+     */
     public void visionFollow(double tgtHeading) {
-        mSwerve.setBrakeMode();
         mSwerve.setFieldCentric(false);
         mSwerve.stabilize(tgtHeading);
         mSwerve.drive(-mSwerve.calculateVisionOffset()[0], -mSwerve.calculateVisionOffset()[1] * 0.6,
