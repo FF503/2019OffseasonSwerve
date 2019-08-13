@@ -7,9 +7,6 @@
 
 package com.team503.robot.subsystems;
 
-import javax.swing.text.StyleContext.SmallAttributeSet;
-
-import com.team503.lib.util.FFDashboard;
 import com.team503.robot.Robot;
 
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
@@ -24,7 +21,6 @@ public class Intake extends Subsystem {
 
   private Spark hatchVac, cargoIntake;
   private Solenoid releaser;
-  private FFDashboard table = new FFDashboard("Intake");
   private double cCur, lCur = 0.0;
 
   private PowerDistributionPanel pdp;

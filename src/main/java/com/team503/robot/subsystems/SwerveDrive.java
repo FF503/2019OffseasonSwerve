@@ -8,7 +8,7 @@ import com.team254.lib.geometry.Translation2d;
 import com.team503.lib.util.SnappingPosition;
 import com.team503.lib.util.SwerveHeadingController;
 import com.team503.lib.util.Util;
-import com.team503.lib.util.VisionLocalizer;
+import com.team503.lib.util.Limelight;
 import com.team503.robot.Robot;
 import com.team503.robot.RobotState;
 
@@ -299,16 +299,13 @@ public class SwerveDrive extends Subsystem {
     }
 
     public double[] calculateVisionOffset() {
-        double tx = VisionLocalizer.getInstance().getTX();
-        double ta = VisionLocalizer.getInstance().getTA();
+        double tx = Limelight.getInstance().getTX();
+        double ta = Limelight.getInstance().getTA();
         final double k = 1.0;
         double tDist = k / ta;
 
         double xOffset = Math.sin(Math.toRadians(tx)) * tDist;
         double yOffset = Math.cos(Math.toRadians(tx)) * tDist;
-
-        SmartDashboard.putNumber("VISON Y OFFSET", yOffset);
-        SmartDashboard.putNumber("VISION X OFFSET", xOffset);
 
         return new double[] { xOffset, yOffset };
     }
@@ -350,6 +347,9 @@ public class SwerveDrive extends Subsystem {
         SmartDashboard.putNumber("RR Power: ", backRight.getMotorPower());
         SmartDashboard.putNumber("LR Power: ", backLeft.getMotorPower());
         SmartDashboard.putNumber("LF Power: ", frontLeft.getMotorPower());
+
+        // SmartDashboard.putNumber("VISON Y OFFSET", yOffset);
+        // SmartDashboard.putNumber("VISION X OFFSET", xOffset);
 
         calculateVisionOffset();
     }

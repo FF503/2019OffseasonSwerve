@@ -14,19 +14,19 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
 /**
- * Add your docs here.
+ * Subsystem for vision follower algorithm used in teleop
  */
-public class VisionLocalizer {
+public class Limelight {
 
     private SwerveDrive mSwerve;
 
-    public VisionLocalizer() {
-        mSwerve = new SwerveDrive();
+    public Limelight() {
+        mSwerve = SwerveDrive.getInstance();
     }
 
-    private static VisionLocalizer instance = new VisionLocalizer();
+    private static Limelight instance = new Limelight();
 
-    public static VisionLocalizer getInstance() {
+    public static Limelight getInstance() {
         return instance;
     }
 
@@ -61,7 +61,7 @@ public class VisionLocalizer {
      * Targets the closest vision target and aproaches it using 
      * swerve/strafe control and locking the angle
      * 
-     * @param tgtHeaing the heading for the robot to maintin while following
+     * @param tgtHeading the heading for the robot to maintin while following
      */
     public void visionFollow(double tgtHeading) {
         mSwerve.setFieldCentric(false);

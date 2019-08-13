@@ -9,7 +9,7 @@ package com.team503.robot;
 
 import java.util.Arrays;
 
-import com.team503.lib.util.VisionLocalizer;
+import com.team503.lib.util.Limelight;
 import com.team503.robot.RobotState.Bot;
 import com.team503.robot.RobotState.GameElement;
 import com.team503.robot.commands.EjectBall;
@@ -118,7 +118,7 @@ public class Robot extends TimedRobot {
   public void teleopInit() {
     mSwerve.setBrakeMode();
     mIntake.startVacuum();
-    VisionLocalizer.getInstance().setPipeline(2);
+    Limelight.getInstance().setPipeline(2);
   }
 
   /*
@@ -186,7 +186,7 @@ public class Robot extends TimedRobot {
     }
 
     if (OI.getDriverYButton()) {
-      VisionLocalizer.getInstance().visionFollow(lastSnapTarget);
+      Limelight.getInstance().visionFollow(lastSnapTarget);
     } else {
       if (OI.driverJoystick.leftBumper.shortReleased()) {
         mSwerve.rotate(-24);

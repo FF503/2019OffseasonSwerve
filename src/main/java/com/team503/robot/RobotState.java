@@ -13,7 +13,6 @@ public class RobotState {
 	private ArmDirection armDirection;
 	private TargetHeight targetHeight;
 	private boolean hasElement;
-	private boolean hatchDependence;
 	private SuperStructurePreset sPreset;
 	private boolean armPositionChanged;
 	private boolean isArmFlip;
@@ -188,6 +187,10 @@ public class RobotState {
 
 	public void setCurrentPipeline(int pipeline) {
 		this.pipeline = pipeline;
+	}
+
+	public int getCurrentPipeline() {
+		return pipeline;
 	}
 
 
