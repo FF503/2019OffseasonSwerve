@@ -8,22 +8,26 @@
 package com.team503.lib.util;
 
 import com.team503.robot.RobotState;
-import com.team503.robot.subsystems.SwerveDrive;
+import com.team503.robot.subsystems.Subsystem;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * Subsystem for vision follower algorithm used in teleop
  */
-public class Limelight {
-
-    public Limelight() {
-    }
+public class Limelight extends Subsystem {
 
     private static Limelight instance = new Limelight();
 
+    public Limelight() {
+
+    }
+
     public static Limelight getInstance() {
+        if (instance == null)
+            instance = new Limelight();
         return instance;
     }
 
@@ -63,5 +67,17 @@ public class Limelight {
         double yOffset = Math.cos(Math.toRadians(tx)) * tDist;
 
         return new double[] { xOffset, yOffset };
+    }
+
+    @Override
+    public void outputTelemetry() {
+        SmartDashboard.putNumber("VISON X Offset", calculateVisionOffset()[0]);
+
+        SmartDashboard.putNumber("VISON Y Offset", calculateVisionOffset()[1]);
+    }
+
+    @Override
+    public void stop() {
+
     }
 }

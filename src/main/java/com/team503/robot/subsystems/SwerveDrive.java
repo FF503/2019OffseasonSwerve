@@ -80,11 +80,6 @@ public class SwerveDrive extends Subsystem {
         modules = Arrays.asList(backRight, backLeft, frontLeft, frontRight);
     }
 
-    private double maxSpeedFactor = 1.0;
-
-    public void setMaxSpeed(double max) {
-        maxSpeedFactor = max;
-    }
 
     private boolean fieldCentric = true;
 
@@ -202,10 +197,6 @@ public class SwerveDrive extends Subsystem {
         SmartDashboard.putNumber("RF Calc Angle (deg)", frontRightAngle);
         SmartDashboard.putNumber("LR Calc Angle (deg)", backLeftAngle);
         SmartDashboard.putNumber("RR Calc Angle (deg)", backRightAngle);
-
-        // inform drives whats going on
-        // SmartDashboard.putBoolean("Drive Motor Inverted", kDriveMotorInverted);
-        // SmartDashboard.putBoolean("LF Turn Encoder Inverted", kEncoderInverted);
     }
 
     public void defensePosition() {
