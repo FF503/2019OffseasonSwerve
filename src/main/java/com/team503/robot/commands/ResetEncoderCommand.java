@@ -13,8 +13,6 @@ import com.team503.robot.subsystems.Arm;
 import com.team503.robot.subsystems.Extension;
 import com.team503.robot.subsystems.Wrist;
 
-import edu.wpi.first.wpilibj.command.Command;
-
 public class ResetEncoderCommand{
   
   public static void resetEncs() {

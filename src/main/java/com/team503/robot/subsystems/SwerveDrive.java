@@ -80,7 +80,6 @@ public class SwerveDrive extends Subsystem {
         modules = Arrays.asList(backRight, backLeft, frontLeft, frontRight);
     }
 
-
     private boolean fieldCentric = true;
 
     /**
@@ -101,6 +100,10 @@ public class SwerveDrive extends Subsystem {
         this.fieldCentric = !this.fieldCentric;
     }
 
+    public void drive(double str, double fwd) {
+       drive(str, fwd, headingController.getRotationalOutput(), false);
+    }
+
     public void drive(Translation2d translationVector, double rotatationalInput, boolean lowPower) {
         double str = translationVector.x();
         double fwd = translationVector.y();
@@ -111,8 +114,8 @@ public class SwerveDrive extends Subsystem {
     public void drive(double str, double fwd, double rcw, boolean lowPower) {
         double r = Math.sqrt((L * L) + (W * W));
 
-        str *= lowPower ? 0.5 : 1.0;
-        fwd *= lowPower ? 0.5 : 1.0;
+        str *= lowPower ? -0.5 : -1.0;
+        fwd *= lowPower ? -0.5 : -1.0;
         rcw *= lowPower ? 0.5 : 1.0;
 
         if (fieldCentric) {
@@ -147,6 +150,8 @@ public class SwerveDrive extends Subsystem {
         // backRightAngle = 0.0;
         // }
         // }
+
+        SmartDashboard.putString("PPOWER", translationalVector.toString());
 
         // normalize wheel speeds
         double max = frontRightSpeed;
@@ -247,9 +252,9 @@ public class SwerveDrive extends Subsystem {
     public synchronized void visionFollow(double tgtHeading) {
         mLimelight.setPipeline(Robot.bot.TARGETTING_VIEW);
         setFieldCentric(false);
-        stabilize(tgtHeading);
-        drive(-mLimelight.calculateVisionOffset()[0], -mLimelight.calculateVisionOffset()[1] * 0.6,
-                getRotationalOutput(), false);
+        // rotate(tgtHeading);
+        drive(mLimelight.calculateVisionOffset()[0] * Robot.bot.xVisionkP,
+                mLimelight.calculateVisionOffset()[1] * Robot.bot.yVisionkP);
     }
 
     /**
@@ -312,6 +317,7 @@ public class SwerveDrive extends Subsystem {
         SmartDashboard.putNumber("RR Power: ", backRight.getMotorPower());
         SmartDashboard.putNumber("LR Power: ", backLeft.getMotorPower());
         SmartDashboard.putNumber("LF Power: ", frontLeft.getMotorPower());
+        SmartDashboard.putBoolean("Field Centric", isFieldCentric());
     }
 
     @Override

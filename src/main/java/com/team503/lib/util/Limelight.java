@@ -61,8 +61,7 @@ public class Limelight extends Subsystem {
     public double[] calculateVisionOffset() {
         double tx = Limelight.getInstance().getTX();
         double ta = Limelight.getInstance().getTA();
-        final double k = 1.0;
-        double tDist = k / ta;
+        double tDist = Robot.bot.visionAreaConstant / ta;
 
         double xOffset = Math.sin(Math.toRadians(tx)) * tDist;
         double yOffset = Math.cos(Math.toRadians(tx)) * tDist;

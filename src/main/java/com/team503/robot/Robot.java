@@ -174,8 +174,8 @@ public class Robot extends TimedRobot {
   }
 
   private void joystickInput() {
-    double swerveYInput = OI.getDriverLeftYVal();
-    double swerveXInput = -OI.getDriverLeftXVal();
+    double swerveYInput = -OI.getDriverLeftYVal();
+    double swerveXInput = OI.getDriverLeftXVal();
     double swerveRotationInput = OI.getDriverRightXVal();
     boolean lowPower = OI.getDriverLeftTriggerPressed();
     double deadband = 0.010;

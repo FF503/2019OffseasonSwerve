@@ -51,6 +51,11 @@ public abstract class RobotHardware {
     public int DRIVE_VIEW = 0;
     public int TARGETTING_VIEW = 2;
 
+    // Limelight Constants
+    public double visionAreaConstant = 1.0;
+    public double yVisionkP = 0.4;
+    public double xVisionkP = 1.0;
+
     // Swerve Calculations Constants (measurements are in inches)
     public double kWheelbaseLength;
     public double kWheelbaseWidth;

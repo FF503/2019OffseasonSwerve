@@ -11,19 +11,19 @@ package com.team503.robot.commands;
 import com.team503.robot.RobotState;
 
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.command.Command;
 
 public class ToggleControlMode{
   private static double lastPress = 0.0;
 
   public static void toggle() {
-    lastPress = Timer.getFPGATimestamp();
-    if (Timer.getFPGATimestamp() - lastPress > 0.2){
+    
+    if (Timer.getFPGATimestamp() - lastPress > 0.8){
       if (RobotState.getInstance().getIsManual()) {
         RobotState.getInstance().setIsManual(false);
       } else {
         RobotState.getInstance().setIsManual(true);
       }
+      lastPress = Timer.getFPGATimestamp();
     }
     
   }
