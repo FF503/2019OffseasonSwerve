@@ -21,8 +21,6 @@ import com.team503.robot.RobotState.Bot;
  */
 public abstract class RobotHardware {
 
-    public final double POSE_LOOP_DT = 0.01;
-
     public abstract void initalizeConstants();
 
     // Constants
@@ -72,6 +70,11 @@ public abstract class RobotHardware {
     public Translation2d kVehicleToBackLeft;
 
     public Translation2d[] kModulePositions;
+
+    public final String motionProfilingRioFolder = "/home/lvuser/MotionProfiles/";
+
+    public final double POSE_LOOP_DT = 0.01;
+    public double lookaheadDistance;
     public double kV_PurePursuit;
     public double kA_PurePursuit;
     public double kP_PurePursuit;

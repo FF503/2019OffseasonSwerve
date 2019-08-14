@@ -10,6 +10,7 @@ package com.team503.robot.auton;
 import com.team503.robot.RobotState;
 import com.team503.robot.Loops.PurePursuitController;
 import com.team503.robot.subsystems.SwerveDrive;
+import com.team503.robot.subsystems.SwerveDrive.DriveMode;
 
 import edu.wpi.first.wpilibj.command.Command;
 import motionProfiling.Trajectory;
@@ -25,6 +26,7 @@ public class FollowTrajectoryCommand extends Command {
   // Called just before this Command runs the first time
   @Override
   protected void initialize() {
+    mSwerve.setMode(DriveMode.PurePursuit);
     mSwerve.setFieldCentric(true);
   }
 

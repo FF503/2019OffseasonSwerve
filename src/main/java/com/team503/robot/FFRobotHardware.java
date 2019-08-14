@@ -50,10 +50,11 @@ public class FFRobotHardware extends RobotHardware {
         kEncoderUnitsPerRev = 4096;
 
         // Pure Pursuit
+        lookaheadDistance = 20;
         kMaxVelocityInchesPerSec = 10;
         kV_PurePursuit = 1 / kMaxVelocityInchesPerSec;
         kA_PurePursuit = 0;
-
+        kP_PurePursuit = 0;
         // Arm
         armMasterID = 11;
         armSlaveID = 10;

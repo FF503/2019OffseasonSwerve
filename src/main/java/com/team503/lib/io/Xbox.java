@@ -4,6 +4,7 @@ import com.team503.lib.util.Util;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.buttons.Button;
 
 public class Xbox extends XboxController {
 	private static final double PRESS_THRESHOLD = 0.3;
@@ -259,6 +260,54 @@ public class Xbox extends XboxController {
 		/** Returns true if the button is currently being pressed. */
 		public boolean isBeingPressed() {
 			return buttonActive;
+		}
+
+		private Button shortTap = new Button() {
+			@Override
+			public boolean get() {
+				return shortReleased();
+			}
+		};
+
+		private Button longHold = new Button() {
+
+			@Override
+			public boolean get() {
+				return longPressed();
+			}
+		};
+
+		private Button longRelease = new Button() {
+
+			@Override
+			public boolean get() {
+				return longReleased();
+			}
+
+		};
+
+		private Button pressed = new Button() {
+
+			@Override
+			public boolean get() {
+				return isBeingPressed();
+			}
+		};
+
+		public Button getPressed() {
+			return pressed;
+		}
+
+		public Button getLongReleaseButton() {
+			return longRelease;
+		}
+
+		public Button getLongHoldButton() {
+			return longHold;
+		}
+
+		public Button getShortTapButton() {
+			return shortTap;
 		}
 	}
 
