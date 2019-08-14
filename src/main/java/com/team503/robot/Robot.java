@@ -120,7 +120,7 @@ public class Robot extends TimedRobot {
   public void teleopInit() {
     mSwerve.setBrakeMode();
     mIntake.startVacuum();
-    mLime.setPipeline(bot.TARGETTING_VIEW);
+    mLime.setPipeline(bot.TARGETING_VIEW);
   }
 
   /*

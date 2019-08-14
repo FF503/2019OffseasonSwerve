@@ -249,7 +249,7 @@ public class SwerveDrive extends Subsystem {
      * @param tgtHeading the heading for the robot to maintin while following
      */
     public synchronized void visionFollow(double tgtHeading) {
-        mLimelight.setPipeline(Robot.bot.TARGETTING_VIEW);
+        mLimelight.setPipeline(Robot.bot.TARGETING_VIEW);
         setFieldCentric(false);
         // rotate(tgtHeading);
         drive(mLimelight.calculateVisionOffset()[0] * Robot.bot.xVisionkP,

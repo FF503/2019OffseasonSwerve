@@ -49,7 +49,7 @@ public abstract class RobotHardware {
 
     // Limelight Pipelines
     public int DRIVE_VIEW = 0;
-    public int TARGETTING_VIEW = 2;
+    public int TARGETING_VIEW = 2;
 
     // Limelight Constants
     public double visionAreaConstant = 1.0;
