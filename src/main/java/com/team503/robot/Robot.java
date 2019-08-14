@@ -9,7 +9,6 @@ package com.team503.robot;
 
 import java.util.Arrays;
 
-import com.team503.lib.util.Limelight;
 import com.team503.robot.RobotState.Bot;
 import com.team503.robot.RobotState.GameElement;
 import com.team503.robot.commands.EjectBall;
@@ -23,6 +22,7 @@ import com.team503.robot.commands.ToggleIntake;
 import com.team503.robot.subsystems.Arm;
 import com.team503.robot.subsystems.Extension;
 import com.team503.robot.subsystems.Intake;
+import com.team503.robot.subsystems.Limelight;
 import com.team503.robot.subsystems.Pigeon;
 import com.team503.robot.subsystems.SubsystemManager;
 import com.team503.robot.subsystems.SwerveDrive;
@@ -120,7 +120,7 @@ public class Robot extends TimedRobot {
   public void teleopInit() {
     mSwerve.setBrakeMode();
     mIntake.startVacuum();
-    mLime.setPipeline(bot.TARGETTING_VIEW);
+    mLime.setPipeline(bot.TARGETING_VIEW);
   }
 
   /*
