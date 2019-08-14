@@ -106,7 +106,7 @@ public class Pose {
 	}
 
 	public String toString() {
-		return "x:" + translation.getX() + " y: " + translation.getY() + " theta: " + theta;
+		return "time: " + timestamp + "x:" + translation.getX() + " y: " + translation.getY() + " theta: " + theta;
 	}
 
 	public Pose exp(Twist2d twist) {

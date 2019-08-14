@@ -41,7 +41,6 @@ import edu.wpi.first.wpilibj.TimedRobot;
 public class Robot extends TimedRobot {
 
   private SwerveDrive mSwerve;
-  private Pigeon mPigeon;
 
   private SubsystemManager subsystems;
   public static RobotHardware bot;
@@ -57,10 +56,9 @@ public class Robot extends TimedRobot {
     OI.initialize();
 
     mSwerve = SwerveDrive.getInstance();
-    mPigeon = Pigeon.getInstance();
 
     // Subsytem Manager
-    subsystems = new SubsystemManager(Arrays.asList(mSwerve, mPigeon, Arm.getInstance(), Wrist.getInstance(),
+    subsystems = new SubsystemManager(Arrays.asList(mSwerve, Pigeon.getInstance(), Arm.getInstance(), Wrist.getInstance(),
         Extension.getInstance(), Intake.getInstance()));
     subsystems.resetSensor();
   }

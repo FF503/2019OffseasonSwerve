@@ -83,4 +83,8 @@ public class ChassisSpeeds {
         return new ChassisSpeeds(vx * robotAngle.getCos() + vy * robotAngle.getSin(),
                 -vx * robotAngle.getSin() + vy * robotAngle.getCos(), omega);
     }
+
+    public String toString() {
+        return "X: " + vx + "Y: " + vy;
+    }
 }

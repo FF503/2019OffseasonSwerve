@@ -9,6 +9,7 @@ package com.team503.lib.kinematics;
 
 import com.team254.lib.geometry.Translation2d;
 import com.team254.lib.geometry.Twist2d;
+import com.team503.lib.util.FFDashboard;
 import com.team503.lib.util.Pose;
 
 /**
@@ -71,10 +72,11 @@ public class SwerveDriveOdometry {
         double period = m_prevTimeSeconds >= 0 ? currentTimeSeconds - m_prevTimeSeconds : 0.0;
         m_prevTimeSeconds = currentTimeSeconds;
 
-        var chassisState = m_kinematics.toChassisSpeeds(moduleStates);
+        ChassisSpeeds chassisState = m_kinematics.toChassisSpeeds(moduleStates);
+        FFDashboard.getInstance().putString("Tangential Velocity", chassisState.toString());
         m_pose = m_pose
                 .exp(new Twist2d(chassisState.vx * period, chassisState.vy * period, chassisState.omega * period));
-
+        m_pose.setTimestamp(currentTimeSeconds);
         return m_pose;
     }
 

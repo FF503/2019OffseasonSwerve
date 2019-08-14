@@ -22,6 +22,7 @@ public class SwerveModule {
     private static final double kWheelDiameter = Robot.bot.wheelDiameter;
     private static final double kAzimuthDegreesPerClick = 360.0 / kTurnEncoderClicksperRevolution;
     private static final double kAzimuthClicksPerDegree = kTurnEncoderClicksperRevolution / 360.0;
+    private final double driveVelocityConversionFactor = Math.PI * kWheelDiameter;
     private static final int kSlotIdx = 0;
     private static final int kTimeoutMs = 30;
     private static double power = 0.0;
@@ -97,8 +98,9 @@ public class SwerveModule {
         turnMotor.config_kD(kSlotIdx, kD, kTimeoutMs);
         turnMotor.configMotionCruiseVelocity(kMagicCruiseVelocity, kTimeoutMs);
         turnMotor.configMotionAcceleration(kMagicCruiseAcceleration, kTimeoutMs);
-        driveMotor.setSmartCurrentLimit(50);
 
+        driveMotor.setSmartCurrentLimit(50);
+        motorEncoder.setVelocityConversionFactor(driveVelocityConversionFactor);
     }
 
     public void drive(double speed, double angle) {
@@ -151,7 +153,7 @@ public class SwerveModule {
         return pos;
     }
 
-    public double getDriveEncoderVelocity() {
+    public double getDriveEncoderRPM() {
         double vol = motorEncoder.getVelocity();
         // if(kDriveEncoderInverted) {
         // vol *= -1;
@@ -159,8 +161,12 @@ public class SwerveModule {
         return vol;
     }
 
+    public double getDriveMotorVelocity() {
+        return motorEncoder.getVelocityConversionFactor();
+    }
+
     public SwerveModuleState getState() {
-        return new SwerveModuleState(getDriveEncoderVelocity(),
+        return new SwerveModuleState(getDriveMotorVelocity(),
                 Rotation2d.fromDegrees(getTurnEncoderPositioninDegrees()));
     }
 
