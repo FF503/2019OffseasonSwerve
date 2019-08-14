@@ -10,43 +10,44 @@ import java.text.DecimalFormat;
  * <p>
  * A Twist can be used to represent a difference between two poses, a velocity, an acceleration, etc.
  */
+/**
+ * A change in distance along arc since the last pose update. We can use ideas
+ * from differential calculus to create new Pose2ds from a Twist2d and vise
+ * versa.
+ *
+ * <p>
+ * A Twist can be used to represent a difference between two poses.
+ */
+@SuppressWarnings("MemberName")
 public class Twist2d {
-    protected static final Twist2d kIdentity = new Twist2d(0.0, 0.0, 0.0);
+    /**
+     * Linear "dx" component.
+     */
+    public double dx;
 
-    public static final Twist2d identity() {
-        return kIdentity;
+    /**
+     * Linear "dy" component.
+     */
+    public double dy;
+
+    /**
+     * Angular "dtheta" component (radians).
+     */
+    public double dtheta;
+
+    public Twist2d() {
     }
 
-    public final double dx;
-    public final double dy;
-    public final double dtheta; // Radians!
-
+    /**
+     * Constructs a Twist2d with the given values.
+     * 
+     * @param dx     Change in x direction relative to robot.
+     * @param dy     Change in y direction relative to robot.
+     * @param dtheta Change in angle relative to robot.
+     */
     public Twist2d(double dx, double dy, double dtheta) {
         this.dx = dx;
         this.dy = dy;
         this.dtheta = dtheta;
-    }
-
-    public Twist2d scaled(double scale) {
-        return new Twist2d(dx * scale, dy * scale, dtheta * scale);
-    }
-
-    public double norm() {
-        // Common case of dy == 0
-        if (dy == 0.0)
-            return Math.abs(dx);
-        return Math.hypot(dx, dy);
-    }
-
-    public double curvature() {
-        if (Math.abs(dtheta) < Util.kEpsilon && norm() < Util.kEpsilon)
-            return 0.0;
-        return dtheta / norm();
-    }
-
-    @Override
-    public String toString() {
-        final DecimalFormat fmt = new DecimalFormat("#0.000");
-        return "(" + fmt.format(dx) + "," + fmt.format(dy) + "," + fmt.format(Math.toDegrees(dtheta)) + " deg)";
     }
 }

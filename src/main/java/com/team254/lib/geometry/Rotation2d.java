@@ -7,184 +7,163 @@ import java.text.DecimalFormat;
 import static com.team254.lib.util.Util.kEpsilon;
 
 /**
- * A rotation in a 2d coordinate frame represented a point on the unit circle (cosine and sine).
- * <p>
- * Inspired by Sophus (https://github.com/strasdat/Sophus/tree/master/sophus)
+ * A rotation in a 2d coordinate frame represented a point on the unit circle
+ * (cosine and sine).
  */
-public class Rotation2d implements IRotation2d<Rotation2d> {
-    protected static final Rotation2d kIdentity = new Rotation2d();
-
-    public static final Rotation2d identity() {
-        return kIdentity;
-    }
-
-    protected final double cos_angle_;
-    protected final double sin_angle_;
-    protected double theta_degrees = 0;
-    protected double theta_radians = 0;
-
+public class Rotation2d {
+    private final double m_value;
+    private final double m_cos;
+    private final double m_sin;
+  
+    /**
+     * Constructs a Rotation2d with a default angle of 0 degrees.
+     */
     public Rotation2d() {
-        this(1, 0, false);
+      m_value = 0.0;
+      m_cos = 1.0;
+      m_sin = 0.0;
     }
-
-    public Rotation2d(double x, double y, boolean normalize) {
-        if (normalize) {
-            // From trig, we know that sin^2 + cos^2 == 1, but as we do math on this object we might accumulate rounding errors.
-            // Normalizing forces us to re-scale the sin and cos to reset rounding errors.
-            double magnitude = Math.hypot(x, y);
-            if (magnitude > kEpsilon) {
-                sin_angle_ = y / magnitude;
-                cos_angle_ = x / magnitude;
-            } else {
-                sin_angle_ = 0;
-                cos_angle_ = 1;
-            }
-        } else {
-            cos_angle_ = x;
-            sin_angle_ = y;
-        }
-	    theta_degrees = Math.toDegrees(Math.atan2(sin_angle_, cos_angle_));
+  
+    /**
+     * Constructs a Rotation2d with the given radian value.
+     * The x and y don't have to be normalized.
+     *
+     * @param value The value of the angle in radians.
+     */
+    public Rotation2d(double value) {
+      m_value = value;
+      m_cos = Math.cos(value);
+      m_sin = Math.sin(value);
     }
-
-    public Rotation2d(final Rotation2d other) {
-        cos_angle_ = other.cos_angle_;
-        sin_angle_ = other.sin_angle_;
-        theta_degrees = Math.toDegrees(Math.atan2(sin_angle_, cos_angle_));
+  
+    /**
+     * Constructs a Rotation2d with the given x and y (cosine and sine)
+     * components.
+     *
+     * @param x The x component or cosine of the rotation.
+     * @param y The y component or sine of the rotation.
+     */
+    @SuppressWarnings("ParameterName")
+    public Rotation2d(double x, double y) {
+      double magnitude = Math.hypot(x, y);
+      if (magnitude > 1e-6) {
+        m_sin = y / magnitude;
+        m_cos = x / magnitude;
+      } else {
+        m_sin = 0.0;
+        m_cos = 1.0;
+      }
+      m_value = Math.atan2(m_sin, m_cos);
     }
-    
-    public Rotation2d(double theta_degrees){
-    	cos_angle_ = Math.cos(Math.toRadians(theta_degrees));
-    	sin_angle_ = Math.sin(Math.toRadians(theta_degrees));
-    	this.theta_degrees = theta_degrees;
+  
+    /**
+     * Constructs and returns a Rotation2d with the given degree value.
+     *
+     * @param degrees The value of the angle in degrees.
+     * @return The rotation object with the desired angle value.
+     */
+    public static Rotation2d fromDegrees(double degrees) {
+      return new Rotation2d(Math.toRadians(degrees));
     }
-
-    public Rotation2d(final Translation2d direction, boolean normalize) {
-        this(direction.x(), direction.y(), normalize);
+  
+    /**
+     * Adds two rotations together, with the result being bounded between -pi and
+     * pi.
+     *
+     * <p>For example, Rotation2d.fromDegrees(30) + Rotation2d.fromDegrees(60) =
+     * Rotation2d{-pi/2}
+     *
+     * @param other The rotation to add.
+     * @return The sum of the two rotations.
+     */
+    public Rotation2d plus(Rotation2d other) {
+      return rotateBy(other);
     }
-
-    public static Rotation2d fromRadians(double angle_radians) {
-        return new Rotation2d(Math.cos(angle_radians), Math.sin(angle_radians), false);
+  
+    /**
+     * Subtracts the new rotation from the current rotation and returns the new
+     * rotation.
+     *
+     * <p>For example, Rotation2d.fromDegrees(10) - Rotation2d.fromDegrees(100) =
+     * Rotation2d{-pi/2}
+     *
+     * @param other The rotation to subtract.
+     * @return The difference between the two rotations.
+     */
+    public Rotation2d minus(Rotation2d other) {
+      return rotateBy(other.unaryMinus());
     }
-
-    public static Rotation2d fromDegrees(double angle_degrees) {
-        return new Rotation2d(angle_degrees);
+  
+    /**
+     * Takes the inverse of the current rotation. This is simply the negative of
+     * the current angular value.
+     *
+     * @return The inverse of the current rotation.
+     */
+    public Rotation2d unaryMinus() {
+      return new Rotation2d(-m_value);
     }
-
-    public double cos() {
-        return cos_angle_;
+  
+    /**
+     * Adds the new rotation to the current rotation using a rotation matrix.
+     *
+     * <p>The matrix multiplication is as follows:
+     * [cos_new]   [other.cos, -other.sin][cos]
+     * [sin_new] = [other.sin,  other.cos][sin]
+     * value_new = atan2(cos_new, sin_new)
+     *
+     * @param other The rotation to rotate by.
+     * @return The new rotated Rotation2d.
+     */
+    public Rotation2d rotateBy(Rotation2d other) {
+      return new Rotation2d(
+              m_cos * other.m_cos - m_sin * other.m_sin,
+              m_cos * other.m_sin + m_sin * other.m_cos
+      );
     }
-
-    public double sin() {
-        return sin_angle_;
-    }
-
-    public double tan() {
-        if (Math.abs(cos_angle_) < kEpsilon) {
-            if (sin_angle_ >= 0.0) {
-                return Double.POSITIVE_INFINITY;
-            } else {
-                return Double.NEGATIVE_INFINITY;
-            }
-        }
-        return sin_angle_ / cos_angle_;
-    }
-
+  
+    /*
+     * Returns the radian value of the rotation.
+     *
+     * @return The radian value of the rotation.
+     */
     public double getRadians() {
-        return Math.atan2(sin_angle_, cos_angle_);
+      return m_value;
     }
-
+  
+    /**
+     * Returns the degree value of the rotation.
+     *
+     * @return The degree value of the rotation.
+     */
     public double getDegrees() {
-        return Math.toDegrees(getRadians());
+      return Math.toDegrees(m_value);
     }
-    
-    public double getUnboundedDegrees(){
-    	return theta_degrees;
-    }
-
+  
     /**
-     * We can rotate this Rotation2d by adding together the effects of it and another rotation.
+     * Returns the cosine of the rotation.
      *
-     * @param other The other rotation. See: https://en.wikipedia.org/wiki/Rotation_matrix
-     * @return This rotation rotated by other.
+     * @return The cosine of the rotation.
      */
-    public Rotation2d rotateBy(final Rotation2d other) {
-        return new Rotation2d(cos_angle_ * other.cos_angle_ - sin_angle_ * other.sin_angle_,
-                cos_angle_ * other.sin_angle_ + sin_angle_ * other.cos_angle_, true);
+    public double getCos() {
+      return m_cos;
     }
-
-    public Rotation2d normal() {
-        return new Rotation2d(-sin_angle_, cos_angle_, false);
-    }
-
+  
     /**
-     * The inverse of a Rotation2d "undoes" the effect of this rotation.
+     * Returns the sine of the rotation.
      *
-     * @return The opposite of this rotation.
+     * @return The sine of the rotation.
      */
-    public Rotation2d inverse() {
-        return new Rotation2d(cos_angle_, -sin_angle_, false);
+    public double getSin() {
+      return m_sin;
     }
-
-    public boolean isParallel(final Rotation2d other) {
-        return Util.epsilonEquals(Translation2d.cross(toTranslation(), other.toTranslation()), 0.0);
-    }
-
-    public Translation2d toTranslation() {
-        return new Translation2d(cos_angle_, sin_angle_);
-    }
-    
+  
     /**
-     * @return The pole nearest to this rotation.
+     * Returns the tangent of the rotation.
+     *
+     * @return The tangent of the rotation.
      */
-    public Rotation2d nearestPole(){
-    	double pole_sin = 0.0;
-    	double pole_cos = 0.0;
-    	if(Math.abs(cos_angle_) > Math.abs(sin_angle_)){
-    		pole_cos = Math.signum(cos_angle_);
-    		pole_sin = 0.0;
-    	}else{
-    		pole_cos = 0.0;
-    		pole_sin = Math.signum(sin_angle_);
-    	}
-    	return new Rotation2d(pole_cos, pole_sin, false);
+    public double getTan() {
+      return m_sin / m_cos;
     }
-
-    @Override
-    public Rotation2d interpolate(final Rotation2d other, double x) {
-        if (x <= 0) {
-            return new Rotation2d(this);
-        } else if (x >= 1) {
-            return new Rotation2d(other);
-        }
-        double angle_diff = inverse().rotateBy(other).getRadians();
-        return this.rotateBy(Rotation2d.fromRadians(angle_diff * x));
-    }
-
-    @Override
-    public String toString() {
-        final DecimalFormat fmt = new DecimalFormat("#0.000");
-        return "(" + fmt.format(getDegrees()) + " deg)";
-    }
-
-    @Override
-    public String toCSV() {
-        final DecimalFormat fmt = new DecimalFormat("#0.000");
-        return fmt.format(getDegrees());
-    }
-
-    @Override
-    public double distance(final Rotation2d other) {
-        return inverse().rotateBy(other).getRadians();
-    }
-
-    @Override
-    public boolean equals(final Object other) {
-        if (other == null || !(other instanceof Rotation2d)) return false;
-        return distance((Rotation2d)other) < Util.kEpsilon;
-    }
-
-    @Override
-    public Rotation2d getRotation() {
-        return this;
-    }
-}
+  }

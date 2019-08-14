@@ -104,8 +104,8 @@ public class SwerveDrive extends Subsystem {
     }
 
     public void drive(Translation2d translationVector, double rotatationalInput, boolean lowPower) {
-        double str = translationVector.x();
-        double fwd = translationVector.y();
+        double str = translationVector.getX();
+        double fwd = translationVector.getY();
         drive(str, fwd, rotationalInput, lowPower);
     }
 
@@ -225,7 +225,7 @@ public class SwerveDrive extends Subsystem {
 
     // Various methods to control the heading controller
     public synchronized void rotate(double goalHeading) {
-        if (translationalVector.x() == 0 && translationalVector.y() == 0)
+        if (translationalVector.getX() == 0 && translationalVector.getY() == 0)
             rotateInPlace(goalHeading);
         else {
             stabilize(goalHeading);

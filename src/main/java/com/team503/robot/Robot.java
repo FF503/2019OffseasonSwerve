@@ -110,8 +110,8 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     mSwerve.setBrakeMode();
-    mIntake.startVacuum();
-    mLime.setPipeline(bot.TARGETING_VIEW);
+    Intake.getInstance().startVacuum();
+    Limelight.getInstance().setPipeline(bot.TARGETING_VIEW);
   }
 
   /*

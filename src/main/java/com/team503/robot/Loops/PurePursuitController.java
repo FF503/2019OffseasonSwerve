@@ -42,9 +42,9 @@ public class PurePursuitController {
         for (int i = closestSegmentIndex; i < traj.getNumSegments() - 1; i++) {
             Translation2d curPathSeg = new Translation2d(traj.getSegment(i).x, traj.getSegment(i).y);
             Translation2d nextPathSeg = new Translation2d(traj.getSegment(i + 1).x, traj.getSegment(i + 1).y);
-            Translation2d curToNextSegment = new Translation2d(nextPathSeg.x() - curPathSeg.x(),
-                    nextPathSeg.y() - curPathSeg.y());
-            Translation2d f = new Translation2d(curPathSeg.x() - robotPose.getX(), curPathSeg.y() - robotPose.getY());
+            Translation2d curToNextSegment = new Translation2d(nextPathSeg.getX() - curPathSeg.getX(),
+                    nextPathSeg.getY() - curPathSeg.getY());
+            Translation2d f = new Translation2d(curPathSeg.getX() - robotPose.getX(), curPathSeg.getY() - robotPose.getY());
 
             double a = Translation2d.dot(curToNextSegment, curToNextSegment);
             double b = 2 * Translation2d.dot(f, curToNextSegment);
@@ -59,7 +59,7 @@ public class PurePursuitController {
 
                 if (t1 >= 0 && t1 <= 1) {
                     tValue = t1;
-                    startSeg = curPathSeg.getTranslation();
+                    startSeg = curPathSeg;
                     dSegmentVector = new Translation2d(curToNextSegment);
                     lookAheadIndex = i;
                     break;
@@ -74,8 +74,8 @@ public class PurePursuitController {
             }
         }
         Translation2d lookAhead = new Translation2d(startSeg);
-        dSegmentVector.scale(tValue);
-        lookAhead.translateBy(dSegmentVector);
+        dSegmentVector.times(tValue);
+        lookAhead.plus(dSegmentVector);
 
         Segment finalSegment = traj.getSegment(traj.getNumSegments() - 1);
         Translation2d finalSegmentAsTranslation = new Translation2d(finalSegment.x, finalSegment.y);
@@ -106,8 +106,8 @@ public class PurePursuitController {
 
     public double getCurvature(Translation2d lookAheadPoint, Pose robotPose) {
         double localcurvature = 0;// getSegment().curvature;
-        double Lx = lookAheadPoint.x();
-        double Ly = lookAheadPoint.y();
+        double Lx = lookAheadPoint.getX();
+        double Ly = lookAheadPoint.getY();
         double Rx = robotPose.getX();
         double Ry = robotPose.getY();
         double Rtheta = Math.toRadians(robotPose.getTheta());
@@ -127,8 +127,8 @@ public class PurePursuitController {
 
     public double getCurvatureFixedLookAhead(Translation2d lookAheadPoint, Pose robotPose) {
         double localcurvature = 0;// getSegment().curvature;
-        double Lx = lookAheadPoint.x();
-        double Ly = lookAheadPoint.y();
+        double Lx = lookAheadPoint.getX();
+        double Ly = lookAheadPoint.getY();
         double Rx = robotPose.getX();
         double Ry = robotPose.getY();
         double Rtheta = Math.toRadians(robotPose.getTheta());
@@ -140,7 +140,7 @@ public class PurePursuitController {
         double x = Math.abs(a * Lx + b * Ly + c) / Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
         double side = Math.signum(Math.sin(Rtheta) * (Lx - Rx) - Math.cos(Rtheta) * (Ly - Ry));
 
-        localcurvature = side * (2 * x) / (Math.pow(lookAheadPoint.distance(pose.toVector()), 2));
+        localcurvature = side * (2 * x) / (Math.pow(lookAheadPoint.getDistance(pose.toVector()), 2));
 
         return localcurvature;
     }
@@ -158,7 +158,7 @@ public class PurePursuitController {
     public double getVelocityBasedPowerCalculation() {
         double targetVel = getSegment().vel;
         currentTargetVelocity = targetVel;
-        double distanceTraveled = pose.toVector().distance(lastPose.toVector());
+        double distanceTraveled = pose.toVector().getDistance(lastPose.toVector());
         double currentTime = Timer.getFPGATimestamp();
         double velocityMagnitude = distanceTraveled / (currentTime - lastTime);
         double velError = targetVel - velocityMagnitude;

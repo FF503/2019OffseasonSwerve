@@ -1,6 +1,7 @@
 package com.team503.robot.Loops;
 
-import com.team254.lib.geometry.Pose2d;
+import com.team254.lib.geometry.Rotation2d;
+import com.team254.lib.geometry.Transform2d;
 import com.team254.lib.geometry.Translation2d;
 import com.team503.lib.util.Pose;
 import com.team503.lib.util.Util;
@@ -36,9 +37,9 @@ public class PoseController {
 
     public synchronized void updatePoseWithVelocity(Translation2d velocity) {
         double dt = Timer.getFPGATimestamp() - lastPoseUpdate;
-        Translation2d positionChange = lastPoseUpdate == -1 ? velocity.scale(Robot.bot.POSE_LOOP_DT)
-                : velocity.scale(dt);
-        currentPose = currentPose.toPose2D().transformBy(Pose2d.fromTranslation(positionChange)).toPose();
+        Translation2d positionChange = lastPoseUpdate == -1 ? velocity.times(Robot.bot.POSE_LOOP_DT)
+                : velocity.times(dt);
+        currentPose = currentPose.transformBy(new Transform2d(positionChange, new Rotation2d()));
         RobotState.getInstance().setCurrentPose(currentPose);
         lastPoseUpdate = Timer.getFPGATimestamp();
     }
