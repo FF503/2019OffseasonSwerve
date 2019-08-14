@@ -24,11 +24,11 @@ public class RobotState {
 		return instance;
 	}
 
-	public Pose getCurrentPose() {
+	public synchronized Pose getCurrentPose() {
 		return currentPose;
 	}
 
-	public void setCurrentPose(Pose currentPose) {
+	public synchronized void setCurrentPose(Pose currentPose) {
 		this.currentPose = currentPose;
 	}
 
@@ -174,13 +174,12 @@ public class RobotState {
 	}
 
 	public void setCurrentRobot(final Bot currentRobot) {
-        this.currentRobot = currentRobot;
-    }
+		this.currentRobot = currentRobot;
+	}
 
-    public Bot getCurrentRobot() {
-        return this.currentRobot;
-    }
-    
+	public Bot getCurrentRobot() {
+		return this.currentRobot;
+	}
 	public void setCurrentPipeline(int pipeline) {
 		this.pipeline = pipeline;
 	}

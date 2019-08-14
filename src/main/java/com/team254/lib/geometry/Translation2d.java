@@ -9,6 +9,8 @@ package com.team254.lib.geometry;
 
 import java.text.DecimalFormat;
 
+import com.team254.lib.util.Util;
+
 /**
  * Represents a translation in 2d space. This object can be used to represent a
  * point or a vector.
@@ -19,6 +21,13 @@ import java.text.DecimalFormat;
  * increases the X, whereas moving to the left increases the Y.
  */
 public class Translation2d {
+
+  protected static final Translation2d kIdentity = new Translation2d();
+
+  public static final Translation2d identity() {
+    return kIdentity;
+  }
+
   private final double m_x;
   private final double m_y;
 
@@ -92,6 +101,12 @@ public class Translation2d {
    */
   public double getNorm() {
     return Math.hypot(m_x, m_y);
+  }
+
+  public Translation2d normalize() {
+    if (epsilonEquals(identity(), Util.kEpsilon))
+      return this;
+    return times(1.0 / getNorm());
   }
 
   /**
@@ -193,4 +208,9 @@ public class Translation2d {
     final DecimalFormat fmt = new DecimalFormat("#0.000");
     return fmt.format(getX()) + "," + fmt.format(getY());
   }
+
+  public boolean epsilonEquals(final Translation2d other, double epsilon) {
+    return Util.epsilonEquals(getX(), other.getX(), epsilon) && Util.epsilonEquals(getY(), other.getY(), epsilon);
+  }
+
 }

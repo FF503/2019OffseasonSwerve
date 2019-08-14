@@ -55,21 +55,7 @@ public class OI {
 	private static JoystickButton operatorRJ = new JoystickButton(operator, 10);
 
 	public static void initialize() {
-		//driverX.toggleWhenPressed(new ToggleIntake());
-		//operatorSelect.whenPressed(new ToggleControlModeCommand());
-		//driverA.whenPressed(new ReleaseHatch());
-		//driverB.whileHeld(new EjectCube());
-		//passiveIntake.whileHeld(new ConstantIntakeCommand());
-		//operatorMenu.whenPressed(new TargetHeightSwitcher(RobotState.TargetHeight.INTAKE));
-		// operatorA.whenPressed(new TargetHeightSwitcher(RobotState.TargetHeight.LOW));
-		// operatorB.whenPressed(new TargetHeightSwitcher(RobotState.TargetHeight.MIDDLE));
-		// operatorY.whenPressed(new TargetHeightSwitcher(RobotState.TargetHeight.HIGH));
-		// operatorX.whenPressed(new TargetHeightSwitcher(RobotState.TargetHeight.BUS));
-
-		//setToCargo.whenPressed(new GameElementSwitcher(RobotState.GameElement.CARGO));
-		//setToHPC.whenPressed(new GameElementSwitcher(RobotState.GameElement.HATCH));
-		//operatorRB.whenPressed(new MoveArmCommand(ArmDirection.FRONT, TargetHeight.HOME));
-		//operatorRJ.whenPressed(new ResetEncoderCommand());
+		
 	}
 
 	public static double getDriverLeftXVal() {

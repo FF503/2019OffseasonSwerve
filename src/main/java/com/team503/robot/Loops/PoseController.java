@@ -13,6 +13,7 @@ import org.ejml.simple.SimpleMatrix;
 
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class PoseController {
     private Pose currentPose;
@@ -36,21 +37,23 @@ public class PoseController {
     }
 
     public synchronized void updatePoseWithVelocity(Translation2d velocity) {
-        double dt = Timer.getFPGATimestamp() - lastPoseUpdate;
+        double currentTime = Timer.getFPGATimestamp();
+        double dt = currentTime - lastPoseUpdate;
         Translation2d positionChange = lastPoseUpdate == -1 ? velocity.times(Robot.bot.POSE_LOOP_DT)
                 : velocity.times(dt);
         currentPose = currentPose.transformBy(new Transform2d(positionChange, new Rotation2d()));
+        currentPose.setTimestamp(currentTime);
         RobotState.getInstance().setCurrentPose(currentPose);
-        lastPoseUpdate = Timer.getFPGATimestamp();
+        lastPoseUpdate = currentTime;
     }
 
     private class PoseThread implements Runnable {
         @Override
         public void run() {
             if (run) {
-                SimpleMatrix wheelVelocities = new SimpleMatrix(
-                        SwerveDrive.getInstance().getWheelComponentVelocities());
+                SimpleMatrix wheelVelocities = new SimpleMatrix(SwerveDrive.getInstance().getWheelComponentVelocities());
                 Translation2d velocity = Util.getVelocity(wheelVelocities);
+                SmartDashboard.putNumber("Trans Velocity", velocity.getNorm());
                 updatePoseWithVelocity(velocity);
             }
         }

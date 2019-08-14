@@ -9,6 +9,7 @@ import com.team503.lib.util.SnappingPosition;
 import com.team503.lib.util.SwerveHeadingController;
 import com.team503.lib.util.Util;
 import com.team503.robot.Robot;
+import com.team503.robot.RobotHardware;
 import com.team503.robot.RobotState;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -44,10 +45,6 @@ public class SwerveDrive extends Subsystem {
     public void setMode(DriveMode mode) {
         this.mode = mode;
     }
-
-    // Swerve Dimensions
-    public final double L = 21.0;
-    public final double W = 21.0;
 
     // Module declaration
     private SwerveModule backRight, backLeft, frontRight, frontLeft;
@@ -100,11 +97,16 @@ public class SwerveDrive extends Subsystem {
         this.fieldCentric = !this.fieldCentric;
     }
 
-    public void drive(double str, double fwd) {
-        drive(str, fwd, headingController.getRotationalOutput(), false);
+    public void drive(Translation2d translationVector) {
+        drive(translationVector, getRotationalOutput());
+    }
+
+    public void drive(Translation2d translationVector, double rotatationalInput) {
+        drive(translationVector, rotationalInput, false);
     }
 
     public void drive(Translation2d translationVector, double rotatationalInput, boolean lowPower) {
+        translationVector = translationVector.normalize();
         double str = translationVector.getX();
         double fwd = translationVector.getY();
         drive(str, fwd, rotationalInput, lowPower);
@@ -112,7 +114,8 @@ public class SwerveDrive extends Subsystem {
 
     // Takes joystick input an calculates drive wheel speed and turn motor angle
     public void drive(double str, double fwd, double rcw, boolean lowPower) {
-        double r = Math.sqrt((L * L) + (W * W));
+        final double length = Robot.bot.kWheelbaseLength, width = Robot.bot.kWheelbaseWidth;
+        double r = Math.sqrt((length * length) + (width * width));
 
         str *= (lowPower ? 0.3 : 1.0)  * Robot.bot.requestDriveReversed;
         fwd *= (lowPower ? 0.5 : 1.0) * Robot.bot.requestDriveReversed;
@@ -128,10 +131,10 @@ public class SwerveDrive extends Subsystem {
         translationalVector = new Translation2d(str, fwd);
         rotationalInput = rcw;
 
-        double a = str - rcw * (L / r);
-        double b = str + rcw * (L / r);
-        double c = fwd - rcw * (W / r);
-        double d = fwd + rcw * (W / r);
+        double a = str - rcw * (length / r);
+        double b = str + rcw * (length / r);
+        double c = fwd - rcw * (width / r);
+        double d = fwd + rcw * (width / r);
 
         double backRightSpeed = Math.sqrt((a * a) + (c * c));
         double backLeftSpeed = Math.sqrt((a * a) + (d * d));
@@ -233,6 +236,15 @@ public class SwerveDrive extends Subsystem {
         }
     }
 
+    public void setPathHeading(SnappingPosition pos) {
+        setPathHeading(pos.getAngle());
+    }
+
+    public void setPathHeading(double goalHeading) {
+        headingController.setSnapTarget(
+                Util.placeInAppropriate0To360Scope(RobotState.getInstance().getCurrentTheta(), goalHeading));
+    }
+
     public synchronized void stabilize(double goalHeading) {
         headingController.setStabilizationTarget(
                 Util.placeInAppropriate0To360Scope(RobotState.getInstance().getCurrentTheta(), goalHeading));
@@ -254,8 +266,10 @@ public class SwerveDrive extends Subsystem {
             Limelight.getInstance().setPipeline(Robot.bot.TARGETING_VIEW);
             setFieldCentric(false);
             // rotate(tgtHeading);
-            drive(Limelight.getInstance().calculateVisionOffset()[0] * Robot.bot.xVisionkP,
+            Translation2d vector = new Translation2d(
+                    Limelight.getInstance().calculateVisionOffset()[0] * Robot.bot.xVisionkP,
                     Limelight.getInstance().calculateVisionOffset()[1] * Robot.bot.yVisionkP);
+            drive(vector);
         }
     }
 
@@ -289,7 +303,7 @@ public class SwerveDrive extends Subsystem {
         modules.forEach((mod) -> mod.coastDrive());
     }
 
-    public void setCurrentLimit(int limit) {
+    private void setCurrentLimit(int limit) {
         modules.forEach((mod) -> mod.setDriveMotorCurrentLimit(limit));
     }
 

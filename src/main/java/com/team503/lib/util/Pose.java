@@ -6,12 +6,19 @@ import com.team254.lib.geometry.Translation2d;
 import com.team254.lib.geometry.Twist2d;
 
 public class Pose {
+	private double timestamp = 0;
 	private double theta = 503.503503503, lastTheta = 503.503503503;
 	public Translation2d translation = new Translation2d(), lastTranslation = new Translation2d();
 
 	public Pose(double x, double y, double theta) {
 		this.translation = new Translation2d(x, y);
 		this.theta = theta;
+	}
+
+	public Pose(double timestamp, double x, double y, double theta) {
+		this.translation = new Translation2d(x, y);
+		this.theta = theta;
+		setTimestamp(timestamp);
 	}
 
 	public Pose(Translation2d translation2d, double theta) {
@@ -49,6 +56,14 @@ public class Pose {
 
 	public double[] get() {
 		return new double[] { getX(), getY(), theta };
+	}
+
+	public double getTimestamp() {
+		return timestamp;
+	}
+
+	public void setTimestamp(double timestamp) {
+		this.timestamp = timestamp;
 	}
 
 	public void translatePose(Translation2d translation) {
