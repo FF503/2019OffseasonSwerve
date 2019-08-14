@@ -110,7 +110,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousPeriodic() {
-    
+
   }
 
   /**
@@ -120,7 +120,7 @@ public class Robot extends TimedRobot {
   public void teleopInit() {
     mSwerve.setBrakeMode();
     mIntake.startVacuum();
-    Limelight.getInstance().setPipeline(2);
+    mLime.setPipeline(bot.TARGETTING_VIEW);
   }
 
   /*
@@ -182,7 +182,7 @@ public class Robot extends TimedRobot {
     double lastSnapTarget = 0;
 
     if (swerveRotationInput > -deadband && swerveRotationInput < deadband) {
-      swerveRotationInput = mSwerve.getRotationalOutput();// 0.0;
+      swerveRotationInput = mSwerve.getRotationalOutput();
     } else {
       mSwerve.rotate(RobotState.getInstance().getCurrentTheta());
     }
@@ -190,6 +190,7 @@ public class Robot extends TimedRobot {
     if (OI.getDriverYButton()) {
       mSwerve.visionFollow(lastSnapTarget);
     } else {
+      mLime.setPipeline(bot.DRIVE_VIEW);
       if (OI.driverJoystick.leftBumper.shortReleased()) {
         mSwerve.rotate(-24);
         lastSnapTarget = -24;
@@ -252,7 +253,6 @@ public class Robot extends TimedRobot {
     } else if (OI.getOperatorSelect()) {
       ToggleControlMode.toggle();
     } else if (OI.getDriverXButton()) {
-      // System.out.println("x");
       ToggleIntake.toggleIntake();
     }
     ToggleIntake.handleIntakeFinish();
