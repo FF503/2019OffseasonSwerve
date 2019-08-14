@@ -18,7 +18,6 @@ public class SwerveDrive extends Subsystem {
     // Instance declaration
     private static SwerveDrive instance = null;
     private SwerveHeadingController headingController = new SwerveHeadingController();
-    private Limelight mLimelight;
 
     // Teleop driving variables
     private Translation2d translationalVector = new Translation2d();
@@ -54,6 +53,10 @@ public class SwerveDrive extends Subsystem {
     private SwerveModule backRight, backLeft, frontRight, frontLeft;
     private List<SwerveModule> modules;
 
+    public List<SwerveModule> getModules() {
+        return modules;
+    }
+
     public double[][] getWheelComponentVelocities() {
         double[][] returner = { { frontRight.getXComponentVelocity() }, { frontRight.getYComponentVelocity() },
                 { frontLeft.getXComponentVelocity() }, { frontLeft.getYComponentVelocity() },
@@ -65,8 +68,6 @@ public class SwerveDrive extends Subsystem {
 
     // Constructor
     public SwerveDrive() {
-        mLimelight = Limelight.getInstance();
-
         try {
             this.backRight = Util.readSwerveJSON(Robot.bot.getBackRightName());
             this.backLeft = Util.readSwerveJSON(Robot.bot.getBackLeftName());
@@ -250,11 +251,11 @@ public class SwerveDrive extends Subsystem {
      */
     public synchronized void visionFollow(double tgtHeading) {
         if (Robot.bot.hasLimelight()) {
-        mLimelight.setPipeline(Robot.bot.TARGETING_VIEW);
+            Limelight.getInstance().setPipeline(Robot.bot.TARGETING_VIEW);
             setFieldCentric(false);
             // rotate(tgtHeading);
-            drive(mLimelight.calculateVisionOffset()[0] * Robot.bot.xVisionkP,
-                    mLimelight.calculateVisionOffset()[1] * Robot.bot.yVisionkP);
+            drive(Limelight.getInstance().calculateVisionOffset()[0] * Robot.bot.xVisionkP,
+                    Limelight.getInstance().calculateVisionOffset()[1] * Robot.bot.yVisionkP);
         }
     }
 

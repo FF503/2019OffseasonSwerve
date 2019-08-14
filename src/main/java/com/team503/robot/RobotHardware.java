@@ -66,12 +66,12 @@ public abstract class RobotHardware {
     public double requestDriveReversed;
 
     // Swerve Module Positions (relative to the center of the drive base)
-    public Translation2d kVehicleToModuleZero;
-    public Translation2d kVehicleToModuleOne;
-    public Translation2d kVehicleToModuleTwo;
-    public Translation2d kVehicleToModuleThree;
+    public Translation2d kVehicleToFrontRight;
+    public Translation2d kVehicleToBackRight;
+    public Translation2d kVehicleToFrontLeft;
+    public Translation2d kVehicleToBackLeft;
 
-    public List<Translation2d> kModulePositions;
+    public Translation2d[] kModulePositions;
     public double kV_PurePursuit;
     public double kA_PurePursuit;
     public double kMaxVelocityInchesPerSec;

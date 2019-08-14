@@ -10,6 +10,8 @@ import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.team254.lib.geometry.Rotation2d;
+import com.team503.lib.kinematics.SwerveModuleState;
 import com.team503.lib.util.Util;
 import com.team503.robot.Robot;
 import com.team503.robot.RobotState;
@@ -92,11 +94,10 @@ public class SwerveModule {
         turnMotor.config_kF(kSlotIdx, kF, kTimeoutMs);
         turnMotor.config_kP(kSlotIdx, kP, kTimeoutMs);
         turnMotor.config_kI(kSlotIdx, kI, kTimeoutMs);
-        turnMotor.config_kD(kSlotIdx, kD, kTimeoutMs); 
+        turnMotor.config_kD(kSlotIdx, kD, kTimeoutMs);
         turnMotor.configMotionCruiseVelocity(kMagicCruiseVelocity, kTimeoutMs);
         turnMotor.configMotionAcceleration(kMagicCruiseAcceleration, kTimeoutMs);
         driveMotor.setSmartCurrentLimit(50);
-
 
     }
 
@@ -158,6 +159,11 @@ public class SwerveModule {
         return vol;
     }
 
+    public SwerveModuleState getState() {
+        return new SwerveModuleState(getDriveEncoderVelocity(),
+                Rotation2d.fromDegrees(getTurnEncoderPositioninDegrees()));
+    }
+
     public double getTurnEncoderPosition() {
         return turnMotor.getSelectedSensorPosition(0);
     }
@@ -181,7 +187,7 @@ public class SwerveModule {
     public double getTurnEncoderPositioninDegrees() {
         // get the base clicks = zero degrees for this particular wheel
 
-        double pos = turnMotor.getSelectedSensorPosition(0);
+        double pos = getTurnEncoderPosition();
         // relative position
         double relpos = 0;
         // actual position

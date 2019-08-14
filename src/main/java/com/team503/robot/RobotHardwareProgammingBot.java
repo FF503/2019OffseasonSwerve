@@ -13,7 +13,7 @@ import com.team254.lib.geometry.Translation2d;
 
 public class RobotHardwareProgammingBot extends RobotHardware {
     /* All distance measurements are in inches, unless otherwise noted */
-    
+
     // Swerve Module JSON file names
     private class SwerveFileNames {
         public static final String backLeft = "BackLeftAndyA";
@@ -32,13 +32,14 @@ public class RobotHardwareProgammingBot extends RobotHardware {
         requestDriveReversed = -1;
 
         // Swerve Module Positions (relative to the center of the drive base)
-        kVehicleToModuleZero = new Translation2d(kWheelbaseLength / 2, -kWheelbaseWidth / 2);
-        kVehicleToModuleOne = new Translation2d(-kWheelbaseLength / 2, -kWheelbaseWidth / 2);
-        kVehicleToModuleTwo = new Translation2d(-kWheelbaseLength / 2, kWheelbaseWidth / 2);
-        kVehicleToModuleThree = new Translation2d(kWheelbaseLength / 2, kWheelbaseWidth / 2);
+        // TODO: Update so it is actually correct
+        kVehicleToBackLeft = new Translation2d(kWheelbaseLength / 2, -kWheelbaseWidth / 2);
+        kVehicleToBackRight = new Translation2d(-kWheelbaseLength / 2, -kWheelbaseWidth / 2);
+        kVehicleToFrontRight = new Translation2d(-kWheelbaseLength / 2, kWheelbaseWidth / 2);
+        kVehicleToFrontLeft = new Translation2d(kWheelbaseLength / 2, kWheelbaseWidth / 2);
 
-        kModulePositions = Arrays.asList(kVehicleToModuleZero, kVehicleToModuleOne, kVehicleToModuleTwo,
-                kVehicleToModuleThree);
+        kModulePositions = new Translation2d[] { kVehicleToFrontLeft, kVehicleToFrontRight, kVehicleToBackLeft,
+                kVehicleToBackRight };
 
         gTimeoutMs = 0;
         gSlotIdx = 0;
