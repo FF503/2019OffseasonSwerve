@@ -5,7 +5,7 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package com.team503.lib.util;
+package com.team503.robot.subsystems;
 
 import com.team503.robot.Robot;
 import com.team503.robot.RobotState;
