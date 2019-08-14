@@ -83,9 +83,12 @@ public class SwerveModule {
         turnMotor.config_kF(kSlotIdx, kF, kTimeoutMs);
         turnMotor.config_kP(kSlotIdx, kP, kTimeoutMs);
         turnMotor.config_kI(kSlotIdx, kI, kTimeoutMs);
-        turnMotor.config_kD(kSlotIdx, kD, kTimeoutMs);
+        turnMotor.config_kD(kSlotIdx, kD, kTimeoutMs); 
         turnMotor.configMotionCruiseVelocity(kMagicCruiseVelocity, kTimeoutMs);
         turnMotor.configMotionAcceleration(kMagicCruiseAcceleration, kTimeoutMs);
+        driveMotor.setSmartCurrentLimit(50);
+
+
     }
 
     public void drive(double speed, double angle) {
