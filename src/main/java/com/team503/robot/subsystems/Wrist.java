@@ -47,6 +47,7 @@ public class Wrist extends Subsystem implements SuperStructureSystem {
           (int) Robot.bot.kWristCruiseVel, (int) Robot.bot.kWristAcceleration);
       wristPID.configPIDs();
       wristMotor.config_IntegralZone(Robot.bot.gSlotIdx, 50);
+      //wristMotor.configPeakCurrentLimit(amps)
     }
   }
 
