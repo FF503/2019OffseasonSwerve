@@ -53,7 +53,7 @@ public abstract class RobotHardware {
 
     // Limelight Constants
     public double visionAreaConstant = 1.0;
-    public double yVisionkP = 0.4;
+    public double yVisionkP = 0.5;
     public double xVisionkP = 1.0;
 
     // Swerve Calculations Constants (measurements are in inches)

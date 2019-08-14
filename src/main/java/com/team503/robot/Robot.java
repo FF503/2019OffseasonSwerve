@@ -177,7 +177,7 @@ public class Robot extends TimedRobot {
     double swerveYInput = -OI.getDriverLeftYVal();
     double swerveXInput = OI.getDriverLeftXVal();
     double swerveRotationInput = OI.getDriverRightXVal();
-    boolean lowPower = OI.getDriverLeftTriggerPressed();
+    boolean lowPower = OI.getDriverRightTriggerPressed();
     double deadband = 0.010;
     double lastSnapTarget = 0;
 
@@ -225,7 +225,7 @@ public class Robot extends TimedRobot {
       } else if (OI.driverJoystick.getStartButtonPressed()) {
         mSwerve.setMode(DriveMode.Defense);
       }
-      mSwerve.setFieldCentric(!OI.getDriverLeftTriggerPressed());
+      mSwerve.setFieldCentric(!OI.getDriverRightTriggerPressed());
       mSwerve.drive(swerveXInput, swerveYInput, swerveRotationInput, lowPower);
     }
   }
