@@ -72,7 +72,6 @@ public class Limelight extends Subsystem {
     @Override
     public void outputTelemetry() {
         SmartDashboard.putNumber("VISON X Offset", calculateVisionOffset()[0]);
-
         SmartDashboard.putNumber("VISON Y Offset", calculateVisionOffset()[1]);
     }
 
