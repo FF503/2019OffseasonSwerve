@@ -9,6 +9,7 @@ import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.team503.lib.util.Util;
 
 public class SwerveModule {
     private static final double kTurnEncoderClicksperRevolution = 1024.0;
@@ -17,6 +18,7 @@ public class SwerveModule {
     private static final double kAzimuthClicksPerDegree = kTurnEncoderClicksperRevolution / 360.0;
     private static final int kSlotIdx = 0;
     private static final int kTimeoutMs = 30;
+    private static double power = 0.0;
 
     private CANSparkMax driveMotor;
     private TalonSRX turnMotor;
@@ -45,7 +47,7 @@ public class SwerveModule {
         this.motorEncoder = new CANEncoder(this.driveMotor);
         this.turnMotor = new TalonSRX(turnMotorID);
 
-        driveMotor.setIdleMode(IdleMode.kBrake);
+        driveMotor.setIdleMode(IdleMode.kCoast);
         turnMotor.setNeutralMode(NeutralMode.Brake);
         // this is the encoder count when the wheel is aligned forward at the start
         this.kBaseEncoderClicks = startingEncoderClick;
@@ -63,6 +65,7 @@ public class SwerveModule {
 
         // configure drive motor
         driveMotor.setInverted(kDriveMotorInverted);
+        driveMotor.setOpenLoopRampRate(1.0);
 
         // configure turn motor
         turnMotor.configSelectedFeedbackSensor(FeedbackDevice.Analog);
@@ -86,6 +89,7 @@ public class SwerveModule {
     }
 
     public void drive(double speed, double angle) {
+        this.power = speed;
         setDriveMotorSpeed(speed);
 
         // angle is bound to -180 - +180 and degrees are from 0-360
@@ -192,6 +196,7 @@ public class SwerveModule {
         return actpos;
     }
 
+
     /********************************************************************************
      * Section - Encoder Conversion Routines
      *******************************************************************************/
@@ -212,4 +217,17 @@ public class SwerveModule {
     private static double inchesToRotations(double inches) {
         return inches / (kWheelDiameter * Math.PI);
     }
+
+    public double getXComponentVelocity() {
+        return Math.cos(Math.toRadians(Util.unitCircleify(getTurnEncoderPositioninDegrees()))) * driveMotor.getEncoder().getVelocity();
+    }
+
+    public double getYComponentVelocity() {
+        return Math.sin(Math.toRadians(Util.unitCircleify(getTurnEncoderPositioninDegrees()))) * driveMotor.getEncoder().getVelocity();
+    }
+
+    public double getMotorPower(){
+        return power;
+    }
+
 }

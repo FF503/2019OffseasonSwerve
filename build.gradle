@@ -51,6 +51,7 @@ dependencies {
     compile wpi.deps.wpilib()
     compile wpi.deps.vendor.java()
     compile fileTree(dir: 'externalLibraries', include: ['*.jar'])
+    compile group: 'org.ejml', name: 'ejml-all', version: '0.38'
     nativeZip wpi.deps.vendor.jni(wpi.platforms.roborio)
     nativeDesktopZip wpi.deps.vendor.jni(wpi.platforms.desktop)
     testCompile 'junit:junit:4.12'

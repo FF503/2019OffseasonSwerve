@@ -1,10 +1,12 @@
 package com.team503.lib.util;
 
+import com.team254.lib.geometry.Pose2d;
+import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Translation2d;
 
 public class Pose {
 	private double theta = 503.503503503, lastTheta = 503.503503503;
-	private Translation2d translation = new Translation2d(), lastTranslation = new Translation2d();
+	public Translation2d translation = new Translation2d(), lastTranslation = new Translation2d();
 
 	public Pose(double x, double y, double theta) {
 		this.translation = new Translation2d(x, y);
@@ -47,6 +49,10 @@ public class Pose {
 
 	public double[] get() {
 		return new double[] { getX(), getY(), theta };
+	}
+
+	public Pose2d toPose2D() {
+		return new Pose2d(translation, Rotation2d.fromDegrees(theta));
 	}
 
 	public void translatePose(Translation2d translation) {

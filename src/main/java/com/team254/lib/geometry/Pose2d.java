@@ -1,6 +1,7 @@
 package com.team254.lib.geometry;
 
 import com.team254.lib.util.Util;
+import com.team503.lib.util.Pose;
 
 /**
  * Represents a 2d pose (rigid transform) containing translational and rotational elements.
@@ -121,6 +122,10 @@ public class Pose2d implements IPose2d<Pose2d> {
         return new Pose2d(translation_, rotation_.normal());
     }
 
+
+    public Pose toPose() {
+        return new Pose(translation_, rotation_.getDegrees());
+    }
     /**
      * Finds the point where the heading of this pose intersects the heading of another. Returns (+INF, +INF) if
      * parallel.

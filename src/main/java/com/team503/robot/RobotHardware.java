@@ -21,28 +21,7 @@ import com.team503.robot.RobotState.Bot;
  */
 public abstract class RobotHardware {
 
-    private static RobotHardware instance = null;
-
-    public RobotHardware() {
-    }
-
-    public static RobotHardware getInstance() {
-        if (instance == null) {
-            if (RobotState.getInstance().getCurrentRobot().equals(Bot.Automatic)) {
-                RobotState.getInstance().setCurrentRobot(Util.parseRobotNameToEnum(Util.readRobotName()));
-            }
-            switch (RobotState.getInstance().getCurrentRobot()) {
-            case ProgrammingBot:
-                instance = new RobotHardwareProgammingBot();
-                break;
-            case Automatic:
-                System.err.println("Robot should not be set to automatic... something went wrong");
-                break;
-            }
-            instance.initalizeConstants();
-        }
-        return instance;
-    }
+    public final double POSE_LOOP_DT = 0.01;
 
     public abstract void initalizeConstants();
 
@@ -57,6 +36,26 @@ public abstract class RobotHardware {
 
     public abstract String getFrontRightName();
 
+    // Gamespec
+    public abstract boolean hasArm();
+
+    public abstract boolean hasWrist();
+
+    public abstract boolean hasIntake();
+
+    public abstract boolean hasCompressor();
+
+    public abstract boolean hasExtension();
+
+    // Limelight Pipelines
+    public int DRIVE_VIEW = 0;
+    public int TARGETTING_VIEW = 2;
+
+    // Limelight Constants
+    public double visionAreaConstant = 1.0;
+    public double yVisionkP = 0.4;
+    public double xVisionkP = 1.0;
+
     // Swerve Calculations Constants (measurements are in inches)
     public double kWheelbaseLength;
     public double kWheelbaseWidth;
@@ -68,6 +67,98 @@ public abstract class RobotHardware {
     public Translation2d kVehicleToModuleThree;
 
     public List<Translation2d> kModulePositions;
+    public double kV_PurePursuit;
+    public double kA_PurePursuit;
+    public double kMaxVelocityInchesPerSec;
+
+    /* Gamespec vars */
+
+    public int kEncoderUnitsPerRev;
+
+    public int gTimeoutMs;
+    public int gSlotIdx;
+
+    // Arm
+    public int armMasterID;
+    public int armSlaveID;
+    public int kArmCruiseVel;
+    public int kArmAcceleration;
+
+    public double kArmF;
+    public double kArmP;
+    public double kArmI;
+    public double kArmD;
+
+    public double gArmAngularOffset;
+
+    public boolean armMasterInverted;
+    public boolean armSlaveInverted;
+    public boolean armMasterSensorPhase;
+
+    // Wrist/Intake
+    public int rollerIntakeID;
+
+    public int intakePdpChannel;
+    public int vacuumPdpChannel;
+
+    public double intakePower;
+    public double intakeStallPower;
+    public double intakeOutPower;
+    public double intakeVaccPower;
+
+    public int hatchVacId;
+    public int releaseId;
+
+    public double rollerCurrentThres;
+    public double vacuumCurrentThres;
+
+    public int wristID;
+
+    public double kWristCruiseVel;
+    public double kWristAcceleration;
+
+    public double kWristF;
+    public double kWristP;
+    public double kWristI;
+    public double kWristD;
+
+    public double gWristMinLimit;
+    public double gWristMaxLimit;
+
+    public double gWristMaxLimitCargo;
+
+    public double gWristAngularOffset;
+    public double gWristGroundOffset;
+
+    public boolean wristMotorInverted;
+
+    public boolean wristSensorPhase;
+    public double MAX_WRIST_POWER;
+
+    // Extension
+    public int extensionID;
+
+    public boolean extensionSensorPhase;
+    public boolean extensionMotorInverted;
+
+    public double kExtF;
+    public double kExtP;
+    public double kExtI;
+    public double kExtD;
+
+    public int kExtCruiseVel;
+    public int kExtAcceleration;
+
+    public double gExtGearRatio;
+    public double gExtSpoolDiameter;
+    public double gExtOffset;
+    public double gExtMinLim;
+    public double gExtMaxLim;
+
+    public double gArmExtLength;
+
+    // Power Distribution Panel
+    public int PdpID;
 
     /**
      * @return the MAC address of the robot
@@ -98,6 +189,27 @@ public abstract class RobotHardware {
             e.printStackTrace();
         }
         return "";
+    }
+
+    private static RobotHardware instance = null;
+
+    public static RobotHardware getInstance() {
+        if (instance == null) {
+            if (RobotState.getInstance().getCurrentRobot().equals(Bot.Automatic)) {
+                RobotState.getInstance().setCurrentRobot(Util.parseRobotNameToEnum(Util.readRobotName()));
+            }
+            switch (RobotState.getInstance().getCurrentRobot()) {
+            case ProgrammingBot:
+                instance = new RobotHardwareProgammingBot();
+                break;
+            case Automatic:
+                System.err.println("Robot should not be set to automatic... something went wrong");
+                break;
+            }
+            instance.initalizeConstants();
+            //Util.setPseudoInverseForwardKinematicsMatrix();
+        }
+        return instance;
     }
 
 }
