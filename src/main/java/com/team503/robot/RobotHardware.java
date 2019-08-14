@@ -47,6 +47,8 @@ public abstract class RobotHardware {
 
     public abstract boolean hasExtension();
 
+    public abstract boolean hasLimelight();
+
     // Limelight Pipelines
     public int DRIVE_VIEW = 0;
     public int TARGETING_VIEW = 2;
@@ -59,6 +61,9 @@ public abstract class RobotHardware {
     // Swerve Calculations Constants (measurements are in inches)
     public double kWheelbaseLength;
     public double kWheelbaseWidth;
+    public double wheelDiameter;
+    public double kTurnEncoderClicksperRevolution;
+    public double requestDriveReversed;
 
     // Swerve Module Positions (relative to the center of the drive base)
     public Translation2d kVehicleToModuleZero;
@@ -202,12 +207,15 @@ public abstract class RobotHardware {
             case ProgrammingBot:
                 instance = new RobotHardwareProgammingBot();
                 break;
+            case FFSwerve:
+                instance = new FFRobotHardware();
+                break;
             case Automatic:
                 System.err.println("Robot should not be set to automatic... something went wrong");
                 break;
             }
             instance.initalizeConstants();
-            //Util.setPseudoInverseForwardKinematicsMatrix();
+            // Util.setPseudoInverseForwardKinematicsMatrix();
         }
         return instance;
     }

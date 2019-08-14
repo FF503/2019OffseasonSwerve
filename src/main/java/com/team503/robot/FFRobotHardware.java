@@ -11,25 +11,27 @@ import java.util.Arrays;
 
 import com.team254.lib.geometry.Translation2d;
 
-public class RobotHardwareProgammingBot extends RobotHardware {
+public class FFRobotHardware extends RobotHardware {
     /* All distance measurements are in inches, unless otherwise noted */
-    
+
     // Swerve Module JSON file names
     private class SwerveFileNames {
-        public static final String backLeft = "BackLeftAndyA";
-        public static final String backRight = "BackRightAndyA";
-        public static final String frontLeft = "FrontLeftAndyA";
-        public static final String frontRight = "FrontRightAndyA";
+        public static final String backLeft = "BackLeftFFA";
+        public static final String backRight = "BackRightFFA";
+        public static final String frontLeft = "FrontLeftFFA";
+        public static final String frontRight = "FrontRightFFA";
     }
+
+    public final double areaThreshold = 13;
 
     @Override
     public void initalizeConstants() {
         // Swerve Calculations Constants (measurements are in inches)
-        kWheelbaseLength = 21.0;
-        kWheelbaseWidth = 21.0;
-        wheelDiameter = 4.0;
-        kTurnEncoderClicksperRevolution = 1024;
-        requestDriveReversed = -1;
+        kWheelbaseLength = 16.75;
+        kWheelbaseWidth = 17.25;
+        wheelDiameter = 3.0;
+        kTurnEncoderClicksperRevolution = 4096;
+        requestDriveReversed = 1;
 
         // Swerve Module Positions (relative to the center of the drive base)
         kVehicleToModuleZero = new Translation2d(kWheelbaseLength / 2, -kWheelbaseWidth / 2);
@@ -44,6 +46,11 @@ public class RobotHardwareProgammingBot extends RobotHardware {
         gSlotIdx = 0;
 
         kEncoderUnitsPerRev = 4096;
+
+        // Pure Pursuit
+        kMaxVelocityInchesPerSec = 10;
+        kV_PurePursuit = 1 / kMaxVelocityInchesPerSec;
+        kA_PurePursuit = 0;
 
         // Arm
         armMasterID = 11;
@@ -63,18 +70,18 @@ public class RobotHardwareProgammingBot extends RobotHardware {
         armMasterSensorPhase = false;
 
         // Wrist/Intake
-        rollerIntakeID = 2;
+        rollerIntakeID = 0;
 
-        intakePdpChannel = 8;
-        vacuumPdpChannel = 7;
+        intakePdpChannel = 9;
+        vacuumPdpChannel = 11;
 
-        intakePower = -0.8;
-        intakeStallPower = -0.25;
-        intakeOutPower = 0.7;// 0.8;
+        intakePower = 0.8;
+        intakeStallPower = 0.25;
+        intakeOutPower = -0.7;// 0.8;
         intakeVaccPower = 0.45;
 
         hatchVacId = 1;
-        releaseId = 0;
+        releaseId = 2;
 
         rollerCurrentThres = 30.0;
         vacuumCurrentThres = 20.0;
@@ -152,32 +159,32 @@ public class RobotHardwareProgammingBot extends RobotHardware {
 
     @Override
     public boolean hasCompressor() {
-        return true;
+        return false;
     }
 
     @Override
     public boolean hasArm() {
-        return true;
+        return false;
     }
 
     @Override
     public boolean hasWrist() {
-        return true;
+        return false;
     }
 
     @Override
     public boolean hasIntake() {
-        return true;
+        return false;
     }
 
     @Override
     public boolean hasExtension() {
-        return true;
+        return false;
     }
 
     @Override
     public boolean hasLimelight() {
-        return true;
+        return false;
     }
 
 }

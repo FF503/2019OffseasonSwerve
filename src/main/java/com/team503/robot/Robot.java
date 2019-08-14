@@ -41,12 +41,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 public class Robot extends TimedRobot {
 
   private SwerveDrive mSwerve;
-  private Arm mArm;
-  private Wrist mWrist;
-  private Extension mExtension;
-  private Intake mIntake;
   private Pigeon mPigeon;
-  private Limelight mLime;
 
   private SubsystemManager subsystems;
   public static RobotHardware bot;
@@ -62,15 +57,11 @@ public class Robot extends TimedRobot {
     OI.initialize();
 
     mSwerve = SwerveDrive.getInstance();
-    mArm = Arm.getInstance();
-    mWrist = Wrist.getInstance();
-    mExtension = Extension.getInstance();
-    mIntake = Intake.getInstance();
     mPigeon = Pigeon.getInstance();
-    mLime = Limelight.getInstance();
 
     // Subsytem Manager
-    subsystems = new SubsystemManager(Arrays.asList(mSwerve, mPigeon, mArm, mWrist, mExtension, mIntake, mLime));
+    subsystems = new SubsystemManager(Arrays.asList(mSwerve, mPigeon, Arm.getInstance(), Wrist.getInstance(),
+        Extension.getInstance(), Intake.getInstance()));
     subsystems.resetSensor();
   }
 
@@ -134,7 +125,6 @@ public class Robot extends TimedRobot {
     switch (SwerveDrive.getInstance().getMode()) {
     case TeleopDrive:
       joystickInput();
-
       break;
     case Defense:
       if (!OI.driverJoystick.getStartButton()) {
@@ -146,8 +136,11 @@ public class Robot extends TimedRobot {
     default:
       break;
     }
-    operatorInput();
-    mArm.updateSuperstruture();
+
+    if (RobotState.getInstance().getCurrentRobot().equals(Bot.ProgrammingBot)) {
+      operatorInput();
+      Arm.getInstance().updateSuperstruture();
+    }
 
   }
 
@@ -190,7 +183,7 @@ public class Robot extends TimedRobot {
     if (OI.getDriverYButton()) {
       mSwerve.visionFollow(lastSnapTarget);
     } else {
-      mLime.setPipeline(bot.DRIVE_VIEW);
+      Limelight.getInstance().setPipeline(bot.DRIVE_VIEW);
       if (OI.driverJoystick.leftBumper.shortReleased()) {
         mSwerve.rotate(-24);
         lastSnapTarget = -24;

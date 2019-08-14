@@ -100,7 +100,7 @@ public class SwerveDrive extends Subsystem {
     }
 
     public void drive(double str, double fwd) {
-       drive(str, fwd, headingController.getRotationalOutput(), false);
+        drive(str, fwd, headingController.getRotationalOutput(), false);
     }
 
     public void drive(Translation2d translationVector, double rotatationalInput, boolean lowPower) {
@@ -113,8 +113,8 @@ public class SwerveDrive extends Subsystem {
     public void drive(double str, double fwd, double rcw, boolean lowPower) {
         double r = Math.sqrt((L * L) + (W * W));
 
-        str *= lowPower ? -0.3 : -1.0;
-        fwd *= lowPower ? -0.5 : -1.0;
+        str *= (lowPower ? 0.3 : 1.0)  * Robot.bot.requestDriveReversed;
+        fwd *= (lowPower ? 0.5 : 1.0) * Robot.bot.requestDriveReversed;
         rcw *= lowPower ? 0.5 : 1.0;
 
         if (fieldCentric) {
@@ -249,11 +249,13 @@ public class SwerveDrive extends Subsystem {
      * @param tgtHeading the heading for the robot to maintin while following
      */
     public synchronized void visionFollow(double tgtHeading) {
+        if (Robot.bot.hasLimelight()) {
         mLimelight.setPipeline(Robot.bot.TARGETING_VIEW);
-        setFieldCentric(false);
-        // rotate(tgtHeading);
-        drive(mLimelight.calculateVisionOffset()[0] * Robot.bot.xVisionkP,
-                mLimelight.calculateVisionOffset()[1] * Robot.bot.yVisionkP);
+            setFieldCentric(false);
+            // rotate(tgtHeading);
+            drive(mLimelight.calculateVisionOffset()[0] * Robot.bot.xVisionkP,
+                    mLimelight.calculateVisionOffset()[1] * Robot.bot.yVisionkP);
+        }
     }
 
     /**

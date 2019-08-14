@@ -4,16 +4,20 @@ package com.team503.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.team503.lib.util.Util;
+import com.team503.robot.Robot;
+import com.team503.robot.RobotState;
+import com.team503.robot.RobotState.Bot;
 
 public class SwerveModule {
-    private static final double kTurnEncoderClicksperRevolution = 1024.0;
-    private static final double kWheelDiameter = 4.0;
+    private static final double kTurnEncoderClicksperRevolution = Robot.bot.kTurnEncoderClicksperRevolution;
+    private static final double kWheelDiameter = Robot.bot.wheelDiameter;
     private static final double kAzimuthDegreesPerClick = 360.0 / kTurnEncoderClicksperRevolution;
     private static final double kAzimuthClicksPerDegree = kTurnEncoderClicksperRevolution / 360.0;
     private static final int kSlotIdx = 0;
@@ -68,7 +72,12 @@ public class SwerveModule {
         driveMotor.setOpenLoopRampRate(1.0);
 
         // configure turn motor
-        turnMotor.configSelectedFeedbackSensor(FeedbackDevice.Analog);
+        if (RobotState.getInstance().getCurrentRobot().equals(Bot.FFSwerve)) {
+            turnMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, kSlotIdx, kTimeoutMs);
+            turnMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, kTimeoutMs);
+        } else if (RobotState.getInstance().getCurrentRobot().equals(Bot.ProgrammingBot)) {
+            turnMotor.configSelectedFeedbackSensor(FeedbackDevice.Analog);
+        }
         turnMotor.configFeedbackNotContinuous(true, kTimeoutMs);
 
         // set to true to invert sensor
@@ -117,7 +126,7 @@ public class SwerveModule {
             // addin the base starting clicks when the wheel is pointing to zero
             desiredclicks += kBaseEncoderClicks;
             // becuase we are using an absolute encoder the value must be between 0 and 1024
-            if (desiredclicks > 1024) {
+            if (desiredclicks > kTurnEncoderClicksperRevolution) {
                 desiredclicks -= kTurnEncoderClicksperRevolution;
             }
         }
@@ -199,7 +208,6 @@ public class SwerveModule {
         return actpos;
     }
 
-
     /********************************************************************************
      * Section - Encoder Conversion Routines
      *******************************************************************************/
@@ -222,14 +230,16 @@ public class SwerveModule {
     }
 
     public double getXComponentVelocity() {
-        return Math.cos(Math.toRadians(Util.unitCircleify(getTurnEncoderPositioninDegrees()))) * driveMotor.getEncoder().getVelocity();
+        return Math.cos(Math.toRadians(Util.unitCircleify(getTurnEncoderPositioninDegrees())))
+                * driveMotor.getEncoder().getVelocity();
     }
 
     public double getYComponentVelocity() {
-        return Math.sin(Math.toRadians(Util.unitCircleify(getTurnEncoderPositioninDegrees()))) * driveMotor.getEncoder().getVelocity();
+        return Math.sin(Math.toRadians(Util.unitCircleify(getTurnEncoderPositioninDegrees())))
+                * driveMotor.getEncoder().getVelocity();
     }
 
-    public double getMotorPower(){
+    public double getMotorPower() {
         return power;
     }
 

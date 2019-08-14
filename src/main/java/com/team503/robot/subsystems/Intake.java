@@ -115,7 +115,9 @@ public class Intake extends Subsystem {
   }
 
   public void startVacuum() {
-    hatchVac.set(Robot.bot.intakeVaccPower);
+    if (Robot.bot.hasCompressor()) {
+      hatchVac.set(Robot.bot.intakeVaccPower);
+    }
   }
 
   public void setVacuumPower(double power) {

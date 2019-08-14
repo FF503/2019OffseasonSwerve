@@ -1,0 +1,17 @@
+{
+    "name": "BackRightFFA",
+    "driveMotorID": 3,
+    "turnMotorID": 7,
+    "P": 1.0,
+    "I": 0.0,
+    "D": 0.0,
+    "F": 0.8662,
+    "startingEncoderClick": 2188,
+    "cruiseVelocity": 300,
+    "cruiseAccel": 900,
+    "turnCountsDecreasing": true,
+    "DriveInverted": false,
+    "DriveEncoderInverted": true,
+    "TurnMotorInverted": true,
+    "TurnEncoderInverted": true
+}

@@ -53,9 +53,10 @@ public class Limelight extends Subsystem {
      * @param pipeline index of the desired pipeline
      */
     public void setPipeline(int pipeline) {
-        getTable().getEntry("pipeline").setNumber(pipeline);
-        RobotState.getInstance().setCurrentPipeline(pipeline);
-
+        if (Robot.bot.hasLimelight()) {
+            getTable().getEntry("pipeline").setNumber(pipeline);
+            RobotState.getInstance().setCurrentPipeline(pipeline);
+        }
     }
 
     public double[] calculateVisionOffset() {
