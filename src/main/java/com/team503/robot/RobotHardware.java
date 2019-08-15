@@ -47,10 +47,6 @@ public abstract class RobotHardware {
 
     public abstract boolean hasLimelight();
 
-    // Limelight Pipelines
-    public int DRIVE_VIEW = 0;
-    public int TARGETING_VIEW = 2;
-
     // Limelight Constants
     public double visionAreaConstant = 1.0;
     public double yVisionkP = 0.57;

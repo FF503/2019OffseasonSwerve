@@ -5,12 +5,15 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.team254.lib.geometry.Translation2d;
+import com.team503.lib.controllers.VisionFollowerController;
 import com.team503.lib.util.SnappingPosition;
 import com.team503.lib.util.SwerveHeadingController;
 import com.team503.lib.util.Util;
 import com.team503.robot.Robot;
 import com.team503.robot.RobotHardware;
 import com.team503.robot.RobotState;
+import com.team503.robot.Loops.LimelightProcessor;
+import com.team503.robot.Loops.LimelightProcessor.Pipeline;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -117,7 +120,7 @@ public class SwerveDrive extends Subsystem {
         final double length = Robot.bot.kWheelbaseLength, width = Robot.bot.kWheelbaseWidth;
         double r = Math.sqrt((length * length) + (width * width));
 
-        str *= (lowPower ? 0.3 : 1.0)  * Robot.bot.requestDriveReversed;
+        str *= (lowPower ? 0.3 : 1.0) * Robot.bot.requestDriveReversed;
         fwd *= (lowPower ? 0.5 : 1.0) * Robot.bot.requestDriveReversed;
         rcw *= lowPower ? 0.5 : 1.0;
 
@@ -250,13 +253,14 @@ public class SwerveDrive extends Subsystem {
      * control and locking the angle
      * 
      */
+    private VisionFollowerController visionFollower = new VisionFollowerController();
+
     public synchronized void visionFollow() {
         if (Robot.bot.hasLimelight()) {
-        Limelight.getInstance().setPipeline(Robot.bot.TARGETING_VIEW);
-        setFieldCentric(false);
-            Translation2d vector = new Translation2d(
-                    Limelight.getInstance().calculateVisionOffset()[0] * Robot.bot.xVisionkP,
-                    Limelight.getInstance().calculateVisionOffset()[1] * Robot.bot.yVisionkP);
+            LimelightProcessor.getInstance().setPipeline(Pipeline.CLOSEST);
+            setFieldCentric(false);
+            Translation2d vector = visionFollower.getVectorToTarget(LimelightProcessor.getInstance().getTA(),
+                    LimelightProcessor.getInstance().getTX());
             drive(vector);
         }
     }

@@ -9,6 +9,8 @@ package com.team503.robot;
 
 import java.util.Arrays;
 
+import com.team503.robot.Loops.LimelightProcessor;
+import com.team503.robot.Loops.LimelightProcessor.Pipeline;
 import com.team503.robot.RobotState.ArmDirection;
 import com.team503.robot.RobotState.Bot;
 import com.team503.robot.RobotState.GameElement;
@@ -23,7 +25,6 @@ import com.team503.robot.commands.ToggleIntake;
 import com.team503.robot.subsystems.Arm;
 import com.team503.robot.subsystems.Extension;
 import com.team503.robot.subsystems.Intake;
-import com.team503.robot.subsystems.Limelight;
 import com.team503.robot.subsystems.Pigeon;
 import com.team503.robot.subsystems.SubsystemManager;
 import com.team503.robot.subsystems.SwerveDrive;
@@ -95,7 +96,7 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
     mSwerve.setBrakeMode();
     Intake.getInstance().startVacuum();
-    Limelight.getInstance().setPipeline(bot.TARGETING_VIEW);
+    LimelightProcessor.getInstance().setPipeline(Pipeline.CLOSEST);
   }
 
   /**
@@ -138,7 +139,7 @@ public class Robot extends TimedRobot {
   public void teleopInit() {
     mSwerve.setBrakeMode();
     Intake.getInstance().startVacuum();
-    Limelight.getInstance().setPipeline(bot.TARGETING_VIEW);
+    LimelightProcessor.getInstance().setPipeline(Pipeline.CLOSEST);
   }
 
   /*
@@ -210,7 +211,7 @@ public class Robot extends TimedRobot {
     if (OI.getDriverYButton()) {
       mSwerve.visionFollow();
     } else {
-      Limelight.getInstance().setPipeline(bot.DRIVE_VIEW);
+      LimelightProcessor.getInstance().setPipeline(Pipeline.DRIVER);
       if (OI.driverJoystick.leftBumper.shortReleased()) {
         mSwerve.rotate(-30);
         swerveRotationInput = mSwerve.getRotationalOutput();
