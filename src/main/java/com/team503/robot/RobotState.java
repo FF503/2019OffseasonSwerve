@@ -18,6 +18,7 @@ public class RobotState {
 	private boolean isArmFlip;
 	private boolean grabberDeployed;
 	private boolean isManualControl = true;
+	private boolean autoDone = false;
 	private int pipeline = 2;
 
 	public static RobotState getInstance() {
@@ -95,11 +96,11 @@ public class RobotState {
 	public static enum SuperStructurePreset {// FRONT_CARGO_INTAKE(-32, -58, 0.)
 		HATCH_HOME(-56., 90, 0.), CARGO_HOME(-45, 45, 0), VIEW_AUTO_REAR(187., 90., 0.),
 		FRONT_CARGO_BUS(37.5, -27.8, 0.), BACK_CARGO_BUS(111, 53. + 180., 0.), FRONT_CARGO_INTAKE(-48, -15.5, 0.),
-		FRONT_CARGO_LOW(0., -3., 0.), FRONT_CARGO_MID(69., -5., 0.), // 0., -3., 0.
+		FRONT_CARGO_LOW(0., 2., 0.), FRONT_CARGO_MID(69., -5., 0.), // 0., -3., 0.
 		FRONT_CARGO_HIGH(84.0, 48.0, 12.7), BACK_CARGO_INTAKE(222, 183, 0.), BACK_CARGO_LOW(170., 180., 0.),
 		BACK_CARGO_MID(94., 173., 0.), BACK_CARGO_HIGH(86., 124., 12.), FRONT_HATCH_INTAKE(-32, 85.0, 6.),
-		FRONT_HATCH_LOW(-42, 79, 6.), FRONT_HATCH_MID(17.0 /* 13 */, 77. /* 90 */, 0.),
-		FRONT_HATCH_HIGH(59., 87.0, 12.3), BACK_HATCH_INTAKE(187., 90. + 180., 0.), BACK_HATCH_LOW(187., 255., 0.),
+		FRONT_HATCH_LOW(-38, 85, 6.), FRONT_HATCH_MID(17.0 /* 13 */, 83. /* 90 */, 0.),
+		FRONT_HATCH_HIGH(59., 88.0, 12.3), BACK_HATCH_INTAKE(187., 90. + 180., 0.), BACK_HATCH_LOW(187., 255., 0.),
 		BACK_HATCH_MID(119.5, 90. + 180., 4.), // 180., 87., 0.
 		BACK_HATCH_HIGH(95, 90. + 180., 0.);// 175., 77., 0
 
@@ -143,7 +144,7 @@ public class RobotState {
 
 	public void setTargetHeight(TargetHeight height) {
 		targetHeight = height;
-		//System.out.println("SETTING TARGET");
+		// System.out.println("SETTING TARGET");
 		FFDashboard.getInstance().putString("Arm Level", height.toString());
 	}
 
@@ -153,6 +154,14 @@ public class RobotState {
 
 	public boolean getPositionChanged() {
 		return armPositionChanged;
+	}
+
+	public boolean getAutonDone() {
+		return autoDone;
+	}
+
+	public void setAutonDone(boolean b) {
+		this.autoDone = b;
 	}
 
 	public SuperStructurePreset getSuperStructurePreset() {
@@ -174,16 +183,16 @@ public class RobotState {
 	}
 
 	public void setCurrentRobot(final Bot currentRobot) {
-        this.currentRobot = currentRobot;
-    }
+		this.currentRobot = currentRobot;
+	}
 
-    public Bot getCurrentRobot() {
-        return this.currentRobot;
-    }
-    
-    public static enum Bot {
-        Automatic, ProgrammingBot;
-    }
+	public Bot getCurrentRobot() {
+		return this.currentRobot;
+	}
+
+	public static enum Bot {
+		Automatic, ProgrammingBot;
+	}
 
 	public void setCurrentPipeline(int pipeline) {
 		this.pipeline = pipeline;
@@ -192,6 +201,5 @@ public class RobotState {
 	public int getCurrentPipeline() {
 		return pipeline;
 	}
-
 
 }

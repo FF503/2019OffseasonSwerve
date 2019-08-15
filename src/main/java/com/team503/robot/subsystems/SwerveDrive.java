@@ -113,7 +113,7 @@ public class SwerveDrive extends Subsystem {
     public void drive(double str, double fwd, double rcw, boolean lowPower) {
         double r = Math.sqrt((L * L) + (W * W));
 
-        str *= lowPower ? -0.5 : -1.0;
+        str *= lowPower ? -0.3 : -1.0;
         fwd *= lowPower ? -0.5 : -1.0;
         rcw *= lowPower ? 0.5 : 1.0;
 
@@ -141,16 +141,6 @@ public class SwerveDrive extends Subsystem {
         double backLeftAngle = (Math.atan2(a, d) * 180 / Math.PI);
         double frontRightAngle = (Math.atan2(b, c) * 180 / Math.PI);
         double frontLeftAngle = (Math.atan2(b, d) * 180 / Math.PI);
-
-        // // if the speed is zero and the right side = 0, then left side should be zero
-        // if (frontLeftSpeed == 0.0 && frontRightSpeed == 0.0) {
-        // if (frontRightAngle == 180.0) {
-        // frontRightAngle = 0.0;
-        // backRightAngle = 0.0;
-        // }
-        // }
-
-        SmartDashboard.putString("PPOWER", translationalVector.toString());
 
         // normalize wheel speeds
         double max = frontRightSpeed;
@@ -246,12 +236,10 @@ public class SwerveDrive extends Subsystem {
      * Targets the closest vision target and aproaches it using swerve/strafe
      * control and locking the angle
      * 
-     * @param tgtHeading the heading for the robot to maintin while following
      */
-    public synchronized void visionFollow(double tgtHeading) {
+    public synchronized void visionFollow() {
         mLimelight.setPipeline(Robot.bot.TARGETING_VIEW);
         setFieldCentric(false);
-        // rotate(tgtHeading);
         drive(mLimelight.calculateVisionOffset()[0] * Robot.bot.xVisionkP,
                 mLimelight.calculateVisionOffset()[1] * Robot.bot.yVisionkP);
     }

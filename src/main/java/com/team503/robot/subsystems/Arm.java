@@ -388,7 +388,7 @@ public class Arm extends Subsystem implements SuperStructureSystem {
       }
       if (Robot.bot.hasArm()) {
         Arm.getInstance().setTargetPosition(aTgt);
-        if (Arm.getInstance().getEncoderDeg() > -50) {
+        if (Arm.getInstance().getEncoderDeg() > -47) {
           Extension.getInstance().setTargetPosition(eTgt);
         } else {
           Extension.getInstance().setTargetPosition(0.0);
