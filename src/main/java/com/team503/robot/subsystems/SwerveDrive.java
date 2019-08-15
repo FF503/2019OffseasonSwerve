@@ -113,7 +113,7 @@ public class SwerveDrive extends Subsystem {
     public void drive(double str, double fwd, double rcw, boolean lowPower) {
         double r = Math.sqrt((L * L) + (W * W));
 
-        str *= lowPower ? -0.5 : -1.0;
+        str *= lowPower ? -0.3 : -1.0;
         fwd *= lowPower ? -0.5 : -1.0;
         rcw *= lowPower ? 0.5 : 1.0;
 
