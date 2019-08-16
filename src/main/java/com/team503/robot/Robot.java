@@ -109,7 +109,7 @@ public class Robot extends TimedRobot {
     mIntake.startVacuum();
     mLime.setPipeline(bot.TARGETING_VIEW);
 
-    (new LeftRocketAuton()).start();
+   // (new LeftRocketAuton()).start();
   }
 
   /**
@@ -121,7 +121,7 @@ public class Robot extends TimedRobot {
     RobotState.getInstance().setCurrentTheta(Pigeon.getInstance().getYaw());
     OI.driverJoystick.update();
 
-    if (RobotState.getInstance().getAutonDone()) {
+  //  if (RobotState.getInstance().getAutonDone()) {
 
       switch (SwerveDrive.getInstance().getMode()) {
       case TeleopDrive:
@@ -138,7 +138,7 @@ public class Robot extends TimedRobot {
       default:
         break;
       }
-    }
+  //  }
     operatorInput();
 
     mArm.updateSuperstruture();
