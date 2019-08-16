@@ -146,16 +146,6 @@ public class SwerveDrive extends Subsystem {
         double frontRightAngle = (Math.atan2(b, c) * 180 / Math.PI);
         double frontLeftAngle = (Math.atan2(b, d) * 180 / Math.PI);
 
-        // // if the speed is zero and the right side = 0, then left side should be zero
-        // if (frontLeftSpeed == 0.0 && frontRightSpeed == 0.0) {
-        // if (frontRightAngle == 180.0) {
-        // frontRightAngle = 0.0;
-        // backRightAngle = 0.0;
-        // }
-        // }
-
-        SmartDashboard.putString("PPOWER", translationalVector.toString());
-
         // normalize wheel speeds
         double max = frontRightSpeed;
         if (frontLeftSpeed > max) {
@@ -259,13 +249,11 @@ public class SwerveDrive extends Subsystem {
      * Targets the closest vision target and aproaches it using swerve/strafe
      * control and locking the angle
      * 
-     * @param tgtHeading the heading for the robot to maintin while following
      */
-    public synchronized void visionFollow(double tgtHeading) {
+    public synchronized void visionFollow() {
         if (Robot.bot.hasLimelight()) {
-            Limelight.getInstance().setPipeline(Robot.bot.TARGETING_VIEW);
-            setFieldCentric(false);
-            // rotate(tgtHeading);
+        Limelight.getInstance().setPipeline(Robot.bot.TARGETING_VIEW);
+        setFieldCentric(false);
             Translation2d vector = new Translation2d(
                     Limelight.getInstance().calculateVisionOffset()[0] * Robot.bot.xVisionkP,
                     Limelight.getInstance().calculateVisionOffset()[1] * Robot.bot.yVisionkP);

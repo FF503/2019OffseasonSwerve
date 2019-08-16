@@ -5,23 +5,24 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package com.team503.robot.commands
-;
-
+package com.team503.robot.commands;
 
 import com.team503.robot.RobotState;
 import com.team503.robot.RobotState.ArmDirection;
 
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.command.Command;
 
 public class SwitchArmDirection {
 
   private static double lastPress = 0.0;
+
   public static void flip() {
     lastPress = Timer.getFPGATimestamp();
-    if (!(Timer.getFPGATimestamp() - lastPress > 0.2)){
-      RobotState.getInstance().setIsArmFlip(true);
+    // if (!(Timer.getFPGATimestamp() - lastPress > 0.8)) {
+      
+    // }
+
+    RobotState.getInstance().setIsArmFlip(true);
       ArmDirection armDirection = RobotState.getInstance().getArmDirection();
       if (armDirection.equals(ArmDirection.FRONT)) {
         RobotState.getInstance().setArmDirection(ArmDirection.BACK);
@@ -30,11 +31,10 @@ public class SwitchArmDirection {
         RobotState.getInstance().setArmDirection(ArmDirection.FRONT);
         // LimelightTurret.getInstance().turnToBack();
       }
-    }
   }
-  public static void set(ArmDirection dir){
+
+  public static void set(ArmDirection dir) {
     RobotState.getInstance().setArmDirection(dir);
   }
 
- 
 }

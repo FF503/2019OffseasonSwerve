@@ -9,6 +9,7 @@ package com.team503.robot;
 
 import java.util.Arrays;
 
+import com.team503.robot.RobotState.ArmDirection;
 import com.team503.robot.RobotState.Bot;
 import com.team503.robot.RobotState.GameElement;
 import com.team503.robot.commands.EjectBall;
@@ -30,6 +31,7 @@ import com.team503.robot.subsystems.SwerveDrive.DriveMode;
 import com.team503.robot.subsystems.Wrist;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.command.Scheduler;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -92,6 +94,8 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     mSwerve.setBrakeMode();
+    Intake.getInstance().startVacuum();
+    Limelight.getInstance().setPipeline(bot.TARGETING_VIEW);
   }
 
   /**
@@ -99,6 +103,31 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousPeriodic() {
+    Scheduler.getInstance().run();
+    RobotState.getInstance().setCurrentTheta(Pigeon.getInstance().getYaw());
+    OI.driverJoystick.update();
+
+  //  if (RobotState.getInstance().getAutonDone()) {
+
+      switch (SwerveDrive.getInstance().getMode()) {
+      case TeleopDrive:
+        joystickInput();
+
+        break;
+      case Defense:
+        if (!OI.driverJoystick.getStartButton()) {
+          mSwerve.setMode(DriveMode.TeleopDrive);
+          break;
+        }
+        mSwerve.defensePosition();
+        break;
+      default:
+        break;
+      }
+  //  }
+    operatorInput();
+
+    Arm.getInstance().updateSuperstruture();
 
   }
 
@@ -179,40 +208,32 @@ public class Robot extends TimedRobot {
     }
 
     if (OI.getDriverYButton()) {
-      mSwerve.visionFollow(lastSnapTarget);
+      mSwerve.visionFollow();
     } else {
       Limelight.getInstance().setPipeline(bot.DRIVE_VIEW);
       if (OI.driverJoystick.leftBumper.shortReleased()) {
-        mSwerve.rotate(-24);
-        lastSnapTarget = -24;
+        mSwerve.rotate(-30);
         swerveRotationInput = mSwerve.getRotationalOutput();
       } else if (OI.driverJoystick.leftBumper.longPressed()) {
-        mSwerve.rotate(-151.0);
-        lastSnapTarget = -151.0;
+        mSwerve.rotate(-150.0);
         swerveRotationInput = mSwerve.getRotationalOutput();
       } else if (OI.driverJoystick.rightBumper.shortReleased()) {
-        mSwerve.rotate(24);
-        lastSnapTarget = 24;
+        mSwerve.rotate(30);
         swerveRotationInput = mSwerve.getRotationalOutput();
       } else if (OI.driverJoystick.rightBumper.longPressed()) {
-        mSwerve.rotate(151.0);
-        lastSnapTarget = 151;
+        mSwerve.rotate(150.0);
         swerveRotationInput = mSwerve.getRotationalOutput();
       } else if (OI.driverJoystick.getPOV() == 180) {
         mSwerve.rotate(179);
-        lastSnapTarget = 179;
         swerveRotationInput = mSwerve.getRotationalOutput();
       } else if (OI.driverJoystick.getPOV() == 90) {
         mSwerve.rotate(90);
-        lastSnapTarget = 90;
         swerveRotationInput = mSwerve.getRotationalOutput();
       } else if (OI.driverJoystick.getPOV() == 270) {
         mSwerve.rotate(270);
-        lastSnapTarget = 270;
         swerveRotationInput = mSwerve.getRotationalOutput();
       } else if (OI.driverJoystick.getPOV() == 0) {
         mSwerve.rotate(1);
-        lastSnapTarget = 1;
         swerveRotationInput = mSwerve.getRotationalOutput();
       } else if (OI.driverJoystick.getStartButtonPressed()) {
         mSwerve.setMode(DriveMode.Defense);
@@ -224,14 +245,27 @@ public class Robot extends TimedRobot {
 
   public void operatorInput() {
     if (OI.getOperatorA()) {
+      RobotState.getInstance().setArmDirection(ArmDirection.FRONT);
       TargetHeightSwitcher.set(RobotState.TargetHeight.LOW);
     } else if (OI.getOperatorB()) {
+      if (RobotState.getInstance().getGameElement() == GameElement.CARGO) {
+        RobotState.getInstance().setArmDirection(ArmDirection.BACK);
+      } else {
+        RobotState.getInstance().setArmDirection(ArmDirection.FRONT);
+      }
       TargetHeightSwitcher.set(RobotState.TargetHeight.MIDDLE);
     } else if (OI.getOperatorX()) {
+      RobotState.getInstance().setArmDirection(ArmDirection.FRONT);
       TargetHeightSwitcher.set(RobotState.TargetHeight.BUS);
     } else if (OI.getOperatorY()) {
+      if (RobotState.getInstance().getGameElement() == GameElement.CARGO) {
+        RobotState.getInstance().setArmDirection(ArmDirection.BACK);
+      } else {
+        RobotState.getInstance().setArmDirection(ArmDirection.FRONT);
+      }
       TargetHeightSwitcher.set(RobotState.TargetHeight.HIGH);
     } else if (OI.getOperatorMenu()) {
+      RobotState.getInstance().setArmDirection(ArmDirection.FRONT);
       TargetHeightSwitcher.set(RobotState.TargetHeight.INTAKE);
     } else if (OI.getOperatorRightBumper()) {
       TargetHeightSwitcher.set(RobotState.TargetHeight.HOME);
