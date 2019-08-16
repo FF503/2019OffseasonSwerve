@@ -8,18 +8,7 @@
 package com.team503.robot;
 
 import com.team503.lib.io.Xbox;
-import com.team503.robot.RobotState.ArmDirection;
-import com.team503.robot.RobotState.TargetHeight;
-import com.team503.robot.commands.ConstantIntakeCommand;
-import com.team503.robot.commands.GameElementSwitcher;
-import com.team503.robot.commands.MoveArmCommand;
-import com.team503.robot.commands.ReleaseHatch;
-import com.team503.robot.commands.ResetEncoderCommand;
-import com.team503.robot.commands.SwitchArmDirection;
-import com.team503.robot.commands.TargetHeightSwitcher;
-import com.team503.robot.commands.ToggleIntake;
 
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.buttons.Button;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
 

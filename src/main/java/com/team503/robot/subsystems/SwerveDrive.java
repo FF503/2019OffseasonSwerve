@@ -10,10 +10,9 @@ import com.team503.lib.util.SnappingPosition;
 import com.team503.lib.util.SwerveHeadingController;
 import com.team503.lib.util.Util;
 import com.team503.robot.Robot;
-import com.team503.robot.RobotHardware;
 import com.team503.robot.RobotState;
-import com.team503.robot.Loops.LimelightProcessor;
-import com.team503.robot.Loops.LimelightProcessor.Pipeline;
+import com.team503.robot.loops.LimelightProcessor;
+import com.team503.robot.loops.LimelightProcessor.Pipeline;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 

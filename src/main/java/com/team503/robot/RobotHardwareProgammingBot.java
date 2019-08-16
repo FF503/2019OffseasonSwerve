@@ -7,8 +7,6 @@
 
 package com.team503.robot;
 
-import java.util.Arrays;
-
 import com.team254.lib.geometry.Translation2d;
 
 public class RobotHardwareProgammingBot extends RobotHardware {

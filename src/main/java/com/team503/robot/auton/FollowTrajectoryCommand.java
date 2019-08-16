@@ -7,8 +7,8 @@
 
 package com.team503.robot.auton;
 
+import com.team503.lib.controllers.PurePursuitController;
 import com.team503.robot.RobotState;
-import com.team503.robot.Loops.PurePursuitController;
 import com.team503.robot.subsystems.SwerveDrive;
 import com.team503.robot.subsystems.SwerveDrive.DriveMode;
 

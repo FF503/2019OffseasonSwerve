@@ -1,4 +1,4 @@
-package com.team503.robot.Loops;
+package com.team503.lib.controllers;
 
 import com.team254.lib.geometry.Translation2d;
 import com.team503.lib.util.Pose;
@@ -26,7 +26,7 @@ public class PurePursuitController {
 
     public Translation2d calculateDriveVector(Pose robotPose) {
         this.lookaheadPoint = getLookAhead(robotPose);
-        Translation2d robotToLookahead = new Translation2d(lookaheadPoint).plus(robotPose.toVector().unaryMinus());
+        Translation2d robotToLookahead = new Translation2d(lookaheadPoint).minus(robotPose.toVector());
 
         Translation2d velocityVector = scaleVectorToDesiredVelocity(robotToLookahead, getClosestSegment().vel);
         lastPose = robotPose.copy();
@@ -109,7 +109,7 @@ public class PurePursuitController {
     }
 
     private void applyFeedback(Pose robotPose, Translation2d targetVector) {
-        double currentVelocity = (robotPose.toVector().plus(lastPose.toVector().unaryMinus()).getNorm())
+        double currentVelocity = (robotPose.toVector().minus(lastPose.toVector()).getNorm())
                 / (robotPose.getTimestamp() - lastPose.getTimestamp());
 
         double targetVelocity = targetVector.getNorm();

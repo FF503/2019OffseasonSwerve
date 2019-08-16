@@ -7,7 +7,6 @@
 
 package com.team503.robot.commands;
 
-import com.team503.robot.OI;
 import com.team503.robot.RobotState;
 import com.team503.robot.RobotState.ArmDirection;
 import com.team503.robot.RobotState.GameElement;
@@ -15,7 +14,6 @@ import com.team503.robot.RobotState.TargetHeight;
 import com.team503.robot.subsystems.Intake;
 
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.command.Command;
 
 public class ToggleIntake  {
 

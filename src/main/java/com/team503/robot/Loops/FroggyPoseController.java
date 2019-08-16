@@ -5,7 +5,7 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package com.team503.robot.Loops;
+package com.team503.robot.loops;
 
 import com.team503.lib.kinematics.SwerveDriveKinematics;
 import com.team503.lib.kinematics.SwerveDriveOdometry;

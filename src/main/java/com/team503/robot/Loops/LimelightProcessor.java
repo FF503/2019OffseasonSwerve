@@ -1,4 +1,4 @@
-package com.team503.robot.Loops;
+package com.team503.robot.loops;
 
 import java.util.Arrays;
 import java.util.List;

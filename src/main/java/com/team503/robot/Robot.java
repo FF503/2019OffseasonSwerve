@@ -9,8 +9,6 @@ package com.team503.robot;
 
 import java.util.Arrays;
 
-import com.team503.robot.Loops.LimelightProcessor;
-import com.team503.robot.Loops.LimelightProcessor.Pipeline;
 import com.team503.robot.RobotState.ArmDirection;
 import com.team503.robot.RobotState.Bot;
 import com.team503.robot.RobotState.GameElement;
@@ -22,6 +20,8 @@ import com.team503.robot.commands.SwitchArmDirection;
 import com.team503.robot.commands.TargetHeightSwitcher;
 import com.team503.robot.commands.ToggleControlMode;
 import com.team503.robot.commands.ToggleIntake;
+import com.team503.robot.loops.LimelightProcessor;
+import com.team503.robot.loops.LimelightProcessor.Pipeline;
 import com.team503.robot.subsystems.Arm;
 import com.team503.robot.subsystems.Extension;
 import com.team503.robot.subsystems.Intake;
@@ -104,7 +104,6 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousPeriodic() {
-    Scheduler.getInstance().run();
     RobotState.getInstance().setCurrentTheta(Pigeon.getInstance().getYaw());
     OI.driverJoystick.update();
 
@@ -130,6 +129,7 @@ public class Robot extends TimedRobot {
 
     Arm.getInstance().updateSuperstruture();
 
+    Scheduler.getInstance().run();
   }
 
   /**
@@ -140,6 +140,7 @@ public class Robot extends TimedRobot {
     mSwerve.setBrakeMode();
     Intake.getInstance().startVacuum();
     LimelightProcessor.getInstance().setPipeline(Pipeline.CLOSEST);
+    // FroggyPoseController.updateOdometry();
   }
 
   /*
@@ -170,6 +171,8 @@ public class Robot extends TimedRobot {
       Arm.getInstance().updateSuperstruture();
     }
 
+    // FroggyPoseController.outputPoseToDashboard();
+    Scheduler.getInstance().run();
   }
 
   @Override

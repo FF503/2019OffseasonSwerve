@@ -26,6 +26,7 @@ public class SwerveDriveOdometry {
     private final SwerveDriveKinematics m_kinematics;
     private Pose m_pose;
     private double m_prevTimeSeconds = -1;
+    private FFDashboard table = new FFDashboard("Localization");
 
     /**
      * Constructs a SwerveDriveOdometry object.
@@ -73,7 +74,10 @@ public class SwerveDriveOdometry {
         m_prevTimeSeconds = currentTimeSeconds;
 
         ChassisSpeeds chassisState = m_kinematics.toChassisSpeeds(moduleStates);
-        FFDashboard.getInstance().putString("Tangential Velocity", chassisState.toString());
+        table.putString("Tangential Velocity", chassisState.toString());
+        table.putNumber("X Velocity", chassisState.vx);
+        table.putNumber("Y Velocity", chassisState.vy);
+
         m_pose = m_pose
                 .exp(new Twist2d(chassisState.vx * period, chassisState.vy * period, chassisState.omega * period));
         m_pose.setTimestamp(currentTimeSeconds);

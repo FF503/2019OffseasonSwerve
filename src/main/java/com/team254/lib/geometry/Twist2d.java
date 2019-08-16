@@ -1,9 +1,5 @@
 package com.team254.lib.geometry;
 
-import com.team254.lib.util.Util;
-
-import java.text.DecimalFormat;
-
 /**
  * A movement along an arc at constant curvature and velocity. We can use ideas from "differential calculus" to create
  * new RigidTransform2d's from a Twist2d and visa versa.
@@ -18,7 +14,6 @@ import java.text.DecimalFormat;
  * <p>
  * A Twist can be used to represent a difference between two poses.
  */
-@SuppressWarnings("MemberName")
 public class Twist2d {
     /**
      * Linear "dx" component.

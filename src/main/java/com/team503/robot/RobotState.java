@@ -200,15 +200,9 @@ public class RobotState {
 	public Bot getCurrentRobot() {
 		return this.currentRobot;
 	}
-	public void setCurrentPipeline(int pipeline) {
-		this.pipeline = pipeline;
-	}
 
 	public enum Bot {
 		Automatic, ProgrammingBot, FFSwerve;
-	}
-	public int getCurrentPipeline() {
-		return pipeline;
 	}
 
 }

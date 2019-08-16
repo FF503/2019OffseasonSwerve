@@ -1,4 +1,4 @@
-package com.team503.robot.Loops;
+package com.team503.robot.loops;
 
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Transform2d;

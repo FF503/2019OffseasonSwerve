@@ -93,7 +93,6 @@ public class SwerveDriveKinematics {
    *          {@link #normalizeWheelSpeeds(SwerveModuleState[], double) normalizeWheelSpeeds}
    *          function to rectify this issue.
    */
-  @SuppressWarnings({"LocalVariableName", "PMD.AvoidInstantiatingObjectsInLoops"})
   public SwerveModuleState[] toSwerveModuleStates(ChassisSpeeds chassisSpeeds,
                                                   Translation2d centerOfRotation) {
     if (centerOfRotation.getX() != m_prevCoR.getX()

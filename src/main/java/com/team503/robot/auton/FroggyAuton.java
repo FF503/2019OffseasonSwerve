@@ -11,7 +11,7 @@ import com.team503.lib.util.FFDashboard;
 import com.team503.lib.util.Pose;
 import com.team503.lib.util.ProfileLoader;
 import com.team503.robot.RobotState;
-import com.team503.robot.Loops.PoseController;
+import com.team503.robot.loops.PoseController;
 
 import edu.wpi.first.wpilibj.command.CommandGroup;
 

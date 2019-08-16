@@ -12,8 +12,6 @@ package com.team503.robot.commands;
 import com.team503.robot.RobotState;
 import com.team503.robot.RobotState.GameElement;
 
-import edu.wpi.first.wpilibj.command.Command;
-
 public class GameElementSwitcher  {
   
   private GameElement element;

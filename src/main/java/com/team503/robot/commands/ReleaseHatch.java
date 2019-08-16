@@ -11,7 +11,6 @@ import com.team503.robot.RobotState;
 import com.team503.robot.subsystems.Intake;
 
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.command.Command;
 
 public class ReleaseHatch {
 

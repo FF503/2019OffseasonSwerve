@@ -1,11 +1,5 @@
 package com.team254.lib.geometry;
 
-import com.team254.lib.util.Util;
-
-import java.text.DecimalFormat;
-
-import static com.team254.lib.util.Util.kEpsilon;
-
 /**
  * A rotation in a 2d coordinate frame represented a point on the unit circle
  * (cosine and sine).
@@ -43,7 +37,6 @@ public class Rotation2d {
      * @param x The x component or cosine of the rotation.
      * @param y The y component or sine of the rotation.
      */
-    @SuppressWarnings("ParameterName")
     public Rotation2d(double x, double y) {
       double magnitude = Math.hypot(x, y);
       if (magnitude > 1e-6) {

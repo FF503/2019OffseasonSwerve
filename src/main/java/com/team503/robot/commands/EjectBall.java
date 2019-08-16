@@ -11,8 +11,6 @@ package com.team503.robot.commands;
 import com.team503.robot.RobotState;
 import com.team503.robot.subsystems.Intake;
 
-import edu.wpi.first.wpilibj.command.Command;
-
 public class EjectBall{
  
   public static void eject() {

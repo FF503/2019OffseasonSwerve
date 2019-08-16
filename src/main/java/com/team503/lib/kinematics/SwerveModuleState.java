@@ -20,7 +20,6 @@ import com.team254.lib.geometry.Rotation2d;
 /**
  * Represents the state of one swerve module.
  */
-@SuppressWarnings("MemberName")
 public class SwerveModuleState implements Comparable<SwerveModuleState> {
 
     /**
@@ -58,7 +57,6 @@ public class SwerveModuleState implements Comparable<SwerveModuleState> {
      * @return 1 if this is greater, 0 if both are equal, -1 if other is greater.
      */
     @Override
-    @SuppressWarnings("ParameterName")
     public int compareTo(SwerveModuleState o) {
         return Double.compare(this.speed, o.speed);
     }
