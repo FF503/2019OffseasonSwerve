@@ -45,11 +45,16 @@ public class RobotHardwareProgammingBot extends RobotHardware {
         kEncoderUnitsPerRev = 4096;
 
         // Pure Pursuit
-        lookaheadDistance = 20;
-        kMaxVelocityInchesPerSec = 10;
-        kV_PurePursuit = 1 / kMaxVelocityInchesPerSec;
-        kA_PurePursuit = 0;
-        kP_PurePursuit = 0;
+        kPathFollowingMaxAccel = 80;
+        kPathFollowingMaxVel = 80;
+
+        kMinLookAhead = 12.0; // inches
+        kMinLookAheadSpeed = 12.0; // inches per second
+        kMaxLookAhead = 48.0; // inches
+        kMaxLookAheadSpeed = kPathFollowingMaxVel; // inches per second
+
+        kPurePursuitV = 1 / kPathFollowingMaxVel;
+        kPurePursuitP = 0.0;
 
         // Arm
         armMasterID = 11;

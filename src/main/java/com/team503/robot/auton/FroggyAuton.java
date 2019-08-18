@@ -63,12 +63,12 @@ public abstract class FroggyAuton extends CommandGroup {
 
     public void froggySequentialDrive(String file) {
         ProfileLoader loader = getProfileInfo(file);
-        addSequential(new FollowTrajectoryCommand(loader.getTrajectory(), loader.getLookaheadDistance()));
+        addSequential(new FollowTrajectoryCommand(loader.getTrajectory()));
     }
 
     public void froggyParallelDrive(String file) {
         ProfileLoader loader = getProfileInfo(file);
-        addParallel(new FollowTrajectoryCommand(loader.getTrajectory(), loader.getLookaheadDistance()));
+        addParallel(new FollowTrajectoryCommand(loader.getTrajectory()));
     }
 
     @Override

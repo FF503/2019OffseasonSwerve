@@ -51,7 +51,7 @@ public class ProfileLoader {
             this.isReversed = Boolean.parseBoolean(in.readLine());
             while (!in.readLine().equals("end"))
                 ;
-            double lookahead = Robot.bot.lookaheadDistance;
+            double lookahead = Robot.bot.kMinLookAhead;
             try {
                 lookahead = Double.parseDouble(in.readLine());
             } catch (Exception e) {

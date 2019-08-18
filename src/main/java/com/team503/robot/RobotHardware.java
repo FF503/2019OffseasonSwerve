@@ -10,9 +10,9 @@ package com.team503.robot;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
-import java.util.List;
 
 import com.team254.lib.geometry.Translation2d;
+import com.team503.lib.controllers.PurePursuitController.Lookahead;
 import com.team503.lib.util.Util;
 import com.team503.robot.RobotState.Bot;
 
@@ -69,12 +69,19 @@ public abstract class RobotHardware {
 
     public final String motionProfilingRioFolder = "/home/lvuser/MotionProfiles/";
 
+    // Pure Pursuit
     public final double POSE_LOOP_DT = 0.01;
-    public double lookaheadDistance;
-    public double kV_PurePursuit;
-    public double kA_PurePursuit;
-    public double kP_PurePursuit;
-    public double kMaxVelocityInchesPerSec;
+
+    public double kMinLookAhead;
+    public double kMinLookAheadSpeed;
+    public double kMaxLookAhead;
+    public double kMaxLookAheadSpeed;
+
+    public double kPathFollowingMaxAccel;
+    public double kPathFollowingMaxVel;
+
+    public double kPurePursuitP;
+    public double kPurePursuitV;
 
     /* Gamespec vars */
 
@@ -164,6 +171,11 @@ public abstract class RobotHardware {
 
     // Power Distribution Panel
     public int PdpID;
+
+    public final Lookahead getLookahead() {
+        final Lookahead lookahead = new Lookahead(kMinLookAhead, kMaxLookAhead, kMinLookAheadSpeed, kMaxLookAheadSpeed);
+        return lookahead;
+    }
 
     /**
      * @return the MAC address of the robot

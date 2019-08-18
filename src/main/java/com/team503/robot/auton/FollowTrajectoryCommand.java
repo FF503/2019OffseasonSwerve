@@ -19,8 +19,8 @@ public class FollowTrajectoryCommand extends Command {
   private PurePursuitController controller;
   private SwerveDrive mSwerve = SwerveDrive.getInstance();
 
-  public FollowTrajectoryCommand(Trajectory traj, double lookahead) {
-    controller = new PurePursuitController(traj, lookahead);
+  public FollowTrajectoryCommand(Trajectory traj) {
+    controller = new PurePursuitController(traj);
   }
 
   // Called just before this Command runs the first time

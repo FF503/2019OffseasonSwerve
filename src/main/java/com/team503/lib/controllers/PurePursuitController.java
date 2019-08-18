@@ -9,31 +9,46 @@ import motionProfiling.Trajectory;
 import motionProfiling.Trajectory.Segment;
 
 public class PurePursuitController {
-    private Trajectory traj;
-    private double lookAheadDist;
-    private double minLookaheadDistance;
+    private final Trajectory traj;
+    private final Lookahead mLookahead;
     private int theoreticalSegmentIndex = 0, lookAheadIndex = 0, closestSegmentIndex = 0;
+
     private boolean isReversed = false;
     private Translation2d lookaheadPoint;
+    private double lookaheadDistance;
+
     private Pose pose;
     private Pose lastPose = new Pose(Timer.getFPGATimestamp(), 0, 0, 0.0);
 
-    public PurePursuitController(Trajectory traj, double lookAheadDist) {
+    public PurePursuitController(Trajectory traj, Lookahead lookahead) {
         this.traj = traj;
-        this.minLookaheadDistance = lookAheadDist;
-        this.lookAheadDist = lookAheadDist;
+        this.mLookahead = lookahead;
+    }
+
+    public PurePursuitController(Trajectory traj) {
+        this.traj = traj;
+        this.mLookahead = Robot.bot.getLookahead();
     }
 
     public Translation2d calculateDriveVector(Pose robotPose) {
-        this.lookaheadPoint = getLookAhead(robotPose);
+        this.pose = robotPose;
+        Segment closest = getClosestSegment(robotPose);
+        this.lookaheadDistance = getLookaheadDistance(robotPose.toVector(), closest, mLookahead);
+        this.lookaheadPoint = getLookAhead(robotPose, lookaheadDistance);
         Translation2d robotToLookahead = new Translation2d(lookaheadPoint).minus(robotPose.toVector());
 
-        Translation2d velocityVector = scaleVectorToDesiredVelocity(robotToLookahead, getClosestSegment().vel);
+        Translation2d velocityVector = scaleVectorToDesiredVelocity(robotToLookahead, closest.vel);
         lastPose = robotPose.copy();
         return applyFeedForward(velocityVector);
     }
 
-    private Translation2d getLookAhead(Pose robotPose) {
+    private double getLookaheadDistance(Translation2d robot, Segment closest, Lookahead lookahead) {
+        double closestPointDistance = new Translation2d(closest.x, closest.y).minus(robot).getNorm();
+        double lookahead_distance = lookahead.getSpeedBasedLookahead(closest.vel) + closestPointDistance;
+        return lookahead_distance;
+    }
+
+    private Translation2d getLookAhead(Pose robotPose, double lookaheadDistance) {
         double tValue = 0;
         Translation2d startSeg = new Translation2d(traj.getSegment(lookAheadIndex).x,
                 traj.getSegment(lookAheadIndex).y);
@@ -43,11 +58,12 @@ public class PurePursuitController {
             Translation2d nextPathSeg = new Translation2d(traj.getSegment(i + 1).x, traj.getSegment(i + 1).y);
             Translation2d curToNextSegment = new Translation2d(nextPathSeg.getX() - curPathSeg.getX(),
                     nextPathSeg.getY() - curPathSeg.getY());
-            Translation2d f = new Translation2d(curPathSeg.getX() - robotPose.getX(), curPathSeg.getY() - robotPose.getY());
+            Translation2d f = new Translation2d(curPathSeg.getX() - robotPose.getX(),
+                    curPathSeg.getY() - robotPose.getY());
 
             double a = Translation2d.dot(curToNextSegment, curToNextSegment);
             double b = 2 * Translation2d.dot(f, curToNextSegment);
-            double c = Translation2d.dot(f, f) - lookAheadDist * lookAheadDist;
+            double c = Translation2d.dot(f, f) - lookaheadDistance * lookaheadDistance;
             double discriminant = b * b - 4 * a * c;
 
             if (discriminant >= 0) {
@@ -85,12 +101,12 @@ public class PurePursuitController {
         return lookaheadPoint;
     }
 
-    private Segment getClosestSegment() {
+    private Segment getClosestSegment(Pose pose) {
         Segment closestSeg = traj.getSegment(closestSegmentIndex);
         for (int i = closestSegmentIndex; i < this.traj.getNumSegments(); i++) {
             Segment curSegment = traj.getSegment(i);
-            double poseToPrevHypot = Math.hypot(this.pose.getX() - closestSeg.x, this.pose.getY() - closestSeg.y);
-            double poseToCurrHypot = Math.hypot(this.pose.getX() - curSegment.x, this.pose.getY() - curSegment.y);
+            double poseToPrevHypot = Math.hypot(pose.getX() - closestSeg.x, pose.getY() - closestSeg.y);
+            double poseToCurrHypot = Math.hypot(pose.getX() - curSegment.x, pose.getY() - curSegment.y);
             if (poseToCurrHypot < poseToPrevHypot) {
                 closestSegmentIndex = i;
                 closestSeg = curSegment;
@@ -105,26 +121,27 @@ public class PurePursuitController {
     }
 
     private Translation2d applyFeedForward(Translation2d velocityVector) {
-        return velocityVector.times(Robot.bot.kV_PurePursuit);
+        return velocityVector.times(Robot.bot.kPurePursuitV);
     }
 
-    private void applyFeedback(Pose robotPose, Translation2d targetVector) {
-        double currentVelocity = (robotPose.toVector().minus(lastPose.toVector()).getNorm())
-                / (robotPose.getTimestamp() - lastPose.getTimestamp());
+    private Translation2d applyFeedback(Pose robotPose, Translation2d targetVector) {
+        // double currentVelocity =
+        // (robotPose.toVector().minus(lastPose.toVector()).getNorm())
+        // / (robotPose.getTimestamp() - lastPose.getTimestamp());
 
-        double targetVelocity = targetVector.getNorm();
-        double error = targetVelocity - currentVelocity;
-        double output = error * Robot.bot.kP_PurePursuit;
+        // double targetVelocity = targetVector.getNorm();
+        // double error = targetVelocity - currentVelocity;
+        // double output = error * Robot.bot.kP_PurePursuit;
+
+        Translation2d currentVelocity = robotPose.toVector().minus(lastPose.toVector())
+                .div((robotPose.getTimestamp() - lastPose.getTimestamp()));
+        Translation2d error = targetVector.minus(currentVelocity);
+        Translation2d output = error.times(Robot.bot.kPurePursuitP);
+        return output;
     }
 
     public boolean isDone() {
         return getSegmentIndex() == traj.getNumSegments() - 1;
-    }
-
-    private double lastError = 0.0;
-
-    public void setIsReversed(boolean rev) {
-        isReversed = rev;
     }
 
     public Segment getSegment() {
@@ -140,21 +157,30 @@ public class PurePursuitController {
     }
 
     public double getSpeedBasedLookahead(Segment seg) {
-        return getSpeedBasedLookahead(seg.vel);
+        return mLookahead.getSpeedBasedLookahead(seg.vel);
     }
 
-    public double getSpeedBasedLookahead(double speed) {
-        // Change Parameters below as nessesary
-        double desiredMaxLookahead = isReversed ? 70 : 40;
-        final double minLookaheadDistance = this.minLookaheadDistance, maxLookaheadDistance = desiredMaxLookahead;
-        final double min_speed = 0, max_speed = Robot.bot.kMaxVelocityInchesPerSec;
-        /**********************************************************/
+    public static class Lookahead {
+        public final double min_distance;
+        public final double max_distance;
+        public final double min_speed;
+        public final double max_speed;
 
-        final double delta_distance = maxLookaheadDistance - minLookaheadDistance;
-        final double delta_speed = max_speed - min_speed;
-        double lookahead = delta_distance * (speed - min_speed) / delta_speed + minLookaheadDistance;
-        return Double.isNaN(lookahead) ? minLookaheadDistance
-                : Math.max(minLookaheadDistance, Math.min(maxLookaheadDistance, lookahead));
+        protected final double delta_distance;
+        protected final double delta_speed;
+
+        public Lookahead(double min_distance, double max_distance, double min_speed, double max_speed) {
+            this.min_distance = min_distance;
+            this.max_distance = max_distance;
+            this.min_speed = min_speed;
+            this.max_speed = max_speed;
+            delta_distance = max_distance - min_distance;
+            delta_speed = max_speed - min_speed;
+        }
+
+        public double getSpeedBasedLookahead(double speed) {
+            double lookahead = delta_distance * (speed - min_speed) / delta_speed + min_distance;
+            return Double.isNaN(lookahead) ? min_distance : Math.max(min_distance, Math.min(max_distance, lookahead));
+        }
     }
-
 }
