@@ -127,10 +127,10 @@ public class SwerveDrive extends Subsystem {
         translationalVector = new Translation2d(str, fwd);
         rotationalInput = rcw;
 
-        double a = str - rcw * (L / r);
-        double b = str + rcw * (L / r);
-        double c = fwd - rcw * (W / r);
-        double d = fwd + rcw * (W / r);
+        double a = str - rcw * (L / 2);
+        double b = str + rcw * (L / 2);
+        double c = fwd - rcw * (W / 2);
+        double d = fwd + rcw * (W / 2);
 
         double backRightSpeed = Math.sqrt((a * a) + (c * c));
         double backLeftSpeed = Math.sqrt((a * a) + (d * d));
