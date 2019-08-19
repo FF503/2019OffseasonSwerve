@@ -5,7 +5,7 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package com.team254.lib.geometry;
+package com.team503.lib.geometry;
 
 import java.text.DecimalFormat;
 

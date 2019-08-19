@@ -1,9 +1,4 @@
-package com.team503.lib.util;
-
-import com.team254.lib.geometry.Rotation2d;
-import com.team254.lib.geometry.Transform2d;
-import com.team254.lib.geometry.Translation2d;
-import com.team254.lib.geometry.Twist2d;
+package com.team503.lib.geometry;
 
 public class Pose {
 	private double timestamp = 0;

@@ -9,12 +9,12 @@ package com.team503.lib.kinematics;
 import java.util.Arrays;
 import java.util.Collections;
 
-import com.team254.lib.geometry.Rotation2d;
-import com.team254.lib.geometry.Translation2d;
+import com.team503.lib.geometry.Rotation2d;
+import com.team503.lib.geometry.Translation2d;
 
 import org.ejml.simple.SimpleMatrix;
 
-
+ 
 /**
  * Helper class that converts a chassis velocity (dx, dy, and dtheta components)
  * into individual module states (speed and angle).

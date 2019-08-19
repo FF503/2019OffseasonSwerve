@@ -10,7 +10,7 @@ import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.team254.lib.geometry.Rotation2d;
+import com.team503.lib.geometry.Rotation2d;
 import com.team503.lib.kinematics.SwerveModuleState;
 import com.team503.lib.util.Util;
 import com.team503.robot.Robot;

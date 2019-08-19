@@ -7,7 +7,7 @@
 
 package com.team503.lib.kinematics;
 
-import com.team254.lib.geometry.Rotation2d;
+import com.team503.lib.geometry.Rotation2d;
 
 /*----------------------------------------------------------------------------*/
 

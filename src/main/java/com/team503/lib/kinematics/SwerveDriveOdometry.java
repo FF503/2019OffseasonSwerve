@@ -7,10 +7,10 @@
 
 package com.team503.lib.kinematics;
 
-import com.team254.lib.geometry.Translation2d;
-import com.team254.lib.geometry.Twist2d;
+import com.team503.lib.geometry.Pose;
+import com.team503.lib.geometry.Translation2d;
+import com.team503.lib.geometry.Twist2d;
 import com.team503.lib.util.FFDashboard;
-import com.team503.lib.util.Pose;
 
 /**
  * Class for swerve drive odometry. Odometry allows you to track the robot's

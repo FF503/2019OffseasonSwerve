@@ -1,7 +1,7 @@
 package com.team503.robot;
 
+import com.team503.lib.geometry.Pose;
 import com.team503.lib.util.FFDashboard;
-import com.team503.lib.util.Pose;
 import com.team503.robot.auton.FroggyAuton.StartingDirection;
 
 public class RobotState {

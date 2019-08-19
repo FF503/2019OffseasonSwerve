@@ -7,7 +7,7 @@
 
 package com.team503.lib.controllers;
 
-import com.team254.lib.geometry.Translation2d;
+import com.team503.lib.geometry.Translation2d;
 import com.team503.lib.util.FFDashboard;
 import com.team503.robot.Robot;
 

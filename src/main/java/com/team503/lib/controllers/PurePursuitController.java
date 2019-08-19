@@ -1,7 +1,7 @@
 package com.team503.lib.controllers;
 
-import com.team254.lib.geometry.Translation2d;
-import com.team503.lib.util.Pose;
+import com.team503.lib.geometry.Pose;
+import com.team503.lib.geometry.Translation2d;
 import com.team503.robot.Robot;
 
 import edu.wpi.first.wpilibj.Timer;

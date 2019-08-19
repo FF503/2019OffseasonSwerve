@@ -7,7 +7,7 @@
 
 package com.team503.robot;
 
-import com.team254.lib.geometry.Translation2d;
+import com.team503.lib.geometry.Translation2d;
 
 public class RobotHardwareProgammingBot extends RobotHardware {
     /* All distance measurements are in inches, unless otherwise noted */

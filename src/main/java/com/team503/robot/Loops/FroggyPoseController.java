@@ -7,11 +7,11 @@
 
 package com.team503.robot.loops;
 
+import com.team503.lib.geometry.Pose;
 import com.team503.lib.kinematics.SwerveDriveKinematics;
 import com.team503.lib.kinematics.SwerveDriveOdometry;
 import com.team503.lib.kinematics.SwerveModuleState;
 import com.team503.lib.util.FFDashboard;
-import com.team503.lib.util.Pose;
 import com.team503.robot.Robot;
 import com.team503.robot.RobotState;
 import com.team503.robot.subsystems.SwerveDrive;

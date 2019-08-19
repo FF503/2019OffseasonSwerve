@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.List;
 
-import com.team254.lib.geometry.Translation2d;
+import com.team503.lib.geometry.Translation2d;
 import com.team503.robot.Robot;
 import com.team503.robot.RobotState.Bot;
 import com.team503.robot.subsystems.SwerveModule;

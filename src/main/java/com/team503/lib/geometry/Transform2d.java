@@ -5,9 +5,7 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package com.team254.lib.geometry;
-
-import com.team503.lib.util.Pose;
+package com.team503.lib.geometry;
 
 /**
  * Represents a transformation for a Pose2d.

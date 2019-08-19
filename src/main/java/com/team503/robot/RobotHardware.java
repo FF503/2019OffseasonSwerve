@@ -11,8 +11,8 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
 
-import com.team254.lib.geometry.Translation2d;
 import com.team503.lib.controllers.PurePursuitController.Lookahead;
+import com.team503.lib.geometry.Translation2d;
 import com.team503.lib.util.Util;
 import com.team503.robot.RobotState.Bot;
 
