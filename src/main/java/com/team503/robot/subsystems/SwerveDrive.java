@@ -287,7 +287,7 @@ public class SwerveDrive extends Subsystem {
     }
 
     public void setBrakeMode() {
-        modules.forEach((mod) -> mod.coastDrive());
+        modules.forEach((mod) -> mod.brakeDrive());
     }
 
     public void setCoastMode() {

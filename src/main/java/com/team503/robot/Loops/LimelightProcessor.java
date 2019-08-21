@@ -68,7 +68,7 @@ public class LimelightProcessor {
 
 	public void setPipeline(Pipeline p) {
 		setPipeline(p.id);
-		System.out.println("Pipeline set to " + p.id);
+		// System.out.println("Pipeline set to " + p.id);
 	}
 
 	public double getPipelineNumber() {

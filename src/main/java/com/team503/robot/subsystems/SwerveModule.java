@@ -22,7 +22,9 @@ public class SwerveModule {
     private static final double kWheelDiameter = Robot.bot.wheelDiameter;
     private static final double kAzimuthDegreesPerClick = 360.0 / kTurnEncoderClicksperRevolution;
     private static final double kAzimuthClicksPerDegree = kTurnEncoderClicksperRevolution / 360.0;
-    private final double driveVelocityConversionFactor = Math.PI * kWheelDiameter;
+    private final double driveGearRatio = 3.0 / 20.0;
+    private final double circumfrence = kWheelDiameter * Math.PI;
+    private final double driveVelocityConversionFactor = driveGearRatio / circumfrence;
     private static final int kSlotIdx = 0;
     private static final int kTimeoutMs = 30;
     private static double power = 0.0;
@@ -162,7 +164,7 @@ public class SwerveModule {
     }
 
     public double getDriveMotorVelocity() {
-        return motorEncoder.getVelocityConversionFactor();
+        return motorEncoder.getVelocity() * driveVelocityConversionFactor;
     }
 
     public SwerveModuleState getState() {

@@ -4,6 +4,8 @@ import com.team503.lib.geometry.Pose;
 import com.team503.lib.util.FFDashboard;
 import com.team503.robot.auton.FroggyAuton.StartingDirection;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 public class RobotState {
 	private Bot currentRobot;
 	private Pose currentPose;

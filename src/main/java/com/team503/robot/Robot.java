@@ -20,6 +20,7 @@ import com.team503.robot.commands.SwitchArmDirection;
 import com.team503.robot.commands.TargetHeightSwitcher;
 import com.team503.robot.commands.ToggleControlMode;
 import com.team503.robot.commands.ToggleIntake;
+import com.team503.robot.loops.FroggyPoseController;
 import com.team503.robot.loops.LimelightProcessor;
 import com.team503.robot.loops.LimelightProcessor.Pipeline;
 import com.team503.robot.subsystems.Arm;
@@ -140,7 +141,6 @@ public class Robot extends TimedRobot {
     mSwerve.setBrakeMode();
     Intake.getInstance().startVacuum();
     LimelightProcessor.getInstance().setPipeline(Pipeline.CLOSEST);
-    // FroggyPoseController.updateOdometry();
   }
 
   /*
@@ -171,7 +171,8 @@ public class Robot extends TimedRobot {
       Arm.getInstance().updateSuperstruture();
     }
 
-    // FroggyPoseController.outputPoseToDashboard();
+    FroggyPoseController.updateOdometry();
+    FroggyPoseController.outputPoseToDashboard();
     Scheduler.getInstance().run();
   }
 
