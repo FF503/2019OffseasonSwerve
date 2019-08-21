@@ -74,9 +74,10 @@ public class SwerveDriveOdometry {
         m_prevTimeSeconds = currentTimeSeconds;
 
         ChassisSpeeds chassisState = m_kinematics.toChassisSpeeds(moduleStates);
-        table.putString("Tangential Velocity", chassisState.toString());
-        table.putNumber("X Velocity", chassisState.vx);
-        table.putNumber("Y Velocity", chassisState.vy);
+        // table.putString("Tangential Velocity", chassisState.toString());
+        table.putNumber("X Velocity", -chassisState.vy);
+        table.putNumber("Y Velocity", chassisState.vx);
+        table.putNumber("Magnitude", Math.hypot(chassisState.vy, chassisState.vx));
 
         m_pose = m_pose
                 .exp(new Twist2d(chassisState.vx * period, chassisState.vy * period, chassisState.omega * period));

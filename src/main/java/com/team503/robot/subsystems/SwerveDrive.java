@@ -25,8 +25,10 @@ public class SwerveDrive extends Subsystem {
     // Teleop driving variables
     private Translation2d translationalVector = new Translation2d();
     private Translation2d centerOfRotation = new Translation2d();
-
     private double rotationalInput = 0;
+
+    private final double kLengthComponent;
+    private final double kWidthComponent;
 
     public static SwerveDrive getInstance() {
         if (instance == null)
@@ -77,6 +79,12 @@ public class SwerveDrive extends Subsystem {
         }
 
         modules = Arrays.asList(backRight, backLeft, frontLeft, frontRight);
+
+        double width = Robot.bot.kWheelbaseWidth, length = Robot.bot.kWheelbaseLength;
+        double radius = Math.hypot(width, length);
+        kLengthComponent = length / radius;
+        kWidthComponent = width / radius;
+
     }
 
     private boolean fieldCentric = true;
@@ -116,9 +124,6 @@ public class SwerveDrive extends Subsystem {
 
     // Takes joystick input an calculates drive wheel speed and turn motor angle
     public void drive(double str, double fwd, double rcw, boolean lowPower) {
-        final double length = Robot.bot.kWheelbaseLength, width = Robot.bot.kWheelbaseWidth;
-        double r = Math.sqrt((length * length) + (width * width));
-
         str *= (lowPower ? 0.3 : 1.0) * Robot.bot.requestDriveReversed;
         fwd *= (lowPower ? 0.5 : 1.0) * Robot.bot.requestDriveReversed;
         rcw *= lowPower ? 0.5 : 1.0;
@@ -133,15 +138,15 @@ public class SwerveDrive extends Subsystem {
         translationalVector = new Translation2d(str, fwd);
         rotationalInput = rcw;
 
-        double a = str - rcw * (length / r);
-        double b = str + rcw * (length / r);
-        double c = fwd - rcw * (width / r);
-        double d = fwd + rcw * (width / r);
+        double a = str - rcw * kLengthComponent;
+        double b = str + rcw * kLengthComponent;
+        double c = fwd - rcw * kWidthComponent;
+        double d = fwd + rcw * kWidthComponent;
 
-        double backRightSpeed = Math.sqrt((a * a) + (c * c));
-        double backLeftSpeed = Math.sqrt((a * a) + (d * d));
-        double frontRightSpeed = Math.sqrt((b * b) + (c * c));
-        double frontLeftSpeed = Math.sqrt((b * b) + (d * d));
+        double backRightSpeed = Math.hypot(a, c);
+        double backLeftSpeed = Math.hypot(a, d);
+        double frontRightSpeed = Math.hypot(b, c);
+        double frontLeftSpeed = Math.hypot(b, d);
 
         double backRightAngle = (Math.atan2(a, c) * 180 / Math.PI);
         double backLeftAngle = (Math.atan2(a, d) * 180 / Math.PI);
@@ -298,6 +303,10 @@ public class SwerveDrive extends Subsystem {
         modules.forEach((mod) -> mod.setDriveMotorCurrentLimit(limit));
     }
 
+    public void resetDriveEncoder() {
+        modules.forEach((mod) -> mod.resetDriveEncoder());
+    }
+
     @Override
     public void outputTelemetry() {
         SmartDashboard.putNumber("LF Drive Position (clicks)", frontLeft.getDriveEncoderPosition());
@@ -331,4 +340,10 @@ public class SwerveDrive extends Subsystem {
     public void stop() {
         modules.forEach((m) -> m.setDriveMotorSpeed(0));
     }
+
+    @Override
+    public void zeroSensors() {
+        resetDriveEncoder();
+    }
+
 }

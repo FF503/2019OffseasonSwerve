@@ -21,10 +21,14 @@ public class SwerveModule {
     private static final double kTurnEncoderClicksperRevolution = Robot.bot.kTurnEncoderClicksperRevolution;
     private static final double kWheelDiameter = Robot.bot.wheelDiameter;
     private static final double kAzimuthDegreesPerClick = 360.0 / kTurnEncoderClicksperRevolution;
-    private static final double kAzimuthClicksPerDegree = kTurnEncoderClicksperRevolution / 360.0;
-    private final double driveGearRatio = 3.0 / 20.0;
-    private final double circumfrence = kWheelDiameter * Math.PI;
-    private final double driveVelocityConversionFactor = driveGearRatio / circumfrence;
+    private final double kAzimuthClicksPerDegree = kTurnEncoderClicksperRevolution / 360.0;
+
+    private final int countsPerRotation = 42;
+    private final double driveGearRatio = (12.0 / 40.0) * (20.0 / 40.0);
+    private final double wheelRotationsToInches = 1.0 / (Math.PI * kWheelDiameter);
+    private final double encoderToInches = countsPerRotation * driveGearRatio * wheelRotationsToInches;
+    private final double driveVelocityConversionFactor = encoderToInches / 60.0;
+
     private static final int kSlotIdx = 0;
     private static final int kTimeoutMs = 30;
     private static double power = 0.0;
@@ -163,13 +167,25 @@ public class SwerveModule {
         return vol;
     }
 
+    /**
+     * 
+     * @return in inches
+     */
+    public double getDriveMotorPosition() {
+        return getDriveEncoderPosition() * encoderToInches;
+    }
+
+    /**
+     * 
+     * @return in inches
+     */
     public double getDriveMotorVelocity() {
-        return motorEncoder.getVelocity() * driveVelocityConversionFactor;
+        return getDriveEncoderRPM() * driveVelocityConversionFactor;
     }
 
     public SwerveModuleState getState() {
         return new SwerveModuleState(getDriveMotorVelocity(),
-                Rotation2d.fromDegrees(getTurnEncoderPositioninDegrees()));
+                Rotation2d.fromDegrees(-getTurnEncoderPositioninDegrees()));
     }
 
     public double getTurnEncoderPosition() {

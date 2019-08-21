@@ -25,7 +25,7 @@ public class FroggyPoseController {
 
     private static SwerveDrive mSwerve = SwerveDrive.getInstance();
 
-    private static final FFDashboard table = new FFDashboard("GPS");
+    private static final FFDashboard table = new FFDashboard("Localization");
 
     public static void updateOdometry() {
         SwerveModuleState[] moduleStates = new SwerveModuleState[4];
