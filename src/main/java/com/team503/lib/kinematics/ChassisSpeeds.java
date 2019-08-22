@@ -8,6 +8,7 @@
 package com.team503.lib.kinematics;
 
 import com.team503.lib.geometry.Rotation2d;
+import com.team503.lib.geometry.Translation2d;
 
 /**
  * Add your docs here.
@@ -81,6 +82,20 @@ public class ChassisSpeeds {
         Rotation2d robotAngle = Rotation2d.fromDegrees(robotHeading);
         return new ChassisSpeeds(vx * robotAngle.getCos() + vy * robotAngle.getSin(),
                 -vx * robotAngle.getSin() + vy * robotAngle.getCos(), omega);
+    }
+
+
+    public ChassisSpeeds convertToNormalCoordinates() {
+        double vx = -this.vy;
+        double vy = this.vx;
+        return new ChassisSpeeds(vx, vy, this.omega);
+    }
+
+    //Only after you converted to normal coord
+    public ChassisSpeeds toFieldRelative(Rotation2d robotHeading) {
+        Translation2d translation = new Translation2d(this.vx, this.vy);
+        translation = translation.rotateBy(robotHeading.unaryMinus());
+        return new ChassisSpeeds(translation.getX(), translation.getY(), this.omega);
     }
 
     public String toString() {

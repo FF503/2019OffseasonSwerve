@@ -8,12 +8,14 @@
 package com.team503.robot.loops;
 
 import com.team503.lib.geometry.Pose;
+import com.team503.lib.geometry.Rotation2d;
 import com.team503.lib.kinematics.SwerveDriveKinematics;
 import com.team503.lib.kinematics.SwerveDriveOdometry;
 import com.team503.lib.kinematics.SwerveModuleState;
 import com.team503.lib.util.FFDashboard;
 import com.team503.robot.Robot;
 import com.team503.robot.RobotState;
+import com.team503.robot.subsystems.Pigeon;
 import com.team503.robot.subsystems.SwerveDrive;
 
 /**
@@ -28,11 +30,12 @@ public class FroggyPoseController {
     private static final FFDashboard table = new FFDashboard("Localization");
 
     public static void updateOdometry() {
+        final double robotAngle = Pigeon.getInstance().getYaw();
         SwerveModuleState[] moduleStates = new SwerveModuleState[4];
         for (int i = 0; i < 4; i++) {
             moduleStates[i] = mSwerve.getModules().get(i).getState();
         }
-        RobotState.getInstance().setCurrentPose(mOdometry.update(moduleStates));
+        RobotState.getInstance().setCurrentPose(mOdometry.update(Rotation2d.fromDegrees(robotAngle), moduleStates));
     }
 
     public static void resetPose(final Pose pose) {
