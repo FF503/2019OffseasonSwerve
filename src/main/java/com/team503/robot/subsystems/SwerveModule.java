@@ -23,11 +23,11 @@ public class SwerveModule {
     private static final double kAzimuthDegreesPerClick = 360.0 / kTurnEncoderClicksperRevolution;
     private final double kAzimuthClicksPerDegree = kTurnEncoderClicksperRevolution / 360.0;
 
-    private final int countsPerRotation = 42;
-    private final double driveGearRatio = (12.0 / 40.0) * (20.0 / 40.0);
-    private final double wheelRotationsToInches = 1.0 / (Math.PI * kWheelDiameter);
-    private final double encoderToInches = countsPerRotation * driveGearRatio * wheelRotationsToInches;
-    private final double driveVelocityConversionFactor = encoderToInches / 60.0;
+    private final int countsPerRotation = 42; // Counts/Rotation
+    private final double driveGearRatio = (12.0 / 40.0) * (20.0 / 40.0); // Unitless
+    private final double CIRCUMFERENCE = (Math.PI * kWheelDiameter); // Rotations/inch
+    private final double COUNTS_PER_INCH = countsPerRotation * driveGearRatio / CIRCUMFERENCE; // Counts/Inch
+    private final double driveVelocityConversionFactor = (COUNTS_PER_INCH / 60.0); // 60 Inches/Rotation
 
     private static final int kSlotIdx = 0;
     private static final int kTimeoutMs = 30;
@@ -106,7 +106,7 @@ public class SwerveModule {
         turnMotor.configMotionAcceleration(kMagicCruiseAcceleration, kTimeoutMs);
 
         driveMotor.setSmartCurrentLimit(50);
-        motorEncoder.setVelocityConversionFactor(driveVelocityConversionFactor);
+        // motorEncoder.setVelocityConversionFactor(driveVelocityConversionFactor);
     }
 
     public void drive(double speed, double angle) {
@@ -151,8 +151,12 @@ public class SwerveModule {
         motorEncoder.setPosition(0.0);
     }
 
-    public double getDriveEncoderPosition() {
-        double pos = motorEncoder.getPosition();
+    /**
+     * 
+     * @return clicks
+     */
+    public double getDriveEncoderClicks() {
+        double pos = countsPerRotation * motorEncoder.getPosition();
         // if(kDriveEncoderInverted) {
         // pos *= -1;
         // }
@@ -172,12 +176,12 @@ public class SwerveModule {
      * @return in inches
      */
     public double getDriveMotorPosition() {
-        return getDriveEncoderPosition() * encoderToInches;
+        return getDriveEncoderClicks() * COUNTS_PER_INCH;
     }
 
     /**
      * 
-     * @return in inches
+     * @return in inches/second
      */
     public double getDriveMotorVelocity() {
         return getDriveEncoderRPM() * driveVelocityConversionFactor;

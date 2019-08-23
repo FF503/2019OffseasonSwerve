@@ -62,8 +62,8 @@ public class Robot extends TimedRobot {
     mSwerve = SwerveDrive.getInstance();
 
     // Subsytem Manager
-    subsystems = new SubsystemManager(Arrays.asList(mSwerve, Pigeon.getInstance(), Arm.getInstance(), Wrist.getInstance(),
-        Extension.getInstance(), Intake.getInstance()));
+    subsystems = new SubsystemManager(Arrays.asList(mSwerve, Pigeon.getInstance(), Arm.getInstance(),
+        Wrist.getInstance(), Extension.getInstance(), Intake.getInstance()));
     subsystems.resetSensor();
   }
 
@@ -173,6 +173,7 @@ public class Robot extends TimedRobot {
 
     FroggyPoseController.updateOdometry();
     FroggyPoseController.outputPoseToDashboard();
+    subsystems.outputToSmartDashboard();
     Scheduler.getInstance().run();
   }
 
