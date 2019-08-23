@@ -95,6 +95,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
+    Pigeon.getInstance().zeroSensors();
     mSwerve.setBrakeMode();
     Intake.getInstance().startVacuum();
     LimelightProcessor.getInstance().setPipeline(Pipeline.CLOSEST);

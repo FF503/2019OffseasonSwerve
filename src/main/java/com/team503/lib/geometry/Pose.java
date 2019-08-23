@@ -22,7 +22,24 @@ public class Pose {
 	}
 
 	public Pose(double[] coord) {
-		this(coord[0], coord[1], 0);
+		this(coord[0], coord[1], 90);
+	}
+
+	public void update(double timestamp, Translation2d translation2d, double theta) {
+		this.lastTheta = this.theta;
+		this.lastTranslation = this.translation;
+		this.timestamp = timestamp;
+		this.translation = translation2d;
+		this.theta = theta;
+	}
+
+	public void setTimestamp(double timestamp) {
+		this.timestamp = timestamp;
+	}
+
+	public void updateTheta(double theta) {
+		lastTheta = this.theta;
+		this.theta = theta;
 	}
 
 	public double getX() {
@@ -37,18 +54,6 @@ public class Pose {
 		return theta;
 	}
 
-	public void update(double x, double y, double theta) {
-		this.translation = new Translation2d(x, y);
-		this.theta = theta;
-	}
-
-	public void increment(double x, double y, double theta) {
-		this.translation.plus(new Translation2d(x, y));
-		// this.x += x;
-		// this.y += y;
-		this.theta += theta;
-	}
-
 	public double[] get() {
 		return new double[] { getX(), getY(), theta };
 	}
@@ -57,43 +62,12 @@ public class Pose {
 		return timestamp;
 	}
 
-	public void setTimestamp(double timestamp) {
-		this.timestamp = timestamp;
-	}
-
-	public void translatePose(Translation2d translation) {
-		// this.x += Math.cos(Math.toRadians(this.theta))*centerOfRotDist;
-		// this.y += Math.sin(Math.toRadians(this.theta))*centerOfRotDist;
-		double deltaX = translation.getX();
-		double deltaY = translation.getY();
-		double x = this.getX();
-		double y = this.getY();
-		double alpha = this.getTheta();
-		double cos = (Math.cos(Math.toRadians(alpha)));
-		double sin = (Math.sin(Math.toRadians(alpha)));
-		double x1 = x + (cos * deltaX) - (sin * deltaX);
-		// Math.sin(Math.toRadians(alpha))*deltaX +
-		// Math.cos(Math.toRadians(alpha))*deltaY;
-		double sign = Math.signum(deltaX * deltaX + deltaY * deltaY - (x1 * x1));
-		double y1 = y + (sin * deltaX) + (cos * deltaX);// sign*Math.sqrt(Math.abs(deltaX*deltaX + deltaY*deltaY -
-														// (x1*x1))) + y;// x + Math.sin(Math.toRadians(alpha))*deltaY +
-		// Math.cos(Math.toRadians(alpha))*deltaX;//Math.sqrt(deltaX*deltaX
-		// + deltaY*deltaY - (x1*x1)) + y;
-		this.translation = new Translation2d(x1, y1);
-		this.theta = alpha;
-	}
-
-	public void updateTheta(double theta) {
-		lastTheta = this.theta;
-		this.theta = theta;
-	}
-
 	public double getLastTheta() {
 		return lastTheta;
 	}
 
 	public Translation2d toVector() {
-		return (new Translation2d(translation.getX(), translation.getY()));
+		return (new Translation2d(getX(), getY()));
 	}
 
 	public Pose copy() {
@@ -104,6 +78,27 @@ public class Pose {
 		return "time: " + timestamp + "x:" + translation.getX() + " y: " + translation.getY() + " theta: " + theta;
 	}
 
+	 /**
+   * Obtain a new Pose2d from a (constant curvature) velocity.
+   *
+   * <p>See <a href="https://file.tavsys.net/control/state-space-guide.pdf">
+   * Controls Engineering in the FIRST Robotics Competition</a>
+   * section on nonlinear pose estimation for derivation.
+   *
+   * <p>The twist is a change in pose in the robot's coordinate frame since the
+   * previous pose update. When the user runs exp() on the previous known
+   * field-relative pose with the argument being the twist, the user will
+   * receive the new field-relative pose.
+   *
+   * <p>"Exp" represents the pose exponential, which is solving a differential
+   * equation moving the pose forward in time.
+   *
+   * @param twist The change in pose in the robot's coordinate frame since the
+   *              previous pose update. For example, if a non-holonomic robot moves forward
+   *              0.01 meters and changes angle by .5 degrees since the previous pose update,
+   *              the twist would be Twist2d{0.01, 0.0, toRadians(0.5)}
+   * @return The new pose of the robot.
+   */
 	public Pose exp(Twist2d twist) {
 		double dx = twist.dx;
 		double dy = twist.dy;

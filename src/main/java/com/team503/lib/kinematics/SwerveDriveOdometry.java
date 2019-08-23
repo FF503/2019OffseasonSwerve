@@ -87,16 +87,17 @@ public class SwerveDriveOdometry {
         double period = m_prevTimeSeconds >= 0 ? currentTimeSeconds - m_prevTimeSeconds : 0.0;
         m_prevTimeSeconds = currentTimeSeconds;
 
-        ChassisSpeeds chassisState = m_kinematics.toChassisSpeeds(moduleStates).convertToNormalCoordinates().toFieldRelative(robotHeading);
+        ChassisSpeeds chassisState = m_kinematics.toChassisSpeeds(moduleStates).convertToNormalCoordinates()
+                .toFieldRelative(robotHeading);
 
         // table.putString("Tangential Velocity", chassisState.toString());
         table.putNumber("X Velocity", chassisState.vx);
         table.putNumber("Y Velocity", chassisState.vy);
         table.putNumber("Magnitude", Math.hypot(chassisState.vy, chassisState.vx));
 
-        m_pose = m_pose
-                .exp(new Twist2d(chassisState.vx * period, chassisState.vy * period, chassisState.omega * period));
-        m_pose.setTimestamp(currentTimeSeconds);
+        Translation2d positionVector = m_pose.getTranslation().plus(new Translation2d(chassisState.vx * period, chassisState.vy * period));
+        m_pose.update(currentTimeSeconds, positionVector, 90.0 - robotHeading.getDegrees());
+        // m_pose = m_pose.exp(new Twist2d(chassisState.vx * period, chassisState.vy * period, chassisState.omega * period));
         return m_pose;
     }
 

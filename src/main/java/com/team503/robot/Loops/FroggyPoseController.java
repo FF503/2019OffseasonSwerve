@@ -29,7 +29,7 @@ public class FroggyPoseController {
 
     private static final FFDashboard table = new FFDashboard("Localization");
 
-    public static void updateOdometry() {
+    public static synchronized void updateOdometry() {
         final double robotAngle = Pigeon.getInstance().getYaw();
         SwerveModuleState[] moduleStates = new SwerveModuleState[4];
         for (int i = 0; i < 4; i++) {
@@ -38,11 +38,11 @@ public class FroggyPoseController {
         RobotState.getInstance().setCurrentPose(mOdometry.update(Rotation2d.fromDegrees(robotAngle), moduleStates));
     }
 
-    public static void resetPose(final Pose pose) {
+    public static synchronized void resetPose(final Pose pose) {
         mOdometry.resetPosition(pose);
     }
 
-    public static void outputPoseToDashboard() {
+    public static synchronized void outputPoseToDashboard() {
         table.putString("Current Pose", RobotState.getInstance().getCurrentPose().toString());
     }
 

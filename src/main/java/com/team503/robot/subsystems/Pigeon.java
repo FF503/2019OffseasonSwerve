@@ -9,7 +9,8 @@ package com.team503.robot.subsystems;
 
 import com.ctre.phoenix.sensors.PigeonIMU;
 import com.ctre.phoenix.sensors.PigeonIMU.PigeonState;
-import com.team503.robot.subsystems.Subsystem;
+import com.team503.robot.RobotState;
+import com.team503.robot.auton.FroggyAuton.StartingDirection;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -73,9 +74,15 @@ public class Pigeon extends Subsystem {
 		return ypr;
 	}
 
-	private void reset() {
+	private void zero() {
 		setAngle(0);
 	}
+
+	public void reset() {
+		setAngle(RobotState.getInstance().getGyroOffset());
+	}
+
+	
 
 	public void setAngle(double angle) {
 		pigeon.setFusedHeading(-angle * 64.0, 10);
@@ -103,7 +110,7 @@ public class Pigeon extends Subsystem {
 
 	@Override
 	public void zeroSensors() {
-		reset();
+		zero();
 	}
 
 	@Override

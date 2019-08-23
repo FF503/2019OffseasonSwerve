@@ -49,7 +49,7 @@ public class RobotState {
 		this.startingDirection = startingDirection;
 	}
 
-	public double getGyroOffset() {
+	public synchronized double getGyroOffset() {
 		return this.startingDirection.getGyroOffset();
 	}
 
