@@ -12,6 +12,7 @@ import java.util.Arrays;
 import com.team503.robot.RobotState.ArmDirection;
 import com.team503.robot.RobotState.Bot;
 import com.team503.robot.RobotState.GameElement;
+import com.team503.robot.auton.ForwardTest;
 import com.team503.robot.commands.EjectBall;
 import com.team503.robot.commands.GameElementSwitcher;
 import com.team503.robot.commands.ReleaseHatch;
@@ -99,6 +100,8 @@ public class Robot extends TimedRobot {
     mSwerve.setBrakeMode();
     Intake.getInstance().startVacuum();
     LimelightProcessor.getInstance().setPipeline(Pipeline.CLOSEST);
+
+    new ForwardTest().initAndStartAuton();
   }
 
   /**
@@ -107,28 +110,29 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
     RobotState.getInstance().setCurrentTheta(Pigeon.getInstance().getYaw());
-    OI.driverJoystick.update();
+    // OI.driverJoystick.update();
 
   //  if (RobotState.getInstance().getAutonDone()) {
 
-      switch (SwerveDrive.getInstance().getMode()) {
-      case TeleopDrive:
-        joystickInput();
+      // switch (SwerveDrive.getInstance().getMode()) {
+      // case TeleopDrive:
+      //   joystickInput();
 
-        break;
-      case Defense:
-        if (!OI.driverJoystick.getStartButton()) {
-          mSwerve.setMode(DriveMode.TeleopDrive);
-          break;
-        }
-        mSwerve.defensePosition();
-        break;
-      default:
-        break;
-      }
+      //   break;
+      // case Defense:
+      //   if (!OI.driverJoystick.getStartButton()) {
+      //     mSwerve.setMode(DriveMode.TeleopDrive);
+      //     break;
+      //   }
+      //   mSwerve.defensePosition();
+      //   break;
+      // default:
+      //   break;
+      // }
   //  }
-    operatorInput();
-
+    // operatorInput();
+    FroggyPoseController.updateOdometry();
+    FroggyPoseController.outputPoseToDashboard();
     Arm.getInstance().updateSuperstruture();
 
     Scheduler.getInstance().run();
@@ -192,7 +196,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledInit() {
-    mSwerve.setCoastMode();
+    mSwerve.setBrakeMode();
     subsystems.stop();
   }
 

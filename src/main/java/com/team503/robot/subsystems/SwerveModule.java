@@ -26,8 +26,8 @@ public class SwerveModule {
     private final int countsPerRotation = 42; // Counts/Rotation
     private final double driveGearRatio = (12.0 / 40.0) * (20.0 / 40.0); // Unitless
     private final double CIRCUMFERENCE = (Math.PI * kWheelDiameter); // Rotations/inch
-    private final double COUNTS_PER_INCH = countsPerRotation * driveGearRatio / CIRCUMFERENCE; // Counts/Inch
-    private final double driveVelocityConversionFactor = (COUNTS_PER_INCH / 60.0); // 60 Inches/Rotation
+    private final double COUNTS_PER_INCH = countsPerRotation / driveGearRatio / CIRCUMFERENCE; // Counts/Inch
+    private final double driveVelocityConversionFactor = (COUNTS_PER_INCH * 60.0); // 60 Inches/Rotation
 
     private static final int kSlotIdx = 0;
     private static final int kTimeoutMs = 30;
@@ -164,7 +164,7 @@ public class SwerveModule {
     }
 
     public double getDriveEncoderRPM() {
-        double vol = motorEncoder.getVelocity();
+        double vol = motorEncoder.getVelocity() *countsPerRotation;
         // if(kDriveEncoderInverted) {
         // vol *= -1;
         // }
@@ -176,7 +176,7 @@ public class SwerveModule {
      * @return in inches
      */
     public double getDriveMotorPosition() {
-        return getDriveEncoderClicks() * COUNTS_PER_INCH;
+        return getDriveEncoderClicks() / COUNTS_PER_INCH;
     }
 
     /**
@@ -184,7 +184,7 @@ public class SwerveModule {
      * @return in inches/second
      */
     public double getDriveMotorVelocity() {
-        return getDriveEncoderRPM() * driveVelocityConversionFactor;
+        return getDriveEncoderRPM() / driveVelocityConversionFactor;
     }
 
     public SwerveModuleState getState() {

@@ -86,8 +86,8 @@ public class ChassisSpeeds {
 
 
     public ChassisSpeeds convertToNormalCoordinates() {
-        double vx = -this.vy;
-        double vy = this.vx;
+        double vx = this.vy;
+        double vy = -this.vx;
         return new ChassisSpeeds(vx, vy, this.omega);
     }
 

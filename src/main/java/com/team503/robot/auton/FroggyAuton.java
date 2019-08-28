@@ -11,7 +11,7 @@ import com.team503.lib.geometry.Pose;
 import com.team503.lib.util.FFDashboard;
 import com.team503.lib.util.ProfileLoader;
 import com.team503.robot.RobotState;
-import com.team503.robot.loops.PoseController;
+import com.team503.robot.loops.FroggyPoseController;
 
 import edu.wpi.first.wpilibj.command.CommandGroup;
 
@@ -48,7 +48,7 @@ public abstract class FroggyAuton extends CommandGroup {
     }
 
     private void initStartingLocation(AutonStartingLocation startingLocation) {
-        PoseController.getInstance().resetPose(startingLocation.getStartingPose());
+        FroggyPoseController.resetPose(startingLocation.getStartingPose());
     }
 
     private void initStartingDirection() {
@@ -63,6 +63,7 @@ public abstract class FroggyAuton extends CommandGroup {
 
     public void froggySequentialDrive(String file) {
         ProfileLoader loader = getProfileInfo(file);
+        FFDashboard.getInstance().putNumber("Segments", loader.getTrajectory().getNumSegments());
         addSequential(new FollowTrajectoryCommand(loader.getTrajectory()));
     }
 

@@ -8,6 +8,8 @@
 package com.team503.robot.auton;
 
 import com.team503.lib.controllers.PurePursuitController;
+import com.team503.lib.geometry.Translation2d;
+import com.team503.lib.util.FFDashboard;
 import com.team503.robot.RobotState;
 import com.team503.robot.subsystems.SwerveDrive;
 import com.team503.robot.subsystems.SwerveDrive.DriveMode;
@@ -18,6 +20,7 @@ import motionProfiling.Trajectory;
 public class FollowTrajectoryCommand extends Command {
   private PurePursuitController controller;
   private SwerveDrive mSwerve = SwerveDrive.getInstance();
+  FFDashboard table = new FFDashboard("Localization");
 
   public FollowTrajectoryCommand(Trajectory traj) {
     controller = new PurePursuitController(traj);
@@ -33,7 +36,10 @@ public class FollowTrajectoryCommand extends Command {
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
-    mSwerve.drive(controller.calculateDriveVector(RobotState.getInstance().getCurrentPose()));
+    Translation2d driveVector = controller.calculateDriveVector(RobotState.getInstance().getCurrentPose());
+    mSwerve.drive(driveVector);
+    table.putNumber("X Value", driveVector.getX());
+    table.putNumber("Y Value", driveVector.getY());
   }
 
   // Make this return true when this Command no longer needs to run execute()
