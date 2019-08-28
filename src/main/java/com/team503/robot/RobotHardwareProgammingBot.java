@@ -29,6 +29,8 @@ public class RobotHardwareProgammingBot extends RobotHardware {
         kTurnEncoderClicksperRevolution = 1024;
         requestDriveReversed = -1;
 
+        requestPigeonFlipped = -1;
+
         // Swerve Module Positions (relative to the center of the drive base)
         kVehicleToBackRight = new Translation2d(kWheelbaseLength / 2, -kWheelbaseWidth / 2);
         kVehicleToBackLeft = new Translation2d(-kWheelbaseLength / 2, -kWheelbaseWidth / 2);

@@ -63,8 +63,13 @@ public class Robot extends TimedRobot {
     mSwerve = SwerveDrive.getInstance();
 
     // Subsytem Manager
-    subsystems = new SubsystemManager(Arrays.asList(mSwerve, Pigeon.getInstance(), Arm.getInstance(),
-        Wrist.getInstance(), Extension.getInstance(), Intake.getInstance()));
+    if (RobotState.getInstance().getCurrentRobot().equals(Bot.FFSwerve)) {
+      subsystems = new SubsystemManager(Arrays.asList(mSwerve, Pigeon.getInstance()));
+    } else {
+      subsystems = new SubsystemManager(Arrays.asList(mSwerve, Pigeon.getInstance(), Arm.getInstance(),
+          Wrist.getInstance(), Extension.getInstance(), Intake.getInstance()));
+
+    }
     subsystems.resetSensor();
   }
 
@@ -80,6 +85,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     subsystems.outputToSmartDashboard();
+    System.out.println("ROBOT"+ RobotState.getInstance().getCurrentRobot().name());
   }
 
   /**
@@ -112,25 +118,26 @@ public class Robot extends TimedRobot {
     RobotState.getInstance().setCurrentTheta(Pigeon.getInstance().getYaw());
     // OI.driverJoystick.update();
 
-  //  if (RobotState.getInstance().getAutonDone()) {
+    // if (RobotState.getInstance().getAutonDone()) {
 
-      // switch (SwerveDrive.getInstance().getMode()) {
-      // case TeleopDrive:
-      //   joystickInput();
+    switch (SwerveDrive.getInstance().getMode()) {
+    case TeleopDrive:
+      joystickInput();
 
-      //   break;
-      // case Defense:
-      //   if (!OI.driverJoystick.getStartButton()) {
-      //     mSwerve.setMode(DriveMode.TeleopDrive);
-      //     break;
-      //   }
-      //   mSwerve.defensePosition();
-      //   break;
-      // default:
-      //   break;
-      // }
-  //  }
-    // operatorInput();
+      break;
+    case Defense:
+      if (!OI.driverJoystick.getStartButton()) {
+        mSwerve.setMode(DriveMode.TeleopDrive);
+        break;
+      }
+      mSwerve.defensePosition();
+      break;
+    default:
+      break;
+    }
+    // }
+    operatorInput();
+
     FroggyPoseController.updateOdometry();
     FroggyPoseController.outputPoseToDashboard();
     Arm.getInstance().updateSuperstruture();
@@ -213,7 +220,7 @@ public class Robot extends TimedRobot {
     double lastSnapTarget = 0;
 
     if (swerveRotationInput > -deadband && swerveRotationInput < deadband) {
-      swerveRotationInput = mSwerve.getRotationalOutput();
+      // swerveRotationInput = mSwerve.getRotationalOutput();
     } else {
       mSwerve.rotate(RobotState.getInstance().getCurrentTheta());
     }

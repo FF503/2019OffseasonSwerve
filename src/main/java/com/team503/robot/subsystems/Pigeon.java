@@ -9,6 +9,7 @@ package com.team503.robot.subsystems;
 
 import com.ctre.phoenix.sensors.PigeonIMU;
 import com.ctre.phoenix.sensors.PigeonIMU.PigeonState;
+import com.team503.robot.Robot;
 import com.team503.robot.RobotState;
 import com.team503.robot.auton.FroggyAuton.StartingDirection;
 
@@ -35,7 +36,7 @@ public class Pigeon extends Subsystem {
 			// pigeon = new PigeonIMU(BallIntake.getInstance().getPigeonTalon());
 			pigeon = new PigeonIMU(22/* Ports.PIGEON_ID */);
 		} catch (Exception e) {
-			//System.out.println(e);
+			// System.out.println(e);
 		}
 	}
 
@@ -47,7 +48,7 @@ public class Pigeon extends Subsystem {
 		double[] ypr = new double[3];
 		pigeon.getYawPitchRoll(ypr);
 		PigeonIMU.FusionStatus fusionStatus = new PigeonIMU.FusionStatus();
-		double heading = boundTo360(-pigeon.getFusedHeading(fusionStatus));
+		double heading = boundTo360(Robot.bot.requestPigeonFlipped * pigeon.getFusedHeading(fusionStatus));
 		SmartDashboard.putNumber("Pigeon Heading", heading);
 		return heading/*-ypr[0]*/;
 	}
@@ -82,12 +83,10 @@ public class Pigeon extends Subsystem {
 		setAngle(RobotState.getInstance().getGyroOffset());
 	}
 
-	
-
 	public void setAngle(double angle) {
 		pigeon.setFusedHeading(-angle * 64.0, 10);
 		pigeon.setYaw(-angle, 10);
-		//.println("Pigeon angle set to: " + angle);
+		// .println("Pigeon angle set to: " + angle);
 	}
 
 	private double boundTo360(double angle_degrees) {

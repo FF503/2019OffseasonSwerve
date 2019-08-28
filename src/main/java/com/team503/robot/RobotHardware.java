@@ -59,6 +59,8 @@ public abstract class RobotHardware {
     public double kTurnEncoderClicksperRevolution;
     public double requestDriveReversed;
 
+    public int requestPigeonFlipped;
+
     // Swerve Module Positions (relative to the center of the drive base)
     public Translation2d kVehicleToFrontRight;
     public Translation2d kVehicleToBackRight;

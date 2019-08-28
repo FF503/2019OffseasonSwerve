@@ -304,7 +304,7 @@ public class SwerveDrive extends Subsystem {
     }
 
     public void resetDriveEncoder() {
-        modules.forEach((mod) -> mod.resetDriveEncoder());
+        // modules.forEach((mod) -> mod.resetDriveEncoder());
     }
 
     @Override

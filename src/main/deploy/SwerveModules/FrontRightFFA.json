@@ -4,7 +4,7 @@
     "turnMotorID": 6,
     "P": 2.0,
     "I": 0.001,
-    "D": 20,
+    "D": 20.0,
     "F": 0.7314,
     "startingEncoderClick": 180,
     "cruiseVelocity": 1400,
