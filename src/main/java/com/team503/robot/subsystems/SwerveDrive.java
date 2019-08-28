@@ -342,6 +342,9 @@ public class SwerveDrive extends Subsystem {
         SmartDashboard.putNumber("LR Power: ", backLeft.getMotorPower());
         SmartDashboard.putNumber("LF Power: ", frontLeft.getMotorPower());
         SmartDashboard.putBoolean("Field Centric", isFieldCentric());
+        SmartDashboard.putString("Snap State", headingController.getState().toString());
+        // SmartDashboard.putNumber("Snap Angle", headingController.getTargetAngle());
+        // SmartDashboard.putNumber("Snap Output", headingController.getRotationalOutput());
     }
 
     @Override

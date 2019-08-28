@@ -61,8 +61,8 @@ public class SwerveHeadingController {
     }
 
     public double getRotationalOutput() {
-        SmartDashboard.putNumber("Target Heading", targetHeading);
-        SmartDashboard.putString("State", currentState.toString());
+        SmartDashboard.putNumber("Snap Target Heading", targetHeading);
+        SmartDashboard.putString("Snap State", currentState.toString());
         double output = 0;
         double heading = RobotState.getInstance().getCurrentTheta();
 
@@ -91,5 +91,9 @@ public class SwerveHeadingController {
         }
 
         return output;
+    }
+
+    public double getTargetAngle() {
+        return targetHeading;
     }
 }

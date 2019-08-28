@@ -216,11 +216,11 @@ public class Robot extends TimedRobot {
     double swerveXInput = OI.getDriverLeftXVal();
     double swerveRotationInput = OI.getDriverRightXVal();
     boolean lowPower = OI.getDriverRightTriggerPressed();
-    double deadband = 0.010;
+    double deadband = 0.015;
     double lastSnapTarget = 0;
 
     if (swerveRotationInput > -deadband && swerveRotationInput < deadband) {
-      // swerveRotationInput = mSwerve.getRotationalOutput();
+      swerveRotationInput = mSwerve.getRotationalOutput();
     } else {
       mSwerve.rotate(RobotState.getInstance().getCurrentTheta());
     }
