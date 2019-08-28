@@ -8,6 +8,22 @@
 package com.team503.robot;
 
 import com.team503.lib.io.Xbox;
+import com.team503.robot.RobotState.ArmDirection;
+import com.team503.robot.RobotState.GameElement;
+import com.team503.robot.RobotState.TargetHeight;
+import com.team503.robot.commands.ConstantIntakeCommand;
+import com.team503.robot.commands.EjectBall;
+import com.team503.robot.commands.GameElementSwitcher;
+import com.team503.robot.commands.MoveArmCommand;
+import com.team503.robot.commands.ReleaseHatch;
+import com.team503.robot.commands.ResetEncoderCommand;
+import com.team503.robot.commands.SwitchArmDirection;
+import com.team503.robot.commands.TargetHeightSwitcher;
+import com.team503.robot.commands.ToggleControlMode;
+import com.team503.robot.commands.ToggleIntake;
+import com.team503.robot.subsystems.Limelight;
+import com.team503.robot.subsystems.SwerveDrive;
+import com.team503.robot.subsystems.SwerveDrive.DriveMode;
 
 import edu.wpi.first.wpilibj.buttons.Button;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
@@ -175,7 +191,108 @@ public class OI {
 	public static boolean getOperatorRJ(){
 		return operatorRJ.get();
 	}
-
+	public static void joystickInput(SwerveDrive swerve, Limelight lime) {
+		double swerveYInput = -getDriverLeftYVal();
+		double swerveXInput = getDriverLeftXVal();
+		double swerveRotationInput = getDriverRightXVal();
+		boolean lowPower = getDriverRightTriggerPressed();
+		double deadband = 0.010;
+		double lastSnapTarget = 0;
+	
+		if (swerveRotationInput > -deadband && swerveRotationInput < deadband) {
+		  swerveRotationInput = swerve.getRotationalOutput();
+		} else {
+			swerve.rotate(RobotState.getInstance().getCurrentTheta());
+		}
+	
+		if (getDriverYButton()) {
+			swerve.visionFollow();
+		} else {
+		  lime.setPipeline(Robot.bot.DRIVE_VIEW);
+		  if (driverJoystick.leftBumper.shortReleased()) {
+			swerve.rotate(-30);
+			swerveRotationInput = swerve.getRotationalOutput();
+		  } else if (driverJoystick.leftBumper.longPressed()) {
+			swerve.rotate(-150.0);
+			swerveRotationInput = swerve.getRotationalOutput();
+		  } else if (driverJoystick.rightBumper.shortReleased()) {
+			swerve.rotate(30);
+			swerveRotationInput = swerve.getRotationalOutput();
+		  } else if (driverJoystick.rightBumper.longPressed()) {
+			swerve.rotate(150.0);
+			swerveRotationInput = swerve.getRotationalOutput();
+		  } else if (driverJoystick.getPOV() == 180) {
+			swerve.rotate(179);
+			swerveRotationInput = swerve.getRotationalOutput();
+		  } else if (driverJoystick.getPOV() == 90) {
+			swerve.rotate(90);
+			swerveRotationInput = swerve.getRotationalOutput();
+		  } else if (driverJoystick.getPOV() == 270) {
+			swerve.rotate(270);
+			swerveRotationInput = swerve.getRotationalOutput();
+		  } else if (driverJoystick.getPOV() == 0) {
+			swerve.rotate(1);
+			swerveRotationInput = swerve.getRotationalOutput();
+		  } else if (driverJoystick.getStartButtonPressed()) {
+			swerve.setMode(DriveMode.Defense);
+		  }
+		  swerve.setFieldCentric(!getDriverRightTriggerPressed());
+		  swerve.drive(swerveXInput, swerveYInput, swerveRotationInput, lowPower);
+		}
+	  }
+	
+	  public static void operatorInput() {
+		if (getOperatorA()) {
+		  RobotState.getInstance().setArmDirection(ArmDirection.FRONT);
+		  TargetHeightSwitcher.set(RobotState.TargetHeight.LOW);
+		} else if (getOperatorB()) {
+		  if (RobotState.getInstance().getGameElement() == GameElement.CARGO) {
+			RobotState.getInstance().setArmDirection(ArmDirection.BACK);
+		  } else {
+			RobotState.getInstance().setArmDirection(ArmDirection.FRONT);
+		  }
+		  TargetHeightSwitcher.set(RobotState.TargetHeight.MIDDLE);
+		} else if (getOperatorX()) {
+		  RobotState.getInstance().setArmDirection(ArmDirection.FRONT);
+		  TargetHeightSwitcher.set(RobotState.TargetHeight.BUS);
+		} else if (getOperatorY()) {
+		  if (RobotState.getInstance().getGameElement() == GameElement.CARGO) {
+			RobotState.getInstance().setArmDirection(ArmDirection.BACK);
+		  } else {
+			RobotState.getInstance().setArmDirection(ArmDirection.FRONT);
+		  }
+		  TargetHeightSwitcher.set(RobotState.TargetHeight.HIGH);
+		} else if (getOperatorMenu()) {
+		  RobotState.getInstance().setArmDirection(ArmDirection.FRONT);
+		  TargetHeightSwitcher.set(RobotState.TargetHeight.INTAKE);
+		} else if (getOperatorRightBumper()) {
+		  TargetHeightSwitcher.set(RobotState.TargetHeight.HOME);
+		} else if (getOperatorLeftBumper()) {
+		  SwitchArmDirection.flip();
+		} else if (getOperatorHatchSwitch()) {
+		  GameElementSwitcher.setGameElement(GameElement.HATCH);
+		} else if (getOperatorCargoSwitch()) {
+		  GameElementSwitcher.setGameElement(GameElement.CARGO);
+		} else if (getOperatorSelect()) {
+		  ToggleControlMode.toggle();
+		} else if (getDriverXButton()) {
+		  ToggleIntake.toggleIntake();
+		}
+		ToggleIntake.handleIntakeFinish();
+		if (getDriverBButton()) {
+		  EjectBall.eject();
+		} else {
+		  EjectBall.stopEject();
+		}
+		if (getDriverAButton()) {
+		  ReleaseHatch.startRelease();
+		}
+		ReleaseHatch.handleFinish();
+		if (getOperatorRJ()) {
+		  ResetEncoderCommand.resetEncs();
+		}
+	
+	  }
 
 	
 }
