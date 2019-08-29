@@ -84,17 +84,16 @@ public class ChassisSpeeds {
                 -vx * robotAngle.getSin() + vy * robotAngle.getCos(), omega);
     }
 
-
+    //(x, y) --------> (y, -x)
+    //(x, y) --------> (-y, x)
     public ChassisSpeeds convertToNormalCoordinates() {
         double vx = this.vy;
         double vy = -this.vx;
         return new ChassisSpeeds(vx, vy, this.omega);
     }
 
-    //Only after you converted to normal coord
     public ChassisSpeeds toFieldRelative(Rotation2d robotHeading) {
-        Translation2d translation = new Translation2d(this.vx, this.vy);
-        translation = translation.rotateBy(robotHeading.unaryMinus());
+        Translation2d translation = getTranslation().rotateBy(robotHeading.unaryMinus());
         return new ChassisSpeeds(translation.getX(), translation.getY(), this.omega);
     }
 

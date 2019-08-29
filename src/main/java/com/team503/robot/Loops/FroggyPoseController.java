@@ -49,7 +49,7 @@ public class FroggyPoseController {
         table.putNumber("Current Pose Time", robotPose.getTimestamp());        
         table.putNumber("Current Pose X", robotPose.getX());
         table.putNumber("Current Pose Y", robotPose.getY());
-        table.putNumber("Current Pose Theta", robotPose.getTimestamp());
+        table.putNumber("Current Pose Theta", robotPose.getTheta());
     }
 
 }
