@@ -98,6 +98,10 @@ public class ChassisSpeeds {
         return new ChassisSpeeds(translation.getX(), translation.getY(), this.omega);
     }
 
+    public Translation2d getTranslation() {
+        return new Translation2d(this.vx, this.vy);
+    }
+
     public String toString() {
         return "X: " + vx + "Y: " + vy;
     }

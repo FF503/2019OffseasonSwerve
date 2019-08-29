@@ -45,8 +45,11 @@ public class FroggyPoseController {
     public static synchronized void outputPoseToDashboard() {
         final Pose robotPose = RobotState.getInstance().getCurrentPose();
         table.putString("Current Pose", robotPose.toString());
+
+        table.putNumber("Current Pose Time", robotPose.getTimestamp());        
         table.putNumber("Current Pose X", robotPose.getX());
         table.putNumber("Current Pose Y", robotPose.getY());
+        table.putNumber("Current Pose Theta", robotPose.getTimestamp());
     }
 
 }
