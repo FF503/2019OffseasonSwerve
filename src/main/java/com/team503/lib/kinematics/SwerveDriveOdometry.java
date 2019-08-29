@@ -13,6 +13,8 @@ import com.team503.lib.geometry.Translation2d;
 import com.team503.lib.geometry.Twist2d;
 import com.team503.lib.util.FFDashboard;
 
+import edu.wpi.first.wpilibj.Timer;
+
 /**
  * Class for swerve drive odometry. Odometry allows you to track the robot's
  * position on the field over a course of a match using readings from your
@@ -141,7 +143,7 @@ public class SwerveDriveOdometry {
      * @return The new pose of the robot.
      */
     public synchronized Pose update(SwerveModuleState... moduleStates) {
-        return updateWithTime(System.currentTimeMillis() / 1000.0, moduleStates);
+        return updateWithTime(Timer.getFPGATimestamp(), moduleStates);
     }
 
     /**
@@ -156,7 +158,7 @@ public class SwerveDriveOdometry {
      * @return The new pose of the robot.
      */
     public synchronized Pose update(Rotation2d robotAngle, SwerveModuleState... moduleStates) {
-        return updateWithTime(System.currentTimeMillis() / 1000.0, robotAngle, moduleStates);
+        return updateWithTime(Timer.getFPGATimestamp(), robotAngle, moduleStates);
     }
 
     /**
@@ -174,6 +176,6 @@ public class SwerveDriveOdometry {
      * @return The new pose of the robot.
      */
     public synchronized Pose update(double angularRateRadians, SwerveModuleState... moduleStates) {
-        return updateWithTime(System.currentTimeMillis() / 1000.0, angularRateRadians, moduleStates);
+        return updateWithTime(Timer.getFPGATimestamp(), angularRateRadians, moduleStates);
     }
 }
