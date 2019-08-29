@@ -10,7 +10,9 @@ package com.team503.robot.auton;
 import com.team503.lib.geometry.Pose;
 import com.team503.lib.util.FFDashboard;
 import com.team503.lib.util.ProfileLoader;
+import com.team503.lib.util.SnappingPosition;
 import com.team503.robot.RobotState;
+import com.team503.robot.commands.SetSnappingAngle;
 import com.team503.robot.loops.FroggyPoseController;
 
 import edu.wpi.first.wpilibj.command.CommandGroup;
@@ -61,9 +63,18 @@ public abstract class FroggyAuton extends CommandGroup {
         return loader;
     }
 
+    public void froggySequentialDrive(String file, SnappingPosition pos) {
+        addParallel(new SetSnappingAngle(pos));
+        froggySequentialDrive(file);
+    }
+
+    public void froggyParallelDrive(String file, SnappingPosition pos) {
+        addParallel(new SetSnappingAngle(pos));
+        froggyParallelDrive(file);
+    }
+
     public void froggySequentialDrive(String file) {
         ProfileLoader loader = getProfileInfo(file);
-        FFDashboard.getInstance().putNumber("Segments", loader.getTrajectory().getNumSegments());
         addSequential(new FollowTrajectoryCommand(loader.getTrajectory()));
     }
 

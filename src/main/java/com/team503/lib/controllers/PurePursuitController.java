@@ -2,6 +2,7 @@ package com.team503.lib.controllers;
 
 import com.team503.lib.geometry.Pose;
 import com.team503.lib.geometry.Translation2d;
+import com.team503.lib.util.FFDashboard;
 import com.team503.robot.Robot;
 
 import edu.wpi.first.wpilibj.Timer;
@@ -12,6 +13,8 @@ public class PurePursuitController {
     private final Trajectory traj;
     private final Lookahead mLookahead;
     private int theoreticalSegmentIndex = 0, lookAheadIndex = 0, closestSegmentIndex = 0;
+
+    private FFDashboard table = new FFDashboard("PurePursuit");
 
     private boolean isReversed = false;
     private Translation2d lookaheadPoint;
@@ -34,12 +37,24 @@ public class PurePursuitController {
         this.pose = robotPose;
         Segment closest = getClosestSegment(robotPose);
         this.lookaheadDistance = getLookaheadDistance(robotPose.toVector(), closest, mLookahead);
+        table.putNumber("Lookahead Distance", this.lookaheadDistance);
         this.lookaheadPoint = getLookAhead(robotPose, lookaheadDistance);
+        table.putNumber("Lookahead X", lookaheadPoint.getX());
+        table.putNumber("Lookahead Y", lookaheadPoint.getY());
+
         Translation2d robotToLookahead = new Translation2d(lookaheadPoint).minus(robotPose.toVector());
 
         Translation2d velocityVector = scaleVectorToDesiredVelocity(robotToLookahead, closest.vel);
         lastPose = robotPose.copy();
-        return applyFeedForward(velocityVector);
+
+        table.putNumber("Target Velocity X", velocityVector.getX());
+        table.putNumber("Target Velocity Y", velocityVector.getY());
+        table.putNumber("Target Velocity (Mag)", velocityVector.getNorm());
+
+        Translation2d calculatedDriveVector = applyFeedForward(velocityVector);
+        table.putNumber("Drive X", calculatedDriveVector.getX());
+        table.putNumber("Drive Y", calculatedDriveVector.getY());
+        return calculatedDriveVector;
     }
 
     private double getLookaheadDistance(Translation2d robot, Segment closest, Lookahead lookahead) {
