@@ -9,6 +9,7 @@ package com.team503.lib.kinematics;
 
 import com.team503.lib.geometry.Pose;
 import com.team503.lib.geometry.Rotation2d;
+import com.team503.lib.geometry.Transform2d;
 import com.team503.lib.geometry.Translation2d;
 import com.team503.lib.geometry.Twist2d;
 import com.team503.lib.util.FFDashboard;
@@ -30,6 +31,7 @@ public class SwerveDriveOdometry {
     private Pose m_pose;
     private double m_prevTimeSeconds = -1;
     private FFDashboard table = new FFDashboard("Localization");
+    private final CalculationMode calcMode = CalculationMode.Linear;
 
     /**
      * Constructs a SwerveDriveOdometry object.
@@ -78,8 +80,8 @@ public class SwerveDriveOdometry {
 
         ChassisSpeeds chassisState = m_kinematics.toChassisSpeeds(moduleStates);
 
-        m_pose = m_pose
-                .exp(new Twist2d(chassisState.vx * period, chassisState.vy * period, chassisState.omega * period));
+        m_pose = m_pose.plus(m_pose
+                .exp(new Twist2d(chassisState.vy * period, chassisState.vy * period, chassisState.omega * period)));
         m_pose.setTimestamp(currentTimeSeconds);
         return m_pose;
     }
@@ -98,9 +100,20 @@ public class SwerveDriveOdometry {
         table.putNumber("Robot Velocity (Mag)", Math.hypot(chassisState.vy, chassisState.vx));
         table.putNumber("Robot Acceleration (Mag)", Math.hypot(chassisState.vy / period, chassisState.vx / period));
 
-        Translation2d positionVector = m_pose.getTranslation().plus(chassisState.getTranslation().times(period));
-        m_pose.update(currentTimeSeconds, positionVector, 90.0 - robotHeading.getDegrees());
-        // m_pose = m_pose.exp(new Twist2d(chassisState.vx * period, chassisState.vy * period, chassisState.omega * period));
+        if (calcMode == CalculationMode.Linear) {
+            Translation2d positionVector = m_pose.getTranslation().plus(chassisState.getTranslation().times(period));
+            m_pose.update(currentTimeSeconds, positionVector, 90.0 - robotHeading.getDegrees());
+        } else {
+            Transform2d transform2d = m_pose
+                    .exp(new Twist2d(-chassisState.vy * period, chassisState.vx * period, chassisState.omega * period));
+            table.putNumber("Transform X", transform2d.getTranslation().getX());
+            table.putNumber("Transform Y", transform2d.getTranslation().getY());
+            Translation2d positionVector = m_pose.getTranslation()
+                    .plus(transform2d.getTranslation().rotateBy(m_pose.getRotation()));
+            positionVector = new Translation2d(positionVector.getY(), -positionVector.getX());
+            Rotation2d rotation = m_pose.getRotation().plus(transform2d.getRotation());
+            m_pose.update(currentTimeSeconds, positionVector, rotation.getDegrees());
+        }
         return m_pose;
     }
 
@@ -125,8 +138,8 @@ public class SwerveDriveOdometry {
         m_prevTimeSeconds = currentTimeSeconds;
 
         var chassisState = m_kinematics.toChassisSpeeds(moduleStates);
-        m_pose = m_pose
-                .exp(new Twist2d(chassisState.vx * period, chassisState.vy * period, angularRateRadians * period));
+        m_pose = m_pose.plus(m_pose
+                .exp(new Twist2d(chassisState.vx * period, chassisState.vy * period, angularRateRadians * period)));
 
         return m_pose;
     }
@@ -177,5 +190,9 @@ public class SwerveDriveOdometry {
      */
     public synchronized Pose update(double angularRateRadians, SwerveModuleState... moduleStates) {
         return updateWithTime(Timer.getFPGATimestamp(), angularRateRadians, moduleStates);
+    }
+
+    private enum CalculationMode {
+        Linear, Non_Linear;
     }
 }
