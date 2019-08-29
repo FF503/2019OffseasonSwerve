@@ -192,6 +192,7 @@ public class SwerveDrive extends Subsystem {
         }
 
         // Send speeds and angles to the drive motors
+        
 
         backRight.drive(backRightSpeed, backRightAngle);
         backLeft.drive(backLeftSpeed, backLeftAngle);
@@ -202,6 +203,11 @@ public class SwerveDrive extends Subsystem {
         SmartDashboard.putNumber("RF Calc Angle (deg)", frontRightAngle);
         SmartDashboard.putNumber("LR Calc Angle (deg)", backLeftAngle);
         SmartDashboard.putNumber("RR Calc Angle (deg)", backRightAngle);
+
+        System.out.println("LF Calc Angle (deg)"+ frontLeftAngle);
+        System.out.println("RF Calc Angle (deg)"+ frontRightAngle);
+        System.out.println("LR Calc Angle (deg)"+ backLeftAngle);
+        System.out.println("RR Calc Angle (deg)"+ backRightAngle);
     }
 
     public void defensePosition() {

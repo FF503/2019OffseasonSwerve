@@ -50,6 +50,8 @@ public class SwerveModule {
     private boolean kDriveEncoderInverted;
     private boolean kTurnMotorInverted;
     private boolean kTurnEncoderInverted;
+    
+    private double lastSetAngle = 0.0;
 
     public SwerveModule(int driveMotorID, int turnMotorID, double P, double I, double D, double F,
             int startingEncoderClick, int cruiseVelocity, int cruiseAccel, boolean turnCountsDecreasing,
@@ -112,6 +114,8 @@ public class SwerveModule {
     public void drive(double speed, double angle) {
         this.power = speed;
         setDriveMotorSpeed(speed);
+        
+
 
         // angle is bound to -180 - +180 and degrees are from 0-360
         // convert bounded angle into true compass degrees
@@ -139,8 +143,9 @@ public class SwerveModule {
                 desiredclicks -= kTurnEncoderClicksperRevolution;
             }
         }
-
-        turnMotor.set(ControlMode.MotionMagic, desiredclicks);
+        if (Math.abs(speed) > 0.02){
+            turnMotor.set(ControlMode.MotionMagic, desiredclicks);
+        }
     }
 
     public void setDriveMotorSpeed(double speed) {
