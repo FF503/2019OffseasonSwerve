@@ -122,12 +122,19 @@ public class SwerveDrive extends Subsystem {
         drive(str, fwd, rotationalInput, lowPower);
     }
 
+    public void snapForward(){
+        // backRight.drive(503.0, 0.0);
+        // backLeft.drive(503.0, 0.0);
+        // frontRight.drive(503.0, 0.0);
+        // frontLeft.drive(503.0, 0.0);
+    }
+
     // Takes joystick input an calculates drive wheel speed and turn motor angle
     public void drive(double str, double fwd, double rcw, boolean lowPower) {
         str *= (lowPower ? 0.3 : 1.0) * Robot.bot.requestDriveReversed;
         fwd *= (lowPower ? 0.5 : 1.0) * Robot.bot.requestDriveReversed;
         rcw *= lowPower ? 0.5 : 1.0;
-
+        rcw = 0.0;
         if (fieldCentric) {
             double angle = Math.toRadians(RobotState.getInstance().getCurrentTheta());
             double temp = fwd * Math.cos(angle) + str * Math.sin(angle);
@@ -170,29 +177,43 @@ public class SwerveDrive extends Subsystem {
             backLeftSpeed /= max;
             backRightSpeed /= max;
         }
-
+        boolean reversing = false;
+        modules.forEach((mod)-> System.out.println(mod.getMotorPower()));
+        modules.forEach((mod)-> System.out.println(Util.boundAngle0to360Degrees(mod.getTurnEncoderPositioninDegrees())));
+        System.out.println("LF Calc Angle (deg)"+ Util.boundAngle0to360Degrees(frontLeftAngle));
+        System.out.println("RF Calc Angle (deg)"+ Util.boundAngle0to360Degrees(frontRightAngle));
+        System.out.println("LR Calc Angle (deg)"+ Util.boundAngle0to360Degrees(backLeftAngle));
+        System.out.println("RR Calc Angle (deg)"+ Util.boundAngle0to360Degrees(backRightAngle));
         if (shouldReverse(backRightAngle, backRight.getTurnEncoderPositioninDegrees())) {
             backRightAngle += 180;
             backRightSpeed *= -1;
+            reversing = !reversing;
         }
 
-        if (shouldReverse(backLeftAngle, backLeft.getTurnEncoderPositioninDegrees())) {
+        if (shouldReverse(backRightAngle, backRight.getTurnEncoderPositioninDegrees())) {
             backLeftAngle += 180;
             backLeftSpeed *= -1;
+            reversing = !reversing;
+
         }
 
-        if (shouldReverse(frontRightAngle, frontRight.getTurnEncoderPositioninDegrees())) {
+        if (shouldReverse(backRightAngle, backRight.getTurnEncoderPositioninDegrees())) {
             frontRightAngle += 180;
             frontRightSpeed *= -1;
+            reversing = !reversing;
         }
 
-        if (shouldReverse(frontLeftAngle, frontLeft.getTurnEncoderPositioninDegrees())) {
+        if (shouldReverse(backRightAngle, backRight.getTurnEncoderPositioninDegrees())) {
             frontLeftAngle += 180;
             frontLeftSpeed *= -1;
+            reversing = !reversing;
+        }
+        if (reversing){
+            System.out.println("REVERSING SOME BUT NOT OTHERS");
         }
 
         // Send speeds and angles to the drive motors
-        
+
 
         backRight.drive(backRightSpeed, backRightAngle);
         backLeft.drive(backLeftSpeed, backLeftAngle);
@@ -203,11 +224,7 @@ public class SwerveDrive extends Subsystem {
         SmartDashboard.putNumber("RF Calc Angle (deg)", frontRightAngle);
         SmartDashboard.putNumber("LR Calc Angle (deg)", backLeftAngle);
         SmartDashboard.putNumber("RR Calc Angle (deg)", backRightAngle);
-
-        System.out.println("LF Calc Angle (deg)"+ frontLeftAngle);
-        System.out.println("RF Calc Angle (deg)"+ frontRightAngle);
-        System.out.println("LR Calc Angle (deg)"+ backLeftAngle);
-        System.out.println("RR Calc Angle (deg)"+ backRightAngle);
+   
     }
 
     public void defensePosition() {
@@ -282,7 +299,7 @@ public class SwerveDrive extends Subsystem {
      * @return if the module phase should be inverted
      */
     private boolean shouldReverse(double goalAngle, double currentAngle) {
-        return Util.shouldReverse(goalAngle, currentAngle);
+        return Util.alternateShouldReverse(goalAngle, currentAngle);
     }
 
     public Translation2d getCenterOfRotation() {

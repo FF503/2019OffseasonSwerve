@@ -112,17 +112,22 @@ public class SwerveModule {
     }
 
     public void drive(double speed, double angle) {
-        this.power = speed;
-        setDriveMotorSpeed(speed);
+        double trueSpeed = speed;
+        if (speed == 503.0){
+            trueSpeed = 0.0;
+        }
+        this.power = trueSpeed;
+        setDriveMotorSpeed(trueSpeed);
         
 
 
         // angle is bound to -180 - +180 and degrees are from 0-360
         // convert bounded angle into true compass degrees
-        double trueAngle = angle;
-        if (angle < 0) {
-            trueAngle = 180 + (180 + angle);
-        }
+        // double trueAngle = angle;
+        // if (angle < 0) {
+        //     trueAngle = 180 + (180 + angle);
+        // }
+        double trueAngle = Util.boundAngle0to360Degrees(angle);
 
         // convert angle (0-360) into encoder clicks (0-1024)
         int desiredclicks = (int) Math.round(trueAngle * kAzimuthClicksPerDegree);
@@ -143,10 +148,12 @@ public class SwerveModule {
                 desiredclicks -= kTurnEncoderClicksperRevolution;
             }
         }
-        if (Math.abs(speed) > 0.02){
+        if (Math.abs(speed) > 0.02 || speed == 503.0){
             turnMotor.set(ControlMode.MotionMagic, desiredclicks);
         }
     }
+
+    
 
     public void setDriveMotorSpeed(double speed) {
         driveMotor.set(speed);

@@ -85,7 +85,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     subsystems.outputToSmartDashboard();
-    System.out.println("ROBOT"+ RobotState.getInstance().getCurrentRobot().name());
+    //System.out.println("ROBOT"+ RobotState.getInstance().getCurrentRobot().name());
   }
 
   /**
@@ -151,6 +151,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     mSwerve.setBrakeMode();
+    mSwerve.snapForward();
     Intake.getInstance().startVacuum();
     LimelightProcessor.getInstance().setPipeline(Pipeline.CLOSEST);
   }

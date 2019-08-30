@@ -140,9 +140,28 @@ public class Util {
         double angleDifference = Math.abs(goalAngle - currentAngle);
         double reversedAngleDifference = Math.abs(goalAngle - reversedAngle);
         angleDifference = (angleDifference > 180) ? 360 - angleDifference : angleDifference;
-        reversedAngleDifference = (reversedAngleDifference > 180) ? 360 - reversedAngleDifference
-                : reversedAngleDifference;
+        reversedAngleDifference = (reversedAngleDifference > 180) ? 360 - reversedAngleDifference: reversedAngleDifference;
+        if (reversedAngle < angleDifference){
+            System.out.println(alternateShouldReverse(goalAngle, currentAngle));
+        }
         return reversedAngleDifference < angleDifference;
+    }
+    /**
+     * written as a possible alternative to test logic (when tested in a test class, it produced the exact same outputs as the other method so this is not the problem)
+     * @param goal
+     * @param cur
+     * @return
+     */
+    public static boolean alternateShouldReverse(double goal, double cur){
+        goal = boundAngle0to360Degrees(goal);
+        cur = boundAngle0to360Degrees(cur);
+        if (Math.abs(goal-cur) <= 90.0){
+            return false;
+        }
+        if (360-Math.abs(goal-cur)>90.0){
+            return true;
+        }
+        return false;
     }
 
     public static double deadBand(double val, double deadband) {
