@@ -86,12 +86,14 @@ public class ChassisSpeeds {
 
     //(x, y) --------> (y, -x)
     //(x, y) --------> (-y, x)
+    @Deprecated
     public ChassisSpeeds convertToNormalCoordinates() {
         double vx = this.vy;
         double vy = -this.vx;
         return new ChassisSpeeds(vx, vy, this.omega);
     }
 
+    @Deprecated
     public ChassisSpeeds toFieldRelative(Rotation2d robotHeading) {
         Translation2d translation = getTranslation().rotateBy(robotHeading.unaryMinus());
         return new ChassisSpeeds(translation.getX(), translation.getY(), this.omega);
