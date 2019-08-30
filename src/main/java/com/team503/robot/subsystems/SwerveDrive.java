@@ -134,7 +134,7 @@ public class SwerveDrive extends Subsystem {
         str *= (lowPower ? 0.3 : 1.0) * Robot.bot.requestDriveReversed;
         fwd *= (lowPower ? 0.5 : 1.0) * Robot.bot.requestDriveReversed;
         rcw *= lowPower ? 0.5 : 1.0;
-        rcw = 0.0;
+       
         if (fieldCentric) {
             double angle = Math.toRadians(RobotState.getInstance().getCurrentTheta());
             double temp = fwd * Math.cos(angle) + str * Math.sin(angle);
@@ -190,20 +190,20 @@ public class SwerveDrive extends Subsystem {
             reversing = !reversing;
         }
 
-        if (shouldReverse(backRightAngle, backRight.getTurnEncoderPositioninDegrees())) {
+        if (shouldReverse(backLeftAngle, backLeft.getTurnEncoderPositioninDegrees())) {
             backLeftAngle += 180;
             backLeftSpeed *= -1;
             reversing = !reversing;
 
         }
 
-        if (shouldReverse(backRightAngle, backRight.getTurnEncoderPositioninDegrees())) {
+        if (shouldReverse(frontRightAngle, frontRight.getTurnEncoderPositioninDegrees())) {
             frontRightAngle += 180;
             frontRightSpeed *= -1;
             reversing = !reversing;
         }
 
-        if (shouldReverse(backRightAngle, backRight.getTurnEncoderPositioninDegrees())) {
+        if (shouldReverse(frontLeftAngle, frontLeft.getTurnEncoderPositioninDegrees())) {
             frontLeftAngle += 180;
             frontLeftSpeed *= -1;
             reversing = !reversing;
