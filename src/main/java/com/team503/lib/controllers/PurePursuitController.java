@@ -34,15 +34,16 @@ public class PurePursuitController {
     }
 
     public Translation2d calculateDriveVector(Pose robotPose) {
+        robotPose = robotPose.getTranslatedPose();
         this.pose = robotPose;
         Segment closest = getClosestSegment(robotPose);
-        this.lookaheadDistance = getLookaheadDistance(robotPose.toVector(), closest, mLookahead);
+        this.lookaheadDistance = getLookaheadDistance(robotPose.toNewVector(), closest, mLookahead);
         table.putNumber("Lookahead Distance", this.lookaheadDistance);
         this.lookaheadPoint = getLookAhead(robotPose, lookaheadDistance);
         table.putNumber("Lookahead X", lookaheadPoint.getX());
         table.putNumber("Lookahead Y", lookaheadPoint.getY());
 
-        Translation2d robotToLookahead = new Translation2d(lookaheadPoint).minus(robotPose.toVector());
+        Translation2d robotToLookahead = new Translation2d(lookaheadPoint).minus(robotPose.toNewVector());
 
         Translation2d velocityVector = scaleVectorToDesiredVelocity(robotToLookahead, closest.vel);
         lastPose = robotPose.copy();
@@ -148,7 +149,7 @@ public class PurePursuitController {
         // double error = targetVelocity - currentVelocity;
         // double output = error * Robot.bot.kP_PurePursuit;
 
-        Translation2d currentVelocity = robotPose.toVector().minus(lastPose.toVector())
+        Translation2d currentVelocity = robotPose.toNewVector().minus(lastPose.toNewVector())
                 .div((robotPose.getTimestamp() - lastPose.getTimestamp()));
         Translation2d error = targetVector.minus(currentVelocity);
         Translation2d output = error.times(Robot.bot.kPurePursuitP);

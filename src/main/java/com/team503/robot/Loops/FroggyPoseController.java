@@ -35,7 +35,8 @@ public class FroggyPoseController {
         for (int i = 0; i < 4; i++) {
             moduleStates[i] = mSwerve.getModules().get(i).getState();
         }
-        RobotState.getInstance().setCurrentPose(mOdometry.update(Rotation2d.fromDegrees(robotAngle), moduleStates));
+        RobotState.getInstance()
+                .setCurrentPose(mOdometry.update(Rotation2d.fromDegrees(robotAngle).unaryMinus(), moduleStates));
     }
 
     public static synchronized void resetPose(final Pose pose) {
@@ -43,10 +44,10 @@ public class FroggyPoseController {
     }
 
     public static synchronized void outputPoseToDashboard() {
-        final Pose robotPose = RobotState.getInstance().getCurrentPose();
-        table.putString("Current Pose", robotPose.toString());
+        final Pose robotPose = RobotState.getInstance().getCurrentPose().getTranslatedPose();
+        // table.putString("Current Pose", robotPose.toString());
 
-        table.putNumber("Current Pose Time", robotPose.getTimestamp());        
+        table.putNumber("Current Pose Time", robotPose.getTimestamp());
         table.putNumber("Current Pose X", robotPose.getX());
         table.putNumber("Current Pose Y", robotPose.getY());
         table.putNumber("Current Pose Theta", robotPose.getTheta());

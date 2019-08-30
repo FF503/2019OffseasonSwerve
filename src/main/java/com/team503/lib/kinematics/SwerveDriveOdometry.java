@@ -9,12 +9,9 @@ package com.team503.lib.kinematics;
 
 import com.team503.lib.geometry.Pose;
 import com.team503.lib.geometry.Rotation2d;
-import com.team503.lib.geometry.Transform2d;
 import com.team503.lib.geometry.Translation2d;
 import com.team503.lib.geometry.Twist2d;
 import com.team503.lib.util.FFDashboard;
-
-import edu.wpi.first.wpilibj.Timer;
 
 /**
  * Class for swerve drive odometry. Odometry allows you to track the robot's
@@ -31,7 +28,10 @@ public class SwerveDriveOdometry {
     private Pose m_pose;
     private double m_prevTimeSeconds = -1;
     private FFDashboard table = new FFDashboard("Localization");
-    private final CalculationMode calcMode = CalculationMode.Linear;
+
+    private final CalculationMode calcMode = CalculationMode.Non_Linear;
+
+    private Rotation2d m_previousAngle;
 
     /**
      * Constructs a SwerveDriveOdometry object.
@@ -42,6 +42,7 @@ public class SwerveDriveOdometry {
     public SwerveDriveOdometry(SwerveDriveKinematics kinematics, Pose initialPose) {
         m_kinematics = kinematics;
         m_pose = initialPose;
+        m_previousAngle = initialPose.getRotation();
     }
 
     /**
@@ -58,63 +59,9 @@ public class SwerveDriveOdometry {
      *
      * @param pose The position on the field that your robot is at.
      */
-    public synchronized void resetPosition(Pose pose) {
+    public void resetPosition(Pose pose) {
         m_pose = pose;
-    }
-
-    /**
-     * Updates the robot's position on the field using forward kinematics and
-     * integration of the pose over time. This method takes in the current time as a
-     * parameter to calculate period (difference between two timestamps). The period
-     * is used to calculate the change in distance from a velocity.
-     *
-     * @param currentTimeSeconds The current time in seconds.
-     * @param moduleStates       The current state of all swerve modules. Please
-     *                           provide the states in the same order in which you
-     *                           instantiated your SwerveDriveKinematics.
-     * @return The new pose of the robot.
-     */
-    public synchronized Pose updateWithTime(double currentTimeSeconds, SwerveModuleState... moduleStates) {
-        double period = m_prevTimeSeconds >= 0 ? currentTimeSeconds - m_prevTimeSeconds : 0.0;
-        m_prevTimeSeconds = currentTimeSeconds;
-
-        ChassisSpeeds chassisState = m_kinematics.toChassisSpeeds(moduleStates);
-
-        m_pose = m_pose.plus(m_pose
-                .exp(new Twist2d(chassisState.vy * period, chassisState.vy * period, chassisState.omega * period)));
-        m_pose.setTimestamp(currentTimeSeconds);
-        return m_pose;
-    }
-
-    public synchronized Pose updateWithTime(double currentTimeSeconds, Rotation2d robotHeading,
-            SwerveModuleState... moduleStates) {
-        double period = m_prevTimeSeconds >= 0 ? currentTimeSeconds - m_prevTimeSeconds : 0.0;
-        m_prevTimeSeconds = currentTimeSeconds;
-
-        ChassisSpeeds chassisState = m_kinematics.toChassisSpeeds(moduleStates).convertToNormalCoordinates()
-                .toFieldRelative(robotHeading);
-
-        table.putNumber("Current Time", currentTimeSeconds);
-        table.putNumber("Robot Velocity X", chassisState.vx);
-        table.putNumber("Robot Velocity Y", chassisState.vy);
-        table.putNumber("Robot Velocity (Mag)", Math.hypot(chassisState.vy, chassisState.vx));
-        table.putNumber("Robot Acceleration (Mag)", Math.hypot(chassisState.vy / period, chassisState.vx / period));
-
-        if (calcMode == CalculationMode.Linear) {
-            Translation2d positionVector = m_pose.getTranslation().plus(chassisState.getTranslation().times(period));
-            m_pose.update(currentTimeSeconds, positionVector, 90.0 - robotHeading.getDegrees());
-        } else {
-            Transform2d transform2d = m_pose
-                    .exp(new Twist2d(-chassisState.vy * period, chassisState.vx * period, chassisState.omega * period));
-            table.putNumber("Transform X", transform2d.getTranslation().getX());
-            table.putNumber("Transform Y", transform2d.getTranslation().getY());
-            Translation2d positionVector = m_pose.getTranslation()
-                    .plus(transform2d.getTranslation().rotateBy(m_pose.getRotation()));
-            positionVector = new Translation2d(positionVector.getY(), -positionVector.getX());
-            Rotation2d rotation = m_pose.getRotation().plus(transform2d.getRotation());
-            m_pose.update(currentTimeSeconds, positionVector, rotation.getDegrees());
-        }
-        return m_pose;
+        m_previousAngle = pose.getRotation();
     }
 
     /**
@@ -122,25 +69,38 @@ public class SwerveDriveOdometry {
      * integration of the pose over time. This method takes in the current time as a
      * parameter to calculate period (difference between two timestamps). The period
      * is used to calculate the change in distance from a velocity. This also takes
-     * in an angular rate parameter which is used instead of the angular rate that
-     * is calculated from forward kinematics.
+     * in an angle parameter which is used instead of the angular rate that is
+     * calculated from forward kinematics.
      *
      * @param currentTimeSeconds The current time in seconds.
-     * @param angularRateRadians The angular rate of the robot in radians.
+     * @param angle              The angle of the robot.
      * @param moduleStates       The current state of all swerve modules. Please
      *                           provide the states in the same order in which you
      *                           instantiated your SwerveDriveKinematics.
      * @return The new pose of the robot.
      */
-    public synchronized Pose updateWithTime(double currentTimeSeconds, double angularRateRadians,
-            SwerveModuleState... moduleStates) {
+    public Pose updateWithTime(double currentTimeSeconds, Rotation2d angle, SwerveModuleState... moduleStates) {
         double period = m_prevTimeSeconds >= 0 ? currentTimeSeconds - m_prevTimeSeconds : 0.0;
         m_prevTimeSeconds = currentTimeSeconds;
 
         var chassisState = m_kinematics.toChassisSpeeds(moduleStates);
-        m_pose = m_pose.plus(m_pose
-                .exp(new Twist2d(chassisState.vx * period, chassisState.vy * period, angularRateRadians * period)));
+        Pose newPose;
+        if (calcMode == CalculationMode.Non_Linear) {
+            newPose = m_pose.plus(m_pose.exp(new Twist2d(chassisState.vx * period, chassisState.vy * period,
+                    angle.minus(m_previousAngle).getRadians())));
+        } else {
+            Translation2d positionVector = m_pose.getTranslation().plus(chassisState.getTranslation().times(period));
+            newPose = new Pose(positionVector, angle.getDegrees());
+        }
 
+        table.putNumber("Current Time", currentTimeSeconds);
+        table.putNumber("Robot Velocity X", chassisState.vx);
+        table.putNumber("Robot Velocity Y", chassisState.vy);
+        table.putNumber("Robot Velocity (Mag)", Math.hypot(chassisState.vy, chassisState.vx));
+        table.putNumber("Robot Acceleration (Mag)", Math.hypot(chassisState.vy / period, chassisState.vx / period));
+
+        m_previousAngle = angle;
+        m_pose = new Pose(currentTimeSeconds, newPose.getTranslation(), angle.getDegrees());
         return m_pose;
     }
 
@@ -148,48 +108,18 @@ public class SwerveDriveOdometry {
      * Updates the robot's position on the field using forward kinematics and
      * integration of the pose over time. This method automatically calculates the
      * current time to calculate period (difference between two timestamps). The
-     * period is used to calculate the change in distance from a velocity.
-     *
-     * @param moduleStates The current state of all swerve modules. Please provide
-     *                     the states in the same order in which you instantiated
-     *                     your SwerveDriveKinematics.
-     * @return The new pose of the robot.
-     */
-    public synchronized Pose update(SwerveModuleState... moduleStates) {
-        return updateWithTime(Timer.getFPGATimestamp(), moduleStates);
-    }
-
-    /**
-     * Updates the robot's position on the field using forward kinematics and
-     * integration of the pose over time. This method automatically calculates the
-     * current time to calculate period (difference between two timestamps). The
-     * period is used to calculate the change in distance from a velocity.
-     *
-     * @param moduleStates The current state of all swerve modules. Please provide
-     *                     the states in the same order in which you instantiated
-     *                     your SwerveDriveKinematics.
-     * @return The new pose of the robot.
-     */
-    public synchronized Pose update(Rotation2d robotAngle, SwerveModuleState... moduleStates) {
-        return updateWithTime(Timer.getFPGATimestamp(), robotAngle, moduleStates);
-    }
-
-    /**
-     * Updates the robot's position on the field using forward kinematics and
-     * integration of the pose over time. This method automatically calculates the
-     * current time to calculate period (difference between two timestamps). The
      * period is used to calculate the change in distance from a velocity. This also
-     * takes in an angular rate parameter which is used instead of the angular rate
-     * that is calculated from forward kinematics.
+     * takes in an angle parameter which is used instead of the angular rate that is
+     * calculated from forward kinematics.
      *
-     * @param angularRateRadians The angular rate of the robot in radians.
-     * @param moduleStates       The current state of all swerve modules. Please
-     *                           provide the states in the same order in which you
-     *                           instantiated your SwerveDriveKinematics.
+     * @param angle        The angle of the robot.
+     * @param moduleStates The current state of all swerve modules. Please provide
+     *                     the states in the same order in which you instantiated
+     *                     your SwerveDriveKinematics.
      * @return The new pose of the robot.
      */
-    public synchronized Pose update(double angularRateRadians, SwerveModuleState... moduleStates) {
-        return updateWithTime(Timer.getFPGATimestamp(), angularRateRadians, moduleStates);
+    public Pose update(Rotation2d angle, SwerveModuleState... moduleStates) {
+        return updateWithTime(System.currentTimeMillis() / 1000.0, angle, moduleStates);
     }
 
     private enum CalculationMode {

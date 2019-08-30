@@ -65,10 +65,9 @@ public class Robot extends TimedRobot {
     // Subsytem Manager
     if (RobotState.getInstance().getCurrentRobot().equals(Bot.FFSwerve)) {
       subsystems = new SubsystemManager(Arrays.asList(mSwerve, Pigeon.getInstance()));
-    } else {
+    } else if(RobotState.getInstance().equals(Bot.ProgrammingBot)){
       subsystems = new SubsystemManager(Arrays.asList(mSwerve, Pigeon.getInstance(), Arm.getInstance(),
           Wrist.getInstance(), Extension.getInstance(), Intake.getInstance()));
-
     }
     subsystems.resetSensor();
   }
@@ -85,7 +84,6 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     subsystems.outputToSmartDashboard();
-    System.out.println("ROBOT"+ RobotState.getInstance().getCurrentRobot().name());
   }
 
   /**

@@ -2,8 +2,8 @@ package com.team503.lib.geometry;
 
 public class Pose {
 	private double timestamp = 0;
-	private double theta = 0, lastTheta = 503.503503503;
-	public Translation2d translation = new Translation2d(), lastTranslation = new Translation2d();
+	private double theta = 0;
+	public Translation2d translation = new Translation2d();
 
 	public Pose(double x, double y, double theta) {
 		this.translation = new Translation2d(x, y);
@@ -17,6 +17,11 @@ public class Pose {
 	}
 
 	public Pose(Translation2d translation2d, double theta) {
+		this(0, translation2d, theta);
+	}
+
+	public Pose(double timestamp, Translation2d translation2d, double theta) {
+		this.timestamp = timestamp;
 		this.translation = translation2d;
 		this.theta = theta;
 	}
@@ -26,9 +31,12 @@ public class Pose {
 	}
 
 	public void update(double timestamp, Translation2d translation2d, double theta) {
-		this.lastTheta = this.theta;
-		this.lastTranslation = this.translation;
 		this.timestamp = timestamp;
+		this.translation = translation2d;
+		this.theta = theta;
+	}
+
+	public void update(Translation2d translation2d, double theta) {
 		this.translation = translation2d;
 		this.theta = theta;
 	}
@@ -38,7 +46,6 @@ public class Pose {
 	}
 
 	public void updateTheta(double theta) {
-		lastTheta = this.theta;
 		this.theta = theta;
 	}
 
@@ -54,19 +61,11 @@ public class Pose {
 		return theta;
 	}
 
-	public double[] get() {
-		return new double[] { getX(), getY(), theta };
-	}
-
 	public double getTimestamp() {
 		return timestamp;
 	}
 
-	public double getLastTheta() {
-		return lastTheta;
-	}
-
-	public Translation2d toVector() {
+	public Translation2d toNewVector() {
 		return (new Translation2d(getX(), getY()));
 	}
 
@@ -76,6 +75,22 @@ public class Pose {
 
 	public String toString() {
 		return "time: " + timestamp + "x:" + translation.getX() + " y: " + translation.getY() + " theta: " + theta;
+	}
+
+	/**
+	 * Returns the other pose relative to the current pose.
+	 *
+	 * <p>
+	 * This function can often be used for trajectory tracking or pose stabilization
+	 * algorithms to get the error between the reference and the current pose.
+	 *
+	 * @param other The pose that is the origin of the new coordinate frame that the
+	 *              current pose will be converted into.
+	 * @return The current pose relative to the new origin pose.
+	 */
+	public Pose relativeTo(Pose other) {
+		var transform = new Transform2d(other, this);
+		return new Pose(transform.getTranslation(), transform.getRotation().getDegrees());
 	}
 
 	/**
@@ -123,17 +138,34 @@ public class Pose {
 		var transform = new Transform2d(new Translation2d(dx * s - dy * c, dx * c + dy * s),
 				new Rotation2d(cosTheta, sinTheta));
 
-		return (transform); //plus(transform);
+		return (transform); // plus(transform);
 	}
 
+	/**
+	 * Transforms the pose by the given transformation and returns the new
+	 * transformed pose.
+	 *
+	 * <p>
+	 * The matrix multiplication is as follows [x_new] [cos, -sin, 0][transform.x]
+	 * [y_new] += [sin, cos, 0][transform.y] [t_new] [0, 0, 1][transform.t]
+	 *
+	 * @param other The transform to transform the pose by.
+	 * @return The transformed pose.
+	 */
 	public Pose plus(Transform2d other) {
 		return transformBy(other);
 	}
 
+	/**
+	 * Transforms the pose by the given transformation and returns the new pose. See
+	 * + operator for the matrix multiplication performed.
+	 *
+	 * @param other The transform to transform the pose by.
+	 * @return The transformed pose.
+	 */
 	public Pose transformBy(Transform2d other) {
-		Rotation2d m_rotation = Rotation2d.fromDegrees(theta);
-		return new Pose(translation.plus(other.getTranslation().rotateBy(m_rotation)),
-				m_rotation.plus(other.getRotation()).getDegrees());
+		return new Pose(getTranslation().plus(other.getTranslation().rotateBy(getRotation())),
+				getRotation().plus(other.getRotation()).getDegrees());
 	}
 
 	/**
@@ -152,6 +184,15 @@ public class Pose {
 	 */
 	public Rotation2d getRotation() {
 		return Rotation2d.fromDegrees(theta);
+	}
+
+	/**
+	 * @return Translated Pose into different coordinated system used in other
+	 *         calculations
+	 */
+	public Pose getTranslatedPose() {
+		Translation2d modifiedTranslation = new Translation2d(getY(), -getX());
+		return new Pose(this.timestamp, modifiedTranslation, 90.0 + this.theta);
 	}
 
 }
