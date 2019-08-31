@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import com.team503.robot.Robot;
 import com.team503.robot.RobotState;
 import com.team503.lib.util.SwerveHeadingController;
 import com.team503.lib.util.SwerveInverseKinematics;
@@ -98,37 +99,21 @@ public class SwerveDrive extends Subsystem {
     }
 
     private SwerveDrive() {
-        frontRight = new SwerveModule(Ports.FRONT_RIGHT_ROTATION, Ports.FRONT_RIGHT_DRIVE, 0,
-                Constants.kFrontRightEncoderStartingPos, Constants.kVehicleToModuleZero);
-        frontLeft = new SwerveModule(Ports.FRONT_LEFT_ROTATION, Ports.FRONT_LEFT_DRIVE, 1,
-                Constants.kFrontLeftEncoderStartingPos, Constants.kVehicleToModuleOne);
-        rearLeft = new SwerveModule(Ports.REAR_LEFT_ROTATION, Ports.REAR_LEFT_DRIVE, 2,
-                Constants.kRearLeftEncoderStartingPos, Constants.kVehicleToModuleTwo);
-        rearRight = new SwerveModule(Ports.REAR_RIGHT_ROTATION, Ports.REAR_RIGHT_DRIVE, 3,
-                Constants.kRearRightEncoderStartingPos, Constants.kVehicleToModuleThree);
+        try {
+            this.rearRight = com.team503.lib.util.Util.readSwerveJSON(Robot.bot.getBackRightName());
+            this.rearLeft = com.team503.lib.util.Util.readSwerveJSON(Robot.bot.getBackLeftName());
+            this.frontRight = com.team503.lib.util.Util.readSwerveJSON(Robot.bot.getFrontRightName());
+            this.frontLeft = com.team503.lib.util.Util.readSwerveJSON(Robot.bot.getFrontLeftName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         modules = Arrays.asList(frontRight, frontLeft, rearLeft, rearRight);
         positionModules = Arrays.asList(frontRight, frontLeft, rearLeft, rearRight);
 
-        // rearLeft.disableDriveEncoder();
-
-        rearLeft.invertDriveMotor(false);
-        frontLeft.invertDriveMotor(false);
-
-        modules.forEach((m) -> m.reverseRotationSensor(true));
-
         pigeon = Pigeon.getInstance();
 
-        pose = new Pose2d();
-        distanceTraveled = 0;
-
-        motionPlanner = new DriveMotionPlanner();
-
         robotState = RobotState.getInstance();
-
-        generator = TrajectoryGenerator.getInstance();
-
-        elevator = Elevator.getInstance();
     }
 
     // Assigns appropriate directions for scrub factors
