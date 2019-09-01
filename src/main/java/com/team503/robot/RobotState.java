@@ -3,8 +3,7 @@ package com.team503.robot;
 import com.team503.lib.geometry.Pose;
 import com.team503.lib.util.FFDashboard;
 import com.team503.robot.auton.FroggyAuton.StartingDirection;
-
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import com.team503.robot.subsystems.Pigeon;
 
 public class RobotState {
 	private Bot currentRobot;
@@ -38,6 +37,7 @@ public class RobotState {
 	}
 
 	public synchronized double getCurrentTheta() {
+		currentTheta = Pigeon.getInstance().getYaw();
 		return currentTheta;
 	}
 
@@ -110,8 +110,7 @@ public class RobotState {
 		FRONT_CARGO_BUS(44.5, -27.8, 0.), BACK_CARGO_BUS(111, 53. + 180., 0.), FRONT_CARGO_INTAKE(-48, -15.5, 0.),
 		FRONT_CARGO_LOW(-12.0, 2., 0.), FRONT_CARGO_MID(69., -5., 0.), // 0., -3., 0.
 		FRONT_CARGO_HIGH(84.0, 48.0, 12.7), BACK_CARGO_INTAKE(222, 183, 0.), BACK_CARGO_LOW(170., 180., 0.),
-		BACK_CARGO_MID(94., 173., 0.)
-		, BACK_CARGO_HIGH(86., 124., 12.), FRONT_HATCH_INTAKE(-32, 85.0, 6.),
+		BACK_CARGO_MID(94., 173., 0.), BACK_CARGO_HIGH(86., 124., 12.), FRONT_HATCH_INTAKE(-32, 85.0, 6.),
 		FRONT_HATCH_LOW(-44, 85, 6.), FRONT_HATCH_MID(8.0 /* 13 */, 83. /* 90 */, 0.),
 		FRONT_HATCH_HIGH(59., 88.0, 12.3), BACK_HATCH_INTAKE(187., 90. + 180., 0.), BACK_HATCH_LOW(187., 255., 0.),
 		BACK_HATCH_MID(119.5, 90. + 180., 4.), // 180., 87., 0.

@@ -113,32 +113,10 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousPeriodic() {
-    RobotState.getInstance().setCurrentTheta(Pigeon.getInstance().getYaw());
-    // OI.driverJoystick.update();
-
-    // if (RobotState.getInstance().getAutonDone()) {
-
-    switch (SwerveDrive.getInstance().getMode()) {
-    case TeleopDrive:
-      joystickInput();
-
-      break;
-    case Defense:
-      if (!OI.driverJoystick.getStartButton()) {
-        mSwerve.setMode(DriveMode.TeleopDrive);
-        break;
-      }
-      mSwerve.defensePosition();
-      break;
-    default:
-      break;
-    }
-    // }
-    operatorInput();
+    OILoop();
 
     FroggyPoseController.updateOdometry();
     FroggyPoseController.outputPoseToDashboard();
-    Arm.getInstance().updateSuperstruture();
 
     Scheduler.getInstance().run();
   }
@@ -158,32 +136,9 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopPeriodic() {
-    OI.driverJoystick.update();
-    RobotState.getInstance().setCurrentTheta(Pigeon.getInstance().getYaw());
-
-    switch (SwerveDrive.getInstance().getMode()) {
-    case TeleopDrive:
-      joystickInput();
-      break;
-    case Defense:
-      if (!OI.driverJoystick.getStartButton()) {
-        mSwerve.setMode(DriveMode.TeleopDrive);
-        break;
-      }
-      mSwerve.defensePosition();
-      break;
-    default:
-      break;
-    }
-
-    if (RobotState.getInstance().getCurrentRobot().equals(Bot.ProgrammingBot)) {
-      operatorInput();
-      Arm.getInstance().updateSuperstruture();
-    }
-
+    OILoop();
     FroggyPoseController.updateOdometry();
     FroggyPoseController.outputPoseToDashboard();
-    subsystems.outputToSmartDashboard();
     Scheduler.getInstance().run();
   }
 
@@ -207,6 +162,29 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
+  }
+
+  private void OILoop() {
+    OI.driverJoystick.update();
+    switch (SwerveDrive.getInstance().getMode()) {
+    case TeleopDrive:
+      joystickInput();
+      break;
+    case Defense:
+      if (!OI.driverJoystick.getStartButton()) {
+        mSwerve.setMode(DriveMode.TeleopDrive);
+        break;
+      }
+      mSwerve.defensePosition();
+      break;
+    default:
+      break;
+    }
+
+    if (RobotState.getInstance().getCurrentRobot().equals(Bot.ProgrammingBot)) {
+      operatorInput();
+      Arm.getInstance().updateSuperstruture();
+    }
   }
 
   private void joystickInput() {
@@ -259,7 +237,7 @@ public class Robot extends TimedRobot {
     }
   }
 
-  public void operatorInput() {
+  private void operatorInput() {
     if (OI.getOperatorA()) {
       RobotState.getInstance().setArmDirection(ArmDirection.FRONT);
       TargetHeightSwitcher.set(RobotState.TargetHeight.LOW);
