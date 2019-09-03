@@ -105,7 +105,9 @@ public class Wrist extends Subsystem implements SuperStructureSystem {
   }
 
   public void resetEncoder() {
+    if (Robot.bot.hasWrist()){
     wristMotor.setSelectedSensorPosition(0);
+    }
   //  wristMotor.setSelectedSensorPosition(0);
     // if (getEncoderDeg()<0){
     // wristMotor.getSensorCollection().setPulseWidthPosition((int)d2c(-90), 10);

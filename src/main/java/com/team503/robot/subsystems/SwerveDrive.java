@@ -37,7 +37,7 @@ public class SwerveDrive extends Subsystem {
     }
 
     public enum DriveMode {
-        TeleopDrive, Defense, MotionProfling, Vision, PurePursuit;
+        TeleopDrive, Defense, MotionProfling, Vision, PurePursuit, KeyboardControl;
     }
 
     private DriveMode mode = DriveMode.TeleopDrive;

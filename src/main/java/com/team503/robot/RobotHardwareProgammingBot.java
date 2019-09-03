@@ -174,7 +174,7 @@ public class RobotHardwareProgammingBot extends RobotHardware {
 
     @Override
     public boolean hasWrist() {
-        return true;
+        return false;
     }
 
     @Override
