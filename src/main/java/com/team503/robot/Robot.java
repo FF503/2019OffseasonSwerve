@@ -9,6 +9,7 @@ package com.team503.robot;
 
 import java.util.Arrays;
 
+import com.team503.lib.io.PrecisionDriveController;
 import com.team503.robot.RobotState.ArmDirection;
 import com.team503.robot.RobotState.Bot;
 import com.team503.robot.RobotState.GameElement;
@@ -65,7 +66,7 @@ public class Robot extends TimedRobot {
     // Subsytem Manager
     if (RobotState.getInstance().getCurrentRobot().equals(Bot.FFSwerve)) {
       subsystems = new SubsystemManager(Arrays.asList(mSwerve, Pigeon.getInstance()));
-    } else if(RobotState.getInstance().equals(Bot.ProgrammingBot)){
+    } else if(RobotState.getInstance().getCurrentRobot().equals(Bot.ProgrammingBot)){
       subsystems = new SubsystemManager(Arrays.asList(mSwerve, Pigeon.getInstance(), Arm.getInstance(),
           Wrist.getInstance(), Extension.getInstance(), Intake.getInstance()));
     }
@@ -130,6 +131,7 @@ public class Robot extends TimedRobot {
     mSwerve.snapForward();
     Intake.getInstance().startVacuum();
     LimelightProcessor.getInstance().setPipeline(Pipeline.CLOSEST);
+    PrecisionDriveController.activatePrecisionDrive();
   }
 
   /*
@@ -159,6 +161,7 @@ public class Robot extends TimedRobot {
   public void disabledInit() {
     mSwerve.setBrakeMode();
     subsystems.stop();
+    PrecisionDriveController.disablePrecisionDrive();
   }
 
   @Override
@@ -167,7 +170,7 @@ public class Robot extends TimedRobot {
 
   private void OILoop() {
     OI.driverJoystick.update();
-    switch (SwerveDrive.getInstance().getMode()) {
+    switch (mSwerve.getMode()) {
     case TeleopDrive:
       joystickInput();
       break;
@@ -180,6 +183,10 @@ public class Robot extends TimedRobot {
       break;
     default:
       break;
+    }
+
+    if(OI.driverJoystick.leftCenterClick.isBeingPressed()) {
+      mSwerve.setMode(DriveMode.TeleopDrive);
     }
 
     if (RobotState.getInstance().getCurrentRobot().equals(Bot.ProgrammingBot)) {
