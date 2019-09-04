@@ -50,8 +50,8 @@ public class FFRobotHardware extends RobotHardware {
         kVehicleToModuleTwo = new com.team254.lib.geometry.Translation2d(-kWheelbaseLength / 2, -kWheelbaseWidth / 2);
         kVehicleToModuleThree = new com.team254.lib.geometry.Translation2d(-kWheelbaseLength / 2, kWheelbaseWidth / 2);
 
-        kModuleTranslations = Arrays.asList(kVehicleToModuleZero,
-                kVehicleToModuleOne, kVehicleToModuleTwo, kVehicleToModuleThree);
+        kModuleTranslations = Arrays.asList(kVehicleToModuleZero, kVehicleToModuleOne, kVehicleToModuleTwo,
+                kVehicleToModuleThree);
 
         gTimeoutMs = 0;
         gSlotIdx = 0;
@@ -151,6 +151,12 @@ public class FFRobotHardware extends RobotHardware {
 
         // Power Distribution Panel
         PdpID = 0;
+
+        // Drive contants for encoder counts
+        kSwerveWheelDiameter = 3.0;
+        kSwerveEncoderToWheelRatio = 3.0 / 20.0;
+        kSwerveEncUnitsPerWheelRev = kSwerveDriveEncoderResolution * kSwerveEncoderToWheelRatio; 
+        kSwerveEncUnitsPerInch = kSwerveEncUnitsPerWheelRev / (Math.PI * kSwerveWheelDiameter);
     }
 
     @Override

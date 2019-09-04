@@ -61,6 +61,13 @@ public abstract class RobotHardware {
     public double kTurnEncoderClicksperRevolution;
     public double requestDriveReversed;
 
+    // Swerve drive and azimuth specs
+    public double kSwerveEncoderToWheelRatio;  // Wheel revs per encoder revs
+    public double kSwerveEncUnitsPerWheelRev;  // ticks per wheel rev
+    public final double kSwerveDriveEncoderResolution = 42.0; // ticks per drive encoder rev
+    public double kSwerveWheelDiameter; // inches
+    public double kSwerveEncUnitsPerInch; // ticks per inch
+
     public int requestPigeonFlipped;
 
     // Swerve Module Positions (relative to the center of the drive base)
@@ -83,6 +90,9 @@ public abstract class RobotHardware {
 
     // Pure Pursuit
     public final double POSE_LOOP_DT = 0.01;
+
+    // Debugging
+    public final boolean kDebuggingOutput = true;
 
     public double kMinLookAhead;
     public double kMinLookAheadSpeed;

@@ -1,280 +1,307 @@
-
 package com.team503.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.StatusFrame;
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.team503.lib.geometry.Rotation2d;
-import com.team503.lib.kinematics.SwerveModuleState;
 import com.team503.lib.util.Util;
 import com.team503.robot.Robot;
-import com.team503.robot.RobotState;
-import com.team503.robot.RobotState.Bot;
+import com.team254.drivers.LazyTalonSRX;
+import com.team254.lib.geometry.Rotation2d;
+import com.team254.lib.geometry.Translation2d;
 
-public class SwerveModule {
-    private static final double kTurnEncoderClicksperRevolution = Robot.bot.kTurnEncoderClicksperRevolution;
-    private static final double kWheelDiameter = Robot.bot.wheelDiameter;
-    private static final double kAzimuthDegreesPerClick = 360.0 / kTurnEncoderClicksperRevolution;
-    private final double kAzimuthClicksPerDegree = kTurnEncoderClicksperRevolution / 360.0;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-    private final int countsPerRotation = 42; // Counts/Rotation
-    private final double driveGearRatio = (12.0 / 40.0) * (20.0 / 40.0); // Unitless
-    private final double CIRCUMFERENCE = (Math.PI * kWheelDiameter); // Rotations/inch
-    private final double COUNTS_PER_INCH = countsPerRotation / driveGearRatio / CIRCUMFERENCE; // Counts/Inch
-    private final double driveVelocityConversionFactor = (COUNTS_PER_INCH * 60.0); // 60 Inches/Rotation
+public class SwerveModule extends Subsystem {
+	LazyTalonSRX rotationMotor;
+	CANSparkMax driveMotor;
+	CANEncoder driveEncoder;
+	int moduleID;
+	String name = "Module ";
+	int rotationSetpoint = 0;
+	double driveSetpoint = 0;
+	int encoderOffset;
+	int encoderReverseFactor = 1;
+	boolean useDriveEncoder = true;
+	boolean tenVoltRotationMode = false;
+	boolean standardCarpetDirection = true;
 
-    private static final int kSlotIdx = 0;
-    private static final int kTimeoutMs = 30;
-    private static double power = 0.0;
+	public void setCarpetDirection(boolean standardDirection) {
+		standardCarpetDirection = standardDirection;
+	}
 
-    private CANSparkMax driveMotor;
-    private TalonSRX turnMotor;
-    private CANEncoder motorEncoder;
+	PeriodicIO periodicIO = new PeriodicIO();
 
-    // Swerve Module Specific - must be changed for each swerve module !!!!!
-    private double kP;
-    private double kI;
-    private double kD;
-    private double kF;
-    private int kBaseEncoderClicks;
-    private int kMagicCruiseVelocity;
-    private int kMagicCruiseAcceleration;
-    private boolean kTurnCountsDecreasing;
-    private boolean kDriveMotorInverted;
-    private boolean kDriveEncoderInverted;
-    private boolean kTurnMotorInverted;
-    private boolean kTurnEncoderInverted;
+	public SwerveModule(int rotationSlot, int driveSlot, int moduleID, int encoderOffset,
+			Translation2d startingPose) {
+		name += (moduleID + " ");
+		rotationMotor = new LazyTalonSRX(rotationSlot);
+		driveMotor = new CANSparkMax(driveSlot, MotorType.kBrushless);
+		driveEncoder = new CANEncoder(driveMotor);
+		configureMotors();
+		this.moduleID = moduleID;
+		this.encoderOffset = encoderOffset;
+		getRawAngle();
+	}
 
-    public SwerveModule(int driveMotorID, int turnMotorID, double P, double I, double D, double F,
-            int startingEncoderClick, int cruiseVelocity, int cruiseAccel, boolean turnCountsDecreasing,
-            boolean DriveInverted, boolean DriveEncoderInverted, boolean TurnMotorInverted,
-            boolean TurnEncoderInverted) {
+	public synchronized void invertDriveMotor(boolean invert) {
+		driveMotor.setInverted(invert);
+	}
 
-        this.driveMotor = new CANSparkMax(driveMotorID, MotorType.kBrushless);
-        this.motorEncoder = new CANEncoder(this.driveMotor);
-        this.turnMotor = new TalonSRX(turnMotorID);
+	public synchronized void invertRotationMotor(boolean invert) {
+		rotationMotor.setInverted(invert);
+	}
 
-        driveMotor.setIdleMode(IdleMode.kCoast);
-        turnMotor.setNeutralMode(NeutralMode.Brake);
-        // this is the encoder count when the wheel is aligned forward at the start
-        this.kBaseEncoderClicks = startingEncoderClick;
-        this.kMagicCruiseVelocity = cruiseVelocity;
-        this.kMagicCruiseAcceleration = cruiseAccel;
-        this.kTurnCountsDecreasing = turnCountsDecreasing;
-        this.kDriveMotorInverted = DriveInverted;
-        this.kDriveEncoderInverted = DriveEncoderInverted;
-        this.kTurnMotorInverted = TurnMotorInverted;
-        this.kTurnEncoderInverted = TurnEncoderInverted;
-        this.kP = P;
-        this.kI = I;
-        this.kD = D;
-        this.kF = F;
+	public synchronized void reverseDriveSensor(boolean reverse) {
 
-        // configure drive motor
-        driveMotor.setInverted(kDriveMotorInverted);
-        driveMotor.setOpenLoopRampRate(1.0);
+	}
 
-        // configure turn motor
-        if (RobotState.getInstance().getCurrentRobot().equals(Bot.FFSwerve)) {
-            turnMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, kSlotIdx, kTimeoutMs);
-            turnMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, kTimeoutMs);
-        } else if (RobotState.getInstance().getCurrentRobot().equals(Bot.ProgrammingBot)) {
-            turnMotor.configSelectedFeedbackSensor(FeedbackDevice.Analog);
-        }
-        turnMotor.configFeedbackNotContinuous(true, kTimeoutMs);
+	public synchronized void reverseRotationSensor(boolean reverse) {
+		encoderReverseFactor = reverse ? -1 : 1;
+		rotationMotor.setSensorPhase(reverse);
+	}
 
-        // set to true to invert sensor
-        turnMotor.setInverted(kTurnMotorInverted);
-        turnMotor.setSensorPhase(kTurnEncoderInverted);
+	public synchronized void setMaxRotationSpeed(double maxSpeed) {
+		rotationMotor.configMotionCruiseVelocity((int) maxSpeed, 0);
+	}
 
-        turnMotor.configNominalOutputForward(0, kTimeoutMs);
-        turnMotor.configNominalOutputReverse(0, kTimeoutMs);
-        turnMotor.configPeakOutputForward(1, kTimeoutMs);
-        turnMotor.configPeakOutputReverse(-1, kTimeoutMs);
-        turnMotor.selectProfileSlot(kSlotIdx, 0); // slot index = 0 , pidloopidx = 0
-        turnMotor.config_kF(kSlotIdx, kF, kTimeoutMs);
-        turnMotor.config_kP(kSlotIdx, kP, kTimeoutMs);
-        turnMotor.config_kI(kSlotIdx, kI, kTimeoutMs);
-        turnMotor.config_kD(kSlotIdx, kD, kTimeoutMs);
-        turnMotor.configMotionCruiseVelocity(kMagicCruiseVelocity, kTimeoutMs);
-        turnMotor.configMotionAcceleration(kMagicCruiseAcceleration, kTimeoutMs);
+	public synchronized void disableDriveEncoder() {
+		useDriveEncoder = false;
+	}
 
-        driveMotor.setSmartCurrentLimit(50);
-        // motorEncoder.setVelocityConversionFactor(driveVelocityConversionFactor);
-    }
+	private void configureMotors() {
+		rotationMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0, 10);
+		rotationMotor.setSensorPhase(true);
+		rotationMotor.setInverted(false);
+		rotationMotor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 10, 10);
+		rotationMotor.setNeutralMode(NeutralMode.Brake);
+		rotationMotor.configVoltageCompSaturation(7.0, 10);
+		rotationMotor.enableVoltageCompensation(true);
+		rotationMotor.configAllowableClosedloopError(0, 0, 10);
+		// rotationMotor.configMotionAcceleration((int)
+		// (Constants.kSwerveRotationMaxSpeed * 12.5), 10);
+		// rotationMotor.configMotionCruiseVelocity((int)
+		// (Constants.kSwerveRotationMaxSpeed), 10);
+		rotationMotor.selectProfileSlot(0, 0);
+		// Slot 1 is for normal use
+		// rotationMotor.config_kP(0, 6.0, 10);
+		// rotationMotor.config_kI(0, 0.0, 10);
+		// rotationMotor.config_kD(0, 160.0, 10);
+		// rotationMotor.config_kF(0, 1023.0 / Constants.kSwerveRotationMaxSpeed, 10);
+		// // Slot 2 is reserved for the beginning of auto
+		// rotationMotor.config_kP(1, 8.0, 10);
+		// rotationMotor.config_kI(1, 0.0, 10);
+		// rotationMotor.config_kD(1, 200.0, 10);
+		// rotationMotor.config_kF(1, 1023.0 / Constants.kSwerveRotation10VoltMaxSpeed,
+		// 10);
+		// rotationMotor.set(ControlMode.MotionMagic,
+		// rotationMotor.getSelectedSensorPosition(0));
+		if (!isRotationSensorConnected()) {
+			DriverStation.reportError(name + "rotation encoder not detected!", false);
+			hasEmergency = true;
+		}
 
-    public void drive(double speed, double angle) {
-        this.power = speed;
-        setDriveMotorSpeed(speed);
+		driveEncoder.setPosition(0.0);
+		driveMotor.enableVoltageCompensation(12.0);
+		driveMotor.setOpenLoopRampRate(0.25);
+		driveMotor.setInverted(true);
+		driveMotor.setIdleMode(IdleMode.kBrake);
+	}
 
-        // angle is bound to -180 - +180 and degrees are from 0-360
-        // convert bounded angle into true compass degrees
-        double trueAngle = angle;
-        if (angle < 0) {
-            trueAngle = 180 + (180 + angle);
-        }
+	private boolean isRotationSensorConnected() {
+		int pulseWidthPeriod = rotationMotor.getSensorCollection().getPulseWidthRiseToRiseUs();
+		return pulseWidthPeriod != 0;
+	}
 
-        // convert angle (0-360) into encoder clicks (0-1024)
-        int desiredclicks = (int) Math.round(trueAngle * kAzimuthClicksPerDegree);
+	private double getRawAngle() {
+		return encUnitsToDegrees(periodicIO.rotationPosition);
+	}
 
-        if (kTurnCountsDecreasing) {
-            // this means a positive right turn mean decreasing encoder counts
-            desiredclicks = kBaseEncoderClicks - desiredclicks;
-            if (desiredclicks < 0) {
-                desiredclicks += kTurnEncoderClicksperRevolution;
-            }
+	public Rotation2d getModuleAngle() {
+		return Rotation2d.fromDegrees(getRawAngle() - encUnitsToDegrees(encoderOffset));
+	}
 
-        } else {
-            // this means a positive right trn with increasing encoder counts
-            // addin the base starting clicks when the wheel is pointing to zero
-            desiredclicks += kBaseEncoderClicks;
-            // becuase we are using an absolute encoder the value must be between 0 and 1024
-            if (desiredclicks > kTurnEncoderClicksperRevolution) {
-                desiredclicks -= kTurnEncoderClicksperRevolution;
-            }
-        }
+	public Rotation2d getFieldCentricAngle(Rotation2d robotHeading) {
+		Rotation2d normalizedAngle = getModuleAngle();
+		return normalizedAngle.rotateBy(robotHeading);
+	}
 
-        turnMotor.set(ControlMode.MotionMagic, desiredclicks);
-    }
+	public void setModuleAngle(double goalAngle) {
+		double newAngle = Util.placeInAppropriate0To360Scope(getRawAngle(),
+				goalAngle + encUnitsToDegrees(encoderOffset));
+		int setpoint = degreesToEncUnits(newAngle);
+		periodicIO.rotationControlMode = ControlMode.MotionMagic;
+		periodicIO.rotationDemand = setpoint;
+	}
 
-    public void setDriveMotorSpeed(double speed) {
-        driveMotor.set(speed);
-    }
+	public boolean angleOnTarget() {
+		double error = encUnitsToDegrees(Math.abs(periodicIO.rotationDemand - periodicIO.rotationPosition));
+		return error < 4.5;
+	}
 
-    public void resetDriveEncoder() {
-        motorEncoder.setPosition(0.0);
-    }
+	public void set10VoltRotationMode(boolean tenVolts) {
+		if (tenVolts && !tenVoltRotationMode) {
+			rotationMotor.selectProfileSlot(1, 0);
+			rotationMotor.configVoltageCompSaturation(10.0, 10);
+			tenVoltRotationMode = true;
+		} else if (!tenVolts && tenVoltRotationMode) {
+			rotationMotor.selectProfileSlot(0, 0);
+			rotationMotor.configVoltageCompSaturation(7.0, 10);
+			tenVoltRotationMode = false;
+		}
+	}
 
-    /**
-     * 
-     * @return clicks
-     */
-    public double getDriveEncoderClicks() {
-        double pos = countsPerRotation * motorEncoder.getPosition();
-        // if(kDriveEncoderInverted) {
-        // pos *= -1;
-        // }
-        return pos;
-    }
+	public void setRotationOpenLoop(double power) {
+		periodicIO.rotationControlMode = ControlMode.PercentOutput;
+		periodicIO.rotationDemand = power;
+	}
 
-    public double getDriveEncoderRPM() {
-        double vol = motorEncoder.getVelocity() *countsPerRotation;
-        // if(kDriveEncoderInverted) {
-        // vol *= -1;
-        // }
-        return vol;
-    }
+	/**
+	 * @param velocity Normalized value
+	 */
+	public void setDriveOpenLoop(double velocity) {
+		/*
+		 * double volts = 0.0; if(!Util.epsilonEquals(velocity, 0.0,
+		 * Constants.kEpsilon)){ velocity *= Constants.kSwerveMaxSpeedInchesPerSecond;
+		 * double m = Constants.kVoltageVelocityEquations[moduleID][velocity < 0 ? 1 :
+		 * 0][0]; double b = Constants.kVoltageVelocityEquations[moduleID][velocity < 0
+		 * ? 1 : 0][1]; volts = (velocity - b) / m; volts = Util.deadBand(volts, 1.0); }
+		 */
 
-    /**
-     * 
-     * @return in inches
-     */
-    public double getDriveMotorPosition() {
-        return getDriveEncoderClicks() / COUNTS_PER_INCH;
-    }
+		periodicIO.driveControlMode = ControlMode.PercentOutput;
+		// periodicIO.driveDemand = volts / 12.0;
+		periodicIO.driveDemand = velocity;
+	}
 
-    /**
-     * 
-     * @return in inches/second
-     */
-    public double getDriveMotorVelocity() {
-        return getDriveEncoderRPM() / driveVelocityConversionFactor;
-    }
+	// public void setDrivePositionTarget(double deltaDistanceInches) {
+	// driveMotor.selectProfileSlot(0, 0);
+	// periodicIO.driveControlMode = ControlMode.MotionMagic;
+	// periodicIO.driveDemand = periodicIO.drivePosition +
+	// inchesToEncUnits(deltaDistanceInches);
+	// }
 
-    public SwerveModuleState getState() {
-        return new SwerveModuleState(getDriveMotorVelocity(),
-                Rotation2d.fromDegrees(-getTurnEncoderPositioninDegrees()));
-    }
+	// public boolean drivePositionOnTarget() {
+	// if (driveMotor.getControlMode() == ControlMode.MotionMagic)
+	// return encUnitsToInches((int) Math.abs(periodicIO.driveDemand -
+	// periodicIO.drivePosition)) < 2.0;
+	// return false;
+	// }
 
-    public double getTurnEncoderPosition() {
-        return turnMotor.getSelectedSensorPosition(0);
-    }
+	// public void setVelocitySetpoint(double inchesPerSecond) {
+	// driveMotor.selectProfileSlot(1, 0);
+	// periodicIO.driveControlMode = ControlMode.Velocity;
+	// periodicIO.driveDemand = inchesPerSecondToEncVelocity(inchesPerSecond);
+	// }
 
-    public double getTurnClosedLoopError() {
-        return turnMotor.getClosedLoopError();
-    }
+	private double getDriveDistanceInches() {
+		return encUnitsToInches(periodicIO.drivePosition);
+	}
 
-    public void setDriveMotorCurrentLimit(int limit) {
-        driveMotor.setSmartCurrentLimit(limit);
-    }
+	public double encUnitsToInches(double encUnits) {
+		return encUnits / Robot.bot.kSwerveEncUnitsPerInch;
+	}
 
-    public void coastDrive() {
-        driveMotor.setIdleMode(IdleMode.kCoast);
-    }
+	public int inchesToEncUnits(double inches) {
+		return (int) (inches * Robot.bot.kSwerveEncUnitsPerInch);
+	}
 
-    public void brakeDrive() {
-        driveMotor.setIdleMode(IdleMode.kBrake);
-    }
+	public double encVelocityToInchesPerSecond(double rpm) {
+		return encUnitsToInches(rpm) / 60.0;
+	}
 
-    public double getTurnEncoderPositioninDegrees() {
-        // get the base clicks = zero degrees for this particular wheel
+	public int inchesPerSecondToEncVelocity(double inchesPerSecond) {
+		return (int) (inchesToEncUnits(inchesPerSecond / 10.0));
+	}
 
-        double pos = getTurnEncoderPosition();
-        // relative position
-        double relpos = 0;
-        // actual position
-        int actpos;
+	public int degreesToEncUnits(double degrees) {
+		return (int) (degrees / 360.0 * Robot.bot.kSwerveAzEncoderResolution);
+	}
 
-        if (kTurnCountsDecreasing) {
-            // this means a positive right turn means decreasing encoder counts
-            relpos = (kBaseEncoderClicks - pos);
-        } else {
-            // this means a positive right turn with increasing encoder counts
-            relpos = (pos - kBaseEncoderClicks);
-        }
+	public double encUnitsToDegrees(double encUnits) {
+		return -encUnits / Robot.bot.kSwerveAzEncoderResolution * 360.0;
+	}
 
-        // adjust for absolute encoder with 0-1024 clicks
-        if (relpos < 0) {
-            relpos += kTurnEncoderClicksperRevolution;
-        }
-        actpos = (int) Math.round(relpos * kAzimuthDegreesPerClick);
+	@Override
+	public synchronized void readPeriodicInputs() {
+		periodicIO.rotationPosition = rotationMotor.getSelectedSensorPosition(0);
+		if (useDriveEncoder)
+			periodicIO.drivePosition = (int) driveEncoder.getPosition();
+		// periodicIO.velocity = driveMotor.getSelectedSensorVelocity();
+		if (Robot.bot.kDebuggingOutput) {
+			periodicIO.velocity = (int) driveEncoder.getVelocity();
+		}
+		/*
+		 * if(moduleID == 3){ periodicIO.velocity =
+		 * driveMotor.getSelectedSensorVelocity(0); periodicIO.driveVoltage =
+		 * driveMotor.getMotorOutputVoltage(); if(periodicIO.velocity != 0 &&
+		 * periodicIO.driveVoltage != 0) Logger.log("(" + periodicIO.driveVoltage + ", "
+		 * + encVelocityToFeetPerSecond(periodicIO.velocity) + "), "); }
+		 */
+	}
 
-        if (actpos == 360) {
-            actpos = 0;
-        }
+	@Override
+	public synchronized void writePeriodicOutputs() {
+		rotationMotor.set(periodicIO.rotationControlMode, periodicIO.rotationDemand);
+		driveMotor.set(periodicIO.driveDemand);
+	}
 
-        return actpos;
-    }
+	@Override
+	public synchronized void stop() {
+		setDriveOpenLoop(0.0);
+	}
 
-    /********************************************************************************
-     * Section - Encoder Conversion Routines
-     *******************************************************************************/
+	public synchronized void disable() {
+		setDriveOpenLoop(0.0);
+		setRotationOpenLoop(0.0);
+	}
 
-    private static double ticksToInches(double ticks) {
-        return rotationsToInches(ticksToRotations(ticks));
-    }
+	public synchronized void resetRotationToAbsolute() {
+		rotationMotor.setSelectedSensorPosition(
+				encoderReverseFactor * (rotationMotor.getSensorCollection().getPulseWidthPosition() - encoderOffset), 0,
+				10);
+	}
 
-    private static double rotationsToInches(double rotations) {
-        return rotations * (kWheelDiameter * Math.PI);
-    }
+	@Override
+	public synchronized void zeroSensors() {
+	}
 
-    private static double ticksToRotations(double ticks) {
-        int kEncoderUnitsPerRev = 42; // Rev Native Internal Encoder clicks per revolution
-        return ticks / kEncoderUnitsPerRev;
-    }
+	@Override
+	public void outputTelemetry() {
+		SmartDashboard.putNumber(name + "Angle", getModuleAngle().getDegrees());
+		SmartDashboard.putNumber(name + "Inches Driven", getDriveDistanceInches());
+		// SmartDashboard.putNumber(name + "Velocity",
+		// encVelocityToInchesPerSecond(periodicIO.velocity));
+		if (Robot.bot.kDebuggingOutput) {
+			SmartDashboard.putNumber(name + "Pulse Width", rotationMotor.getSelectedSensorPosition(0));
+			SmartDashboard.putNumber(name + "Drive Voltage", periodicIO.driveVoltage);
+			SmartDashboard.putNumber(name + "Rotation Voltage", rotationMotor.getMotorOutputVoltage());
+			SmartDashboard.putNumber(name + "Velocity", encVelocityToInchesPerSecond(periodicIO.velocity));
+			if (rotationMotor.getControlMode() == ControlMode.MotionMagic)
+				SmartDashboard.putNumber(name + "Error", encUnitsToDegrees(rotationMotor.getClosedLoopError(0)));
+			// SmartDashboard.putNumber(name + "X", position.x());
+			// SmartDashboard.putNumber(name + "Y", position.y());
+			SmartDashboard.putNumber(name + "Drive Current", driveMotor.getOutputCurrent());
+			SmartDashboard.putNumber(name + "Rotation Speed", rotationMotor.getSelectedSensorVelocity(0));
+		}
+	}
 
-    private static double inchesToRotations(double inches) {
-        return inches / (kWheelDiameter * Math.PI);
-    }
+	public static class PeriodicIO {
+		// Inputs
+		public int rotationPosition = 0;
+		public int drivePosition = 0;
+		public int velocity = 0;
+		public double driveVoltage = 0.0;
 
-    public double getXComponentVelocity() {
-        return Math.cos(Math.toRadians(Util.unitCircleify(getTurnEncoderPositioninDegrees())))
-                * driveMotor.getEncoder().getVelocity();
-    }
-
-    public double getYComponentVelocity() {
-        return Math.sin(Math.toRadians(Util.unitCircleify(getTurnEncoderPositioninDegrees())))
-                * driveMotor.getEncoder().getVelocity();
-    }
-
-    public double getMotorPower() {
-        return power;
-    }
+		// Outputs
+		public ControlMode rotationControlMode = ControlMode.PercentOutput;
+		public ControlMode driveControlMode = ControlMode.PercentOutput;
+		public double rotationDemand;
+		public double driveDemand;
+	}
 
 }
