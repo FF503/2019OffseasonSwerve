@@ -12,7 +12,7 @@ import java.util.Arrays;
 import com.team503.robot.RobotState.ArmDirection;
 import com.team503.robot.RobotState.Bot;
 import com.team503.robot.RobotState.GameElement;
-import com.team503.robot.auton.ForwardTest;
+// import com.team503.robot.auton.ForwardTest;
 import com.team503.robot.commands.EjectBall;
 import com.team503.robot.commands.GameElementSwitcher;
 import com.team503.robot.commands.ReleaseHatch;
@@ -21,7 +21,7 @@ import com.team503.robot.commands.SwitchArmDirection;
 import com.team503.robot.commands.TargetHeightSwitcher;
 import com.team503.robot.commands.ToggleControlMode;
 import com.team503.robot.commands.ToggleIntake;
-import com.team503.robot.loops.FroggyPoseController;
+// import com.team503.robot.loops.FroggyPoseController;
 import com.team503.robot.loops.LimelightProcessor;
 import com.team503.robot.loops.LimelightProcessor.Pipeline;
 import com.team503.robot.subsystems.Arm;
@@ -30,10 +30,11 @@ import com.team503.robot.subsystems.Intake;
 import com.team503.robot.subsystems.Pigeon;
 import com.team503.robot.subsystems.SubsystemManager;
 import com.team503.robot.subsystems.SwerveDrive;
-import com.team503.robot.subsystems.SwerveDrive.DriveMode;
+// import com.team503.robot.subsystems.SwerveDrive.DriveMode;
 import com.team503.robot.subsystems.Wrist;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Scheduler;
 
 /**
@@ -56,7 +57,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    RobotState.getInstance().setCurrentRobot(Bot.Automatic);
+    RobotState.getInstance().setCurrentRobot(Bot.ProgrammingBot);
     bot = RobotHardware.getInstance();
     OI.initialize();
 
@@ -85,7 +86,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     subsystems.outputToSmartDashboard();
-    System.out.println("ROBOT"+ RobotState.getInstance().getCurrentRobot().name());
+    System.out.println("ROBOT" + RobotState.getInstance().getCurrentRobot().name());
   }
 
   /**
@@ -103,11 +104,11 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     Pigeon.getInstance().zeroSensors();
-    mSwerve.setBrakeMode();
+    // mSwerve.setBrakeMode();
     Intake.getInstance().startVacuum();
     LimelightProcessor.getInstance().setPipeline(Pipeline.CLOSEST);
 
-    new ForwardTest().initAndStartAuton();
+    // new ForwardTest().initAndStartAuton();
   }
 
   /**
@@ -116,31 +117,31 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
     RobotState.getInstance().setCurrentTheta(Pigeon.getInstance().getYaw());
-    // OI.driverJoystick.update();
+    OI.driverJoystick.update();
 
     // if (RobotState.getInstance().getAutonDone()) {
 
-    switch (SwerveDrive.getInstance().getMode()) {
-    case TeleopDrive:
-      joystickInput();
+    // switch (SwerveDrive.getInstance().getMode()) {
+    // case TeleopDrive:
+    joystickInput();
 
-      break;
-    case Defense:
-      if (!OI.driverJoystick.getStartButton()) {
-        mSwerve.setMode(DriveMode.TeleopDrive);
-        break;
-      }
-      mSwerve.defensePosition();
-      break;
-    default:
-      break;
-    }
+    // break;
+    // case Defense:
+    // if (!OI.driverJoystick.getStartButton()) {
+    // mSwerve.setMode(DriveMode.TeleopDrive);
+    // break;
+    // }
+    // mSwerve.defensePosition();
+    // break;
+    // default:
+    // break;
+    // }
     // }
     operatorInput();
 
-    FroggyPoseController.updateOdometry();
-    FroggyPoseController.outputPoseToDashboard();
-    Arm.getInstance().updateSuperstruture();
+    // FroggyPoseController.updateOdometry();
+    // FroggyPoseController.outputPoseToDashboard();
+    // Arm.getInstance().updateSuperstruture();
 
     Scheduler.getInstance().run();
   }
@@ -150,9 +151,11 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopInit() {
-    mSwerve.setBrakeMode();
+    // mSwerve.setBrakeMode();
     Intake.getInstance().startVacuum();
     LimelightProcessor.getInstance().setPipeline(Pipeline.CLOSEST);
+
+    mSwerve.onStart(Timer.getFPGATimestamp());
   }
 
   /*
@@ -162,29 +165,30 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     OI.driverJoystick.update();
     RobotState.getInstance().setCurrentTheta(Pigeon.getInstance().getYaw());
+    
 
-    switch (SwerveDrive.getInstance().getMode()) {
-    case TeleopDrive:
-      joystickInput();
-      break;
-    case Defense:
-      if (!OI.driverJoystick.getStartButton()) {
-        mSwerve.setMode(DriveMode.TeleopDrive);
-        break;
-      }
-      mSwerve.defensePosition();
-      break;
-    default:
-      break;
-    }
+    // switch (SwerveDrive.getInstance().getMode()) {
+    // case TeleopDrive:
+    joystickInput();
+    // break;
+    // case Defense:
+    // if (!OI.driverJoystick.getStartButton()) {
+    // mSwerve.setMode(DriveMode.TeleopDrive);
+    // break;
+    // }
+    // mSwerve.defensePosition();
+    // break;
+    // default:
+    // break;
+    // }
 
-    if (RobotState.getInstance().getCurrentRobot().equals(Bot.ProgrammingBot)) {
-      operatorInput();
-      Arm.getInstance().updateSuperstruture();
-    }
+    // if (RobotState.getInstance().getCurrentRobot().equals(Bot.ProgrammingBot)) {
+    //   operatorInput();
+    //   Arm.getInstance().updateSuperstruture();
+    // }
 
-    FroggyPoseController.updateOdometry();
-    FroggyPoseController.outputPoseToDashboard();
+    // FroggyPoseController.updateOdometry();
+    // FroggyPoseController.outputPoseToDashboard();
     subsystems.outputToSmartDashboard();
     Scheduler.getInstance().run();
   }
@@ -203,8 +207,9 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledInit() {
-    mSwerve.setBrakeMode();
+    // mSwerve.setBrakeMode();
     subsystems.stop();
+    mSwerve.onStop(Timer.getFPGATimestamp());
   }
 
   @Override
@@ -219,46 +224,13 @@ public class Robot extends TimedRobot {
     double deadband = 0.015;
     double lastSnapTarget = 0;
 
-    if (swerveRotationInput > -deadband && swerveRotationInput < deadband) {
-      swerveRotationInput = mSwerve.getRotationalOutput();
-    } else {
-      mSwerve.rotate(RobotState.getInstance().getCurrentTheta());
-    }
+    mSwerve.sendInput(swerveXInput, swerveYInput, swerveRotationInput, lowPower, lowPower);
 
-    if (OI.getDriverYButton()) {
-      mSwerve.visionFollow();
-    } else {
-      LimelightProcessor.getInstance().setPipeline(Pipeline.DRIVER);
-      if (OI.driverJoystick.leftBumper.shortReleased()) {
-        mSwerve.rotate(-30);
-        swerveRotationInput = mSwerve.getRotationalOutput();
-      } else if (OI.driverJoystick.leftBumper.longPressed()) {
-        mSwerve.rotate(-150.0);
-        swerveRotationInput = mSwerve.getRotationalOutput();
-      } else if (OI.driverJoystick.rightBumper.shortReleased()) {
-        mSwerve.rotate(30);
-        swerveRotationInput = mSwerve.getRotationalOutput();
-      } else if (OI.driverJoystick.rightBumper.longPressed()) {
-        mSwerve.rotate(150.0);
-        swerveRotationInput = mSwerve.getRotationalOutput();
-      } else if (OI.driverJoystick.getPOV() == 180) {
-        mSwerve.rotate(179);
-        swerveRotationInput = mSwerve.getRotationalOutput();
-      } else if (OI.driverJoystick.getPOV() == 90) {
-        mSwerve.rotate(90);
-        swerveRotationInput = mSwerve.getRotationalOutput();
-      } else if (OI.driverJoystick.getPOV() == 270) {
-        mSwerve.rotate(270);
-        swerveRotationInput = mSwerve.getRotationalOutput();
-      } else if (OI.driverJoystick.getPOV() == 0) {
-        mSwerve.rotate(1);
-        swerveRotationInput = mSwerve.getRotationalOutput();
-      } else if (OI.driverJoystick.getStartButtonPressed()) {
-        mSwerve.setMode(DriveMode.Defense);
-      }
-      mSwerve.setFieldCentric(!OI.getDriverRightTriggerPressed());
-      mSwerve.drive(swerveXInput, swerveYInput, swerveRotationInput, lowPower);
-    }
+
+    mSwerve.onLoop(Timer.getFPGATimestamp());
+
+
+    
   }
 
   public void operatorInput() {

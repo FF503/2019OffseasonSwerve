@@ -1,22 +1,19 @@
 package com.team503.robot.subsystems;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
-import com.team503.robot.Robot;
-import com.team503.robot.RobotState;
-import com.team503.lib.util.SwerveHeadingController;
-import com.team503.lib.util.SwerveInverseKinematics;
-import com.team254.lib.util.Util;
+import com.team254.lib.geometry.Pose2d;
 // import com.team254.lib.geometry.Pose2d;
 // import com.team254.lib.geometry.Pose2dWithCurvature;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Translation2d;
+import com.team254.lib.util.Util;
+import com.team503.lib.util.SwerveHeadingController;
+import com.team503.lib.util.SwerveInverseKinematics;
+import com.team503.robot.Robot;
+import com.team503.robot.RobotState;
 
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class SwerveDrive extends Subsystem {

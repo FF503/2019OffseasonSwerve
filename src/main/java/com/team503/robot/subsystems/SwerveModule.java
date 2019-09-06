@@ -22,7 +22,7 @@ public class SwerveModule extends Subsystem {
 	LazyTalonSRX rotationMotor;
 	CANSparkMax driveMotor;
 	CANEncoder driveEncoder;
-	int moduleID;
+	String moduleID;
 	String name = "Module ";
 	int rotationSetpoint = 0;
 	double driveSetpoint = 0;
@@ -32,21 +32,52 @@ public class SwerveModule extends Subsystem {
 	boolean tenVoltRotationMode = false;
 	boolean standardCarpetDirection = true;
 
+	// Motion magic variables
+	private double kP;
+	private double kI;
+	private double kD;
+	private double kF;
+	private int kMagicCruiseVelocity;
+	private int kMagicCruiseAcceleration;
+	private boolean kTurnCountsDecreasing;
+	private boolean kDriveMotorInverted;
+	private boolean kDriveEncoderInverted;
+	private boolean kTurnMotorInverted;
+	private boolean kTurnEncoderInverted;
+
 	public void setCarpetDirection(boolean standardDirection) {
 		standardCarpetDirection = standardDirection;
 	}
 
 	PeriodicIO periodicIO = new PeriodicIO();
 
-	public SwerveModule(int rotationSlot, int driveSlot, int moduleID, int encoderOffset,
+	public SwerveModule(int rotationSlot, int driveSlot, String moduleID, int encoderOffset, double P, double I,
+			double D, double F, int cruiseVelocity, int cruiseAccel, boolean turnCountsDecreasing,
+			boolean DriveInverted, boolean DriveEncoderInverted, boolean TurnMotorInverted, boolean TurnEncoderInverted,
 			Translation2d startingPose) {
 		name += (moduleID + " ");
 		rotationMotor = new LazyTalonSRX(rotationSlot);
 		driveMotor = new CANSparkMax(driveSlot, MotorType.kBrushless);
 		driveEncoder = new CANEncoder(driveMotor);
-		configureMotors();
+
 		this.moduleID = moduleID;
 		this.encoderOffset = encoderOffset;
+		this.kMagicCruiseVelocity = cruiseVelocity;
+		this.kMagicCruiseAcceleration = cruiseAccel;
+		this.kTurnCountsDecreasing = turnCountsDecreasing;
+		this.kDriveMotorInverted = DriveInverted;
+		this.kDriveEncoderInverted = DriveEncoderInverted;
+		this.kTurnMotorInverted = TurnMotorInverted;
+		this.kTurnEncoderInverted = TurnEncoderInverted;
+		this.kP = P;
+		this.kI = I;
+		this.kD = D;
+		this.kF = F;
+
+		configureMotors();
+
+		// configure drive motor
+		driveMotor.setInverted(kDriveMotorInverted);
 		getRawAngle();
 	}
 
@@ -76,32 +107,30 @@ public class SwerveModule extends Subsystem {
 	}
 
 	private void configureMotors() {
-		rotationMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0, 10);
-		rotationMotor.setSensorPhase(true);
-		rotationMotor.setInverted(false);
-		rotationMotor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 10, 10);
+		rotationMotor.configSelectedFeedbackSensor(FeedbackDevice.Analog, 0, 10);
+		rotationMotor.configFeedbackNotContinuous(true, 30);
+		rotationMotor.setSensorPhase(this.kTurnEncoderInverted);
+		rotationMotor.setInverted(this.kTurnMotorInverted);
+		// rotationMotor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 10, 10);
 		rotationMotor.setNeutralMode(NeutralMode.Brake);
 		rotationMotor.configVoltageCompSaturation(7.0, 10);
 		rotationMotor.enableVoltageCompensation(true);
 		rotationMotor.configAllowableClosedloopError(0, 0, 10);
-		// rotationMotor.configMotionAcceleration((int)
-		// (Constants.kSwerveRotationMaxSpeed * 12.5), 10);
-		// rotationMotor.configMotionCruiseVelocity((int)
-		// (Constants.kSwerveRotationMaxSpeed), 10);
+		rotationMotor.configMotionAcceleration(this.kMagicCruiseAcceleration, 10);
+		rotationMotor.configMotionCruiseVelocity(this.kMagicCruiseVelocity, 10);
 		rotationMotor.selectProfileSlot(0, 0);
 		// Slot 1 is for normal use
-		// rotationMotor.config_kP(0, 6.0, 10);
-		// rotationMotor.config_kI(0, 0.0, 10);
-		// rotationMotor.config_kD(0, 160.0, 10);
-		// rotationMotor.config_kF(0, 1023.0 / Constants.kSwerveRotationMaxSpeed, 10);
+		rotationMotor.config_kP(0, this.kP, 10);
+		rotationMotor.config_kI(0, this.kI, 10);
+		rotationMotor.config_kD(0, this.kD, 10);
+		rotationMotor.config_kF(0, this.kF, 10);
 		// // Slot 2 is reserved for the beginning of auto
 		// rotationMotor.config_kP(1, 8.0, 10);
 		// rotationMotor.config_kI(1, 0.0, 10);
 		// rotationMotor.config_kD(1, 200.0, 10);
 		// rotationMotor.config_kF(1, 1023.0 / Constants.kSwerveRotation10VoltMaxSpeed,
 		// 10);
-		// rotationMotor.set(ControlMode.MotionMagic,
-		// rotationMotor.getSelectedSensorPosition(0));
+		rotationMotor.set(ControlMode.MotionMagic, rotationMotor.getSelectedSensorPosition(0));
 		if (!isRotationSensorConnected()) {
 			DriverStation.reportError(name + "rotation encoder not detected!", false);
 			hasEmergency = true;
@@ -110,7 +139,7 @@ public class SwerveModule extends Subsystem {
 		driveEncoder.setPosition(0.0);
 		driveMotor.enableVoltageCompensation(12.0);
 		driveMotor.setOpenLoopRampRate(0.25);
-		driveMotor.setInverted(true);
+		driveMotor.setInverted(this.kDriveMotorInverted);
 		driveMotor.setIdleMode(IdleMode.kBrake);
 	}
 
@@ -124,6 +153,9 @@ public class SwerveModule extends Subsystem {
 	}
 
 	public Rotation2d getModuleAngle() {
+		if (this.kTurnCountsDecreasing) {
+			return Rotation2d.fromDegrees(encUnitsToDegrees(encoderOffset) - getRawAngle());
+		}
 		return Rotation2d.fromDegrees(getRawAngle() - encUnitsToDegrees(encoderOffset));
 	}
 
@@ -133,8 +165,9 @@ public class SwerveModule extends Subsystem {
 	}
 
 	public void setModuleAngle(double goalAngle) {
+		SmartDashboard.putNumber(name+" AZ Target", goalAngle);
 		double newAngle = Util.placeInAppropriate0To360Scope(getRawAngle(),
-				goalAngle + encUnitsToDegrees(encoderOffset));
+				encUnitsToDegrees(encoderOffset) + goalAngle * (this.kTurnCountsDecreasing ? 1 : -1));
 		int setpoint = degreesToEncUnits(newAngle);
 		periodicIO.rotationControlMode = ControlMode.MotionMagic;
 		periodicIO.rotationDemand = setpoint;
