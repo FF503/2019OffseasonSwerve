@@ -7,7 +7,7 @@
     "D": 40.0,
     "F": 0.7314,
     "startingEncoderClick": 893,
-    "cruiseVelocity": 1400,
+    "cruiseVelocity": 1200,
     "cruiseAccel": 16400,
     "turnCountsDecreasing": true,
     "DriveInverted": true,
