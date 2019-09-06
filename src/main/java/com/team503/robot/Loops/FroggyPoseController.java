@@ -27,7 +27,7 @@ public class FroggyPoseController {
 
     private static SwerveDrive mSwerve = SwerveDrive.getInstance();
 
-    private static final FFDashboard table = new FFDashboard("Graph");
+    private static final FFDashboard table = new FFDashboard("Localization");
 
     public static synchronized void updateOdometry() {
         final double robotAngle = Pigeon.getInstance().getYaw();
@@ -47,10 +47,10 @@ public class FroggyPoseController {
         final Pose robotPose = RobotState.getInstance().getCurrentPose().getTranslatedPose();
         // table.putString("Current Pose", robotPose.toString());
 
-        FFDashboard.getInstance().putNumber("Time", robotPose.getTimestamp());
-        table.putNumber("X", robotPose.getX());
-        table.putNumber("Y", robotPose.getY());
-        table.putNumber("theta", robotPose.getTheta());
+        table.putNumber("Current Pose Time", robotPose.getTimestamp());
+        table.putNumber("Current Pose X", robotPose.getX());
+        table.putNumber("Current Pose Y", robotPose.getY());
+        table.putNumber("Current Pose Theta", robotPose.getTheta());
     }
 
 }

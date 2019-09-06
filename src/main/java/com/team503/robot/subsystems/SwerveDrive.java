@@ -30,6 +30,7 @@ public class SwerveDrive extends Subsystem {
     private final double kLengthComponent;
     private final double kWidthComponent;
 
+
     public static SwerveDrive getInstance() {
         if (instance == null)
             instance = new SwerveDrive();
@@ -37,7 +38,7 @@ public class SwerveDrive extends Subsystem {
     }
 
     public enum DriveMode {
-        TeleopDrive, Defense, MotionProfling, Vision, PurePursuit, KeyboardControl;
+        TeleopDrive, Defense, MotionProfling, Vision, PurePursuit, KeyboardControl, PIDControl;
     }
 
     private DriveMode mode = DriveMode.TeleopDrive;
@@ -108,18 +109,23 @@ public class SwerveDrive extends Subsystem {
     }
 
     public void drive(Translation2d translationVector) {
-        drive(translationVector, getRotationalOutput());
+        double rotOutput = getRotationalOutput();
+        drive(translationVector, rotOutput);
+        SmartDashboard.putNumber("rotationalOUTStep1", rotOutput);
     }
 
-    public void drive(Translation2d translationVector, double rotatationalInput) {
-        drive(translationVector, rotationalInput, false);
+    public void drive(Translation2d translationVector, double rotIn) {
+        //SmartDashboard.putNumber("rotationalOUT", rotationalInput);
+        drive(translationVector, rotIn, false);
+        SmartDashboard.putNumber("rotationalOUTStep2", rotIn);
     }
 
-    public void drive(Translation2d translationVector, double rotatationalInput, boolean lowPower) {
-        translationVector = translationVector.normalize();
+    public void drive(Translation2d translationVector, double rotIn, boolean lowPower) {
+        //translationVector = translationVector.normalize();
         double str = translationVector.getX();
         double fwd = translationVector.getY();
-        drive(str, fwd, rotationalInput, lowPower);
+        
+        drive(str, fwd, rotIn, lowPower);
     }
 
     public void snapForward(){
@@ -131,6 +137,7 @@ public class SwerveDrive extends Subsystem {
 
     // Takes joystick input an calculates drive wheel speed and turn motor angle
     public void drive(double str, double fwd, double rcw, boolean lowPower) {
+        translationalVector = new Translation2d(str, fwd);
         str *= (lowPower ? 0.3 : 1.0) * Robot.bot.requestDriveReversed;
         fwd *= (lowPower ? 0.5 : 1.0) * Robot.bot.requestDriveReversed;
         rcw *= lowPower ? 0.5 : 1.0;
@@ -142,9 +149,9 @@ public class SwerveDrive extends Subsystem {
             fwd = temp;
         }
 
-        translationalVector = new Translation2d(str, fwd);
+        
         rotationalInput = rcw;
-
+        
         double a = str - rcw * kLengthComponent;
         double b = str + rcw * kLengthComponent;
         double c = fwd - rcw * kWidthComponent;
@@ -249,11 +256,19 @@ public class SwerveDrive extends Subsystem {
 
     // Various methods to control the heading controller
     public synchronized void rotate(double goalHeading) {
-        if (translationalVector.getX() == 0 && translationalVector.getY() == 0)
+        if (translationalVector.getX() == 0 && translationalVector.getY() == 0){
             rotateInPlace(goalHeading);
+        }
+        // else if (mode == DriveMode.PIDControl){
+        //     stabilize(goalHeading);
+        // }
         else {
             stabilize(goalHeading);
         }
+    }
+
+    public Translation2d getCurrentTranslationVector(){
+        return translationalVector;
     }
 
     public void setPathHeading(SnappingPosition pos) {
@@ -261,18 +276,15 @@ public class SwerveDrive extends Subsystem {
     }
 
     public void setPathHeading(double goalHeading) {
-        headingController.setSnapTarget(
-                Util.placeInAppropriate0To360Scope(RobotState.getInstance().getCurrentTheta(), goalHeading));
+        headingController.setSnapTarget(Util.placeInAppropriate0To360Scope(RobotState.getInstance().getCurrentTheta(), goalHeading));
     }
 
     public synchronized void stabilize(double goalHeading) {
-        headingController.setStabilizationTarget(
-                Util.placeInAppropriate0To360Scope(RobotState.getInstance().getCurrentTheta(), goalHeading));
+        headingController.setStabilizationTarget(Util.placeInAppropriate0To360Scope(RobotState.getInstance().getCurrentTheta(), goalHeading));
     }
 
     public void rotateInPlace(double goalHeading) {
-        headingController.setStationaryTarget(
-                Util.placeInAppropriate0To360Scope(RobotState.getInstance().getCurrentTheta(), goalHeading));
+        headingController.setStationaryTarget(Util.placeInAppropriate0To360Scope(RobotState.getInstance().getCurrentTheta(), goalHeading));
     }
 
     /**
@@ -327,7 +339,7 @@ public class SwerveDrive extends Subsystem {
     }
 
     public void resetDriveEncoder() {
-        // modules.forEach((mod) -> mod.resetDriveEncoder());
+        modules.forEach((mod) -> mod.resetDriveEncoder());
     }
 
     @Override

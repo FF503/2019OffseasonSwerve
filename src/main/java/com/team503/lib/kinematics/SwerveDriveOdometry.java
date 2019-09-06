@@ -29,7 +29,7 @@ public class SwerveDriveOdometry {
     private double m_prevTimeSeconds = -1;
     private FFDashboard table = new FFDashboard("Localization");
 
-    private final CalculationMode calcMode = CalculationMode.Linear;
+    private final CalculationMode calcMode = CalculationMode.Non_Linear;
 
     private Rotation2d m_previousAngle;
 

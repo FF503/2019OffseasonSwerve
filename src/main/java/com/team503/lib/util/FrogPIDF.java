@@ -11,7 +11,7 @@ public class FrogPIDF {
     private double lastTime, lastError = 0;
     private double integral;
     private ControlMode control;
-
+    private double error;
     public enum ControlMode {
         Velocity_Control, Position_Control;
     }
@@ -41,6 +41,10 @@ public class FrogPIDF {
     public double calculateOutput(double sensorState, boolean boundTo180) {
         this.state = sensorState;
         double error = boundTo180 ? boundHalfDegrees(setPoint - sensorState) : (setPoint - sensorState) ;
+        this.error = error;
+        if (error < tolerance && !boundTo180){
+            return 0.0;
+        }
         double dError = error - lastError;
         double time = Timer.getFPGATimestamp();
         double dt = time - lastTime;
@@ -73,6 +77,10 @@ public class FrogPIDF {
 		while (angle_degrees < -180.0)
 			angle_degrees += 360.0;
 		return angle_degrees;
-	}
+    }
+    
+    public double getError(){
+        return error;
+    }
 
 }

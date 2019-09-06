@@ -9,11 +9,13 @@ package com.team503.robot;
 
 import java.util.Arrays;
 
+import com.team503.lib.geometry.Pose;
 import com.team503.lib.io.PrecisionDriveController;
 import com.team503.robot.RobotState.ArmDirection;
 import com.team503.robot.RobotState.Bot;
 import com.team503.robot.RobotState.GameElement;
 import com.team503.robot.auton.ForwardTest;
+import com.team503.robot.commands.DriveToPose;
 import com.team503.robot.commands.EjectBall;
 import com.team503.robot.commands.GameElementSwitcher;
 import com.team503.robot.commands.ReleaseHatch;
@@ -101,20 +103,22 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    Pigeon.getInstance().zeroSensors();
+    // Pigeon.getInstance().zeroSensors();
+    FroggyPoseController.resetPose(new Pose(0,0,0));
     mSwerve.setBrakeMode();
     Intake.getInstance().startVacuum();
+    mSwerve.resetDriveEncoder();
     LimelightProcessor.getInstance().setPipeline(Pipeline.CLOSEST);
-
-    new ForwardTest().initAndStartAuton();
+    Pose target = new Pose(0.0,100.0,270.0);
+    DriveToPose driveCommand = new DriveToPose(target);
+    driveCommand.start();
   }
-
   /**
    * This function is called periodically during autonomous.
    */
   @Override
   public void autonomousPeriodic() {
-    OILoop();
+    //OILoop();
 
     FroggyPoseController.updateOdometry();
     FroggyPoseController.outputPoseToDashboard();
@@ -125,6 +129,7 @@ public class Robot extends TimedRobot {
   /**
    * This function is called one time during operator control.
    */
+
   @Override
   public void teleopInit() {
     mSwerve.setBrakeMode();
@@ -166,6 +171,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
+    subsystems.outputToSmartDashboard();
   }
 
   private void OILoop() {
@@ -193,6 +199,7 @@ public class Robot extends TimedRobot {
       operatorInput();
       Arm.getInstance().updateSuperstruture();
     }
+    
   }
 
   private void joystickInput() {
