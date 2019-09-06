@@ -8,6 +8,7 @@ import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.team503.lib.kinematics.SwerveModuleState;
 import com.team503.lib.util.Util;
 import com.team503.robot.Robot;
 import com.team254.drivers.LazyTalonSRX;
@@ -302,6 +303,10 @@ public class SwerveModule extends Subsystem {
 		public ControlMode driveControlMode = ControlMode.PercentOutput;
 		public double rotationDemand;
 		public double driveDemand;
+	}
+
+	public SwerveModuleState getState() {
+		return null;
 	}
 
 }
