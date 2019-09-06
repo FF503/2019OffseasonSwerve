@@ -1,22 +1,19 @@
 package com.team503.robot.subsystems;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
-import com.team503.robot.Robot;
-import com.team503.robot.RobotState;
-import com.team503.lib.util.SwerveHeadingController;
-import com.team503.lib.util.SwerveInverseKinematics;
-import com.team254.lib.util.Util;
+import com.team254.lib.geometry.Pose2d;
 // import com.team254.lib.geometry.Pose2d;
 // import com.team254.lib.geometry.Pose2dWithCurvature;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Translation2d;
+import com.team254.lib.util.Util;
+import com.team503.lib.util.SwerveHeadingController;
+import com.team503.lib.util.SwerveInverseKinematics;
+import com.team503.robot.Robot;
+import com.team503.robot.RobotState;
 
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class SwerveDrive extends Subsystem {
@@ -223,20 +220,7 @@ public class SwerveDrive extends Subsystem {
 
         rotationalInput = rotate;
 
-        if (translationalInput.norm() != 0) {
-            if (currentState == ControlState.VISION) {
-                if (Math.abs(translationalInput.direction().distance(visionTargetHeading)) > Math.toRadians(150.0)) {
-                    setState(ControlState.MANUAL);
-                }
-            } else if (currentState != ControlState.MANUAL) {
-                setState(ControlState.MANUAL);
-            }
-        } else if (rotationalInput != 0) {
-            if (currentState != ControlState.MANUAL && currentState != ControlState.VISION
-                    && currentState != ControlState.TRAJECTORY) {
-                setState(ControlState.MANUAL);
-            }
-        }
+        setState(ControlState.MANUAL);
 
         if (inputMagnitude > 0.3)
             lastDriveVector = new Translation2d(x, y);
@@ -250,9 +234,9 @@ public class SwerveDrive extends Subsystem {
     // Possible new control method for rotation
     public Rotation2d averagedDirection = Rotation2d.identity();
 
-    public void resetAveragedDirection() {
-        averagedDirection = pose.getRotation();
-    }
+    // public void resetAveragedDirection() {
+    // averagedDirection = pose.getRotation();
+    // }
 
     public void setAveragedDirection(double degrees) {
         averagedDirection = Rotation2d.fromDegrees(degrees);
@@ -274,14 +258,14 @@ public class SwerveDrive extends Subsystem {
         if (translationalVector.x() == 0 && translationalVector.y() == 0)
             rotateInPlace(goalHeading);
         else
-            headingController.setStabilizationTarget(
-                    Util.placeInAppropriate0To360Scope(pose.getRotation().getUnboundedDegrees(), goalHeading));
+            headingController.setStabilizationTarget(com.team503.lib.util.Util
+                    .placeInAppropriate0To360Scope(RobotState.getInstance().getCurrentTheta(), goalHeading));
     }
 
     public void rotateInPlace(double goalHeading) {
         setState(ControlState.ROTATION);
-        headingController.setStationaryTarget(
-                Util.placeInAppropriate0To360Scope(pose.getRotation().getUnboundedDegrees(), goalHeading));
+        headingController.setStationaryTarget(com.team503.lib.util.Util
+                .placeInAppropriate0To360Scope(RobotState.getInstance().getCurrentTheta(), goalHeading));
     }
 
     public void rotateInPlaceAbsolutely(double absoluteHeading) {
@@ -290,8 +274,8 @@ public class SwerveDrive extends Subsystem {
     }
 
     public void setPathHeading(double goalHeading) {
-        headingController.setSnapTarget(
-                Util.placeInAppropriate0To360Scope(pose.getRotation().getUnboundedDegrees(), goalHeading));
+        headingController.setSnapTarget(com.team503.lib.util.Util
+                .placeInAppropriate0To360Scope(RobotState.getInstance().getCurrentTheta(), goalHeading));
     }
 
     public void setAbsolutePathHeading(double absoluteHeading) {
@@ -299,28 +283,30 @@ public class SwerveDrive extends Subsystem {
     }
 
     /** Sets MotionMagic targets for the drive motors */
-    public void setPositionTarget(double directionDegrees, double magnitudeInches) {
-        setState(ControlState.POSITION);
-        modules.forEach((m) -> m.setModuleAngle(directionDegrees));
-        modules.forEach((m) -> m.setDrivePositionTarget(magnitudeInches));
-    }
+    // public void setPositionTarget(double directionDegrees, double
+    // magnitudeInches) {
+    // setState(ControlState.POSITION);
+    // modules.forEach((m) -> m.setModuleAngle(directionDegrees));
+    // modules.forEach((m) -> m.setDrivePositionTarget(magnitudeInches));
+    // }
 
     /** Locks drive motors in place with MotionMagic */
-    public void lockDrivePosition() {
-        modules.forEach((m) -> m.setDrivePositionTarget(0.0));
-    }
+    // public void lockDrivePosition() {
+    // modules.forEach((m) -> m.setDrivePositionTarget(0.0));
+    // }
 
     /** Puts drive motors into closed-loop velocity mode */
-    public void setVelocity(Rotation2d direction, double velocityInchesPerSecond) {
-        setState(ControlState.VELOCITY);
-        modules.forEach((m) -> m.setModuleAngle(direction.getDegrees()));
-        modules.forEach((m) -> m.setVelocitySetpoint(velocityInchesPerSecond));
-    }
+    // public void setVelocity(Rotation2d direction, double velocityInchesPerSecond)
+    // {
+    // setState(ControlState.VELOCITY);
+    // modules.forEach((m) -> m.setModuleAngle(direction.getDegrees()));
+    // modules.forEach((m) -> m.setVelocitySetpoint(velocityInchesPerSecond));
+    // }
 
     /** Configures each module to match its assigned vector */
     public void setDriveOutput(List<Translation2d> driveVectors) {
         for (int i = 0; i < modules.size(); i++) {
-            if (Util.shouldReverse(driveVectors.get(i).direction().getDegrees(),
+            if (com.team503.lib.util.Util.shouldReverse(driveVectors.get(i).direction().getDegrees(),
                     modules.get(i).getModuleAngle().getDegrees())) {
                 modules.get(i).setModuleAngle(driveVectors.get(i).direction().getDegrees() + 180.0);
                 modules.get(i).setDriveOpenLoop(-driveVectors.get(i).norm());
@@ -333,7 +319,7 @@ public class SwerveDrive extends Subsystem {
 
     public void setDriveOutput(List<Translation2d> driveVectors, double percentOutputOverride) {
         for (int i = 0; i < modules.size(); i++) {
-            if (Util.shouldReverse(driveVectors.get(i).direction().getDegrees(),
+            if (com.team503.lib.util.Util.shouldReverse(driveVectors.get(i).direction().getDegrees(),
                     modules.get(i).getModuleAngle().getDegrees())) {
                 modules.get(i).setModuleAngle(driveVectors.get(i).direction().getDegrees() + 180.0);
                 modules.get(i).setDriveOpenLoop(-percentOutputOverride);
@@ -348,38 +334,45 @@ public class SwerveDrive extends Subsystem {
      * Configures each module to match its assigned vector, but puts the drive
      * motors into closed-loop velocity mode
      */
-    public void setVelocityDriveOutput(List<Translation2d> driveVectors) {
-        for (int i = 0; i < modules.size(); i++) {
-            if (Util.shouldReverse(driveVectors.get(i).direction().getDegrees(),
-                    modules.get(i).getModuleAngle().getDegrees())) {
-                modules.get(i).setModuleAngle(driveVectors.get(i).direction().getDegrees() + 180.0);
-                modules.get(i)
-                        .setVelocitySetpoint(-driveVectors.get(i).norm() * Constants.kSwerveMaxSpeedInchesPerSecond);
-            } else {
-                modules.get(i).setModuleAngle(driveVectors.get(i).direction().getDegrees());
-                modules.get(i)
-                        .setVelocitySetpoint(driveVectors.get(i).norm() * Constants.kSwerveMaxSpeedInchesPerSecond);
-            }
-        }
-    }
+    // public void setVelocityDriveOutput(List<Translation2d> driveVectors) {
+    // for (int i = 0; i < modules.size(); i++) {
+    // if
+    // (com.team503.lib.util.Util.shouldReverse(driveVectors.get(i).direction().getDegrees(),
+    // modules.get(i).getModuleAngle().getDegrees())) {
+    // modules.get(i).setModuleAngle(driveVectors.get(i).direction().getDegrees() +
+    // 180.0);
+    // modules.get(i)
+    // .setVelocitySetpoint(-driveVectors.get(i).norm() *
+    // Constants.kSwerveMaxSpeedInchesPerSecond);
+    // } else {
+    // modules.get(i).setModuleAngle(driveVectors.get(i).direction().getDegrees());
+    // modules.get(i)
+    // .setVelocitySetpoint(driveVectors.get(i).norm() *
+    // Constants.kSwerveMaxSpeedInchesPerSecond);
+    // }
+    // }
+    // }
 
-    public void setVelocityDriveOutput(List<Translation2d> driveVectors, double velocityOverride) {
-        for (int i = 0; i < modules.size(); i++) {
-            if (Util.shouldReverse(driveVectors.get(i).direction().getDegrees(),
-                    modules.get(i).getModuleAngle().getDegrees())) {
-                modules.get(i).setModuleAngle(driveVectors.get(i).direction().getDegrees() + 180.0);
-                modules.get(i).setVelocitySetpoint(-velocityOverride);
-            } else {
-                modules.get(i).setModuleAngle(driveVectors.get(i).direction().getDegrees());
-                modules.get(i).setVelocitySetpoint(velocityOverride);
-            }
-        }
-    }
+    // public void setVelocityDriveOutput(List<Translation2d> driveVectors, double
+    // velocityOverride) {
+    // for (int i = 0; i < modules.size(); i++) {
+    // if
+    // (com.team503.lib.util.Util.shouldReverse(driveVectors.get(i).direction().getDegrees(),
+    // modules.get(i).getModuleAngle().getDegrees())) {
+    // modules.get(i).setModuleAngle(driveVectors.get(i).direction().getDegrees() +
+    // 180.0);
+    // modules.get(i).setVelocitySetpoint(-velocityOverride);
+    // } else {
+    // modules.get(i).setModuleAngle(driveVectors.get(i).direction().getDegrees());
+    // modules.get(i).setVelocitySetpoint(velocityOverride);
+    // }
+    // }
+    // }
 
     /** Sets only module angles to match their assigned vectors */
     public void setModuleAngles(List<Translation2d> driveVectors) {
         for (int i = 0; i < modules.size(); i++) {
-            if (Util.shouldReverse(driveVectors.get(i).direction().getDegrees(),
+            if (com.team503.lib.util.Util.shouldReverse(driveVectors.get(i).direction().getDegrees(),
                     modules.get(i).getModuleAngle().getDegrees())) {
                 modules.get(i).setModuleAngle(driveVectors.get(i).direction().getDegrees() + 180.0);
             } else {
@@ -397,13 +390,13 @@ public class SwerveDrive extends Subsystem {
      * @return Whether or not at least one module has reached its MotionMagic
      *         setpoint
      */
-    public boolean positionOnTarget() {
-        boolean onTarget = false;
-        for (SwerveModule m : modules) {
-            onTarget |= m.drivePositionOnTarget();
-        }
-        return onTarget;
-    }
+    // public boolean positionOnTarget() {
+    // boolean onTarget = false;
+    // for (SwerveModule m : modules) {
+    // onTarget |= m.drivePositionOnTarget();
+    // }
+    // return onTarget;
+    // }
 
     /**
      * @return Whether or not all modules have reached their angle setpoints
@@ -427,277 +420,336 @@ public class SwerveDrive extends Subsystem {
      * @param followingCenter The point (relative to the robot) that will follow the
      *                        trajectory
      */
-    public synchronized void setTrajectory(Trajectory<TimedState<Pose2dWithCurvature>> trajectory, double targetHeading,
-            double rotationScalar, Translation2d followingCenter) {
-        hasStartedFollowing = false;
-        hasFinishedPath = false;
-        moduleConfigRequested = false;
-        motionPlanner.reset();
-        motionPlanner.setTrajectory(new TrajectoryIterator<>(new TimedView<>(trajectory)));
-        motionPlanner.setFollowingCenter(followingCenter);
-        inverseKinematics.setCenterOfRotation(followingCenter);
-        setAbsolutePathHeading(targetHeading);
-        this.rotationScalar = rotationScalar;
-        trajectoryStartTime = Timer.getFPGATimestamp();
-        setState(ControlState.TRAJECTORY);
-    }
+    // public synchronized void
+    // setTrajectory(Trajectory<TimedState<Pose2dWithCurvature>> trajectory, double
+    // targetHeading,
+    // double rotationScalar, Translation2d followingCenter) {
+    // hasStartedFollowing = false;
+    // hasFinishedPath = false;
+    // moduleConfigRequested = false;
+    // motionPlanner.reset();
+    // motionPlanner.setTrajectory(new TrajectoryIterator<>(new
+    // TimedView<>(trajectory)));
+    // motionPlanner.setFollowingCenter(followingCenter);
+    // inverseKinematics.setCenterOfRotation(followingCenter);
+    // setAbsolutePathHeading(targetHeading);
+    // this.rotationScalar = rotationScalar;
+    // trajectoryStartTime = Timer.getFPGATimestamp();
+    // setState(ControlState.TRAJECTORY);
+    // }
 
-    public synchronized void setTrajectory(Trajectory<TimedState<Pose2dWithCurvature>> trajectory, double targetHeading,
-            double rotationScalar) {
-        setTrajectory(trajectory, targetHeading, rotationScalar, Translation2d.identity());
-    }
+    // public synchronized void
+    // setTrajectory(Trajectory<TimedState<Pose2dWithCurvature>> trajectory, double
+    // targetHeading,
+    // double rotationScalar) {
+    // setTrajectory(trajectory, targetHeading, rotationScalar,
+    // Translation2d.identity());
+    // }
 
-    public synchronized void setRobotCentricTrajectory(Translation2d relativeEndPos, double targetHeading) {
-        setRobotCentricTrajectory(relativeEndPos, targetHeading, 45.0);
-    }
+    // public synchronized void setRobotCentricTrajectory(Translation2d
+    // relativeEndPos, double targetHeading) {
+    // setRobotCentricTrajectory(relativeEndPos, targetHeading, 45.0);
+    // }
 
-    public synchronized void setRobotCentricTrajectory(Translation2d relativeEndPos, double targetHeading,
-            double defaultVel) {
-        modulesReady = true;
-        Translation2d endPos = pose.transformBy(Pose2d.fromTranslation(relativeEndPos)).getTranslation();
-        Rotation2d startHeading = endPos.translateBy(pose.getTranslation().inverse()).direction();
-        List<Pose2d> waypoints = new ArrayList<>();
-        waypoints.add(new Pose2d(pose.getTranslation(), startHeading));
-        waypoints.add(
-                new Pose2d(pose.transformBy(Pose2d.fromTranslation(relativeEndPos)).getTranslation(), startHeading));
-        Trajectory<TimedState<Pose2dWithCurvature>> trajectory = generator.generateTrajectory(false, waypoints,
-                Arrays.asList(), 96.0, 60.0, 60.0, 9.0, defaultVel, 1);
-        double heading = Util.placeInAppropriate0To360Scope(pose.getRotation().getUnboundedDegrees(), targetHeading);
-        setTrajectory(trajectory, heading, 1.0);
-    }
+    // public synchronized void setRobotCentricTrajectory(Translation2d
+    // relativeEndPos, double targetHeading,
+    // double defaultVel) {
+    // modulesReady = true;
+    // Translation2d endPos =
+    // pose.transformBy(Pose2d.fromTranslation(relativeEndPos)).getTranslation();
+    // Rotation2d startHeading =
+    // endPos.translateBy(pose.getTranslation().inverse()).direction();
+    // List<Pose2d> waypoints = new ArrayList<>();
+    // waypoints.add(new Pose2d(pose.getTranslation(), startHeading));
+    // waypoints.add(
+    // new
+    // Pose2d(pose.transformBy(Pose2d.fromTranslation(relativeEndPos)).getTranslation(),
+    // startHeading));
+    // Trajectory<TimedState<Pose2dWithCurvature>> trajectory =
+    // generator.generateTrajectory(false, waypoints,
+    // Arrays.asList(), 96.0, 60.0, 60.0, 9.0, defaultVel, 1);
+    // double heading =
+    // Util.placeInAppropriate0To360Scope(pose.getRotation().getUnboundedDegrees(),
+    // targetHeading);
+    // setTrajectory(trajectory, heading, 1.0);
+    // }
 
-    private synchronized void setCurvedVisionTrajectory(double linearShiftDistance,
-            Optional<ShooterAimingParameters> aimingParameters, Translation2d endTranslation,
-            boolean overrideSafeties) {
-        visionCurveDistance = linearShiftDistance;
-        // System.out.println("Vision Curve Distance: " + visionCurveDistance);
-        visionTargetPosition = robotState.getCaptureTimeFieldToGoal().get(2).getTranslation();
-        Optional<Pose2d> orientedTarget = robotState.getOrientedTargetPosition(aimingParameters);
-        lastVisionEndTranslation = endTranslation;
-        if ((orientedTarget.isPresent() && /* robotState.seesTarget() && */ visionUpdatesAllowed) || overrideSafeties) {
+    // private synchronized void setCurvedVisionTrajectory(double
+    // linearShiftDistance,
+    // Optional<ShooterAimingParameters> aimingParameters, Translation2d
+    // endTranslation,
+    // boolean overrideSafeties) {
+    // visionCurveDistance = linearShiftDistance;
+    // // System.out.println("Vision Curve Distance: " + visionCurveDistance);
+    // visionTargetPosition =
+    // robotState.getCaptureTimeFieldToGoal().get(2).getTranslation();
+    // Optional<Pose2d> orientedTarget =
+    // robotState.getOrientedTargetPosition(aimingParameters);
+    // lastVisionEndTranslation = endTranslation;
+    // if ((orientedTarget.isPresent() && /* robotState.seesTarget() && */
+    // visionUpdatesAllowed) || overrideSafeties) {
 
-            Rotation2d closestHeading = fixedVisionOrientation;
-            double distance = 2.0 * Math.PI;
-            if (!useFixedVisionOrientation) {
-                Rotation2d robotToTarget = orientedTarget.get().getTranslation()
-                        .translateBy(pose.getTranslation().inverse()).direction();
-                Rotation2d oppRobotToTarget = robotToTarget.rotateBy(Rotation2d.fromDegrees(180.0));
-                if (Math.abs(pose.getRotation().distance(oppRobotToTarget)) < Math
-                        .abs(pose.getRotation().distance(robotToTarget))) {
-                    robotToTarget = oppRobotToTarget;
-                }
+    // Rotation2d closestHeading = fixedVisionOrientation;
+    // double distance = 2.0 * Math.PI;
+    // if (!useFixedVisionOrientation) {
+    // Rotation2d robotToTarget = orientedTarget.get().getTranslation()
+    // .translateBy(pose.getTranslation().inverse()).direction();
+    // Rotation2d oppRobotToTarget =
+    // robotToTarget.rotateBy(Rotation2d.fromDegrees(180.0));
+    // if (Math.abs(pose.getRotation().distance(oppRobotToTarget)) < Math
+    // .abs(pose.getRotation().distance(robotToTarget))) {
+    // robotToTarget = oppRobotToTarget;
+    // }
 
-                for (Rotation2d r : (robotHasDisk ? Constants.kPossibleDiskTargetAngles
-                        : Constants.kPossibleBallTargetAngles)) {
-                    if (Math.abs(r.distance(/* orientedTarget.get().getRotation() */robotToTarget)) < distance) {
-                        closestHeading = r;
-                        distance = Math.abs(r.distance(/* orientedTarget.get().getRotation() */robotToTarget));
-                    }
-                }
-            }
-            Optional<Pose2d> robotScoringPosition = robotState.getRobotScoringPosition(aimingParameters, closestHeading,
-                    endTranslation);
-            Translation2d deltaPosition = new Pose2d(orientedTarget.get().getTranslation(), closestHeading)
-                    .transformBy(Pose2d.fromTranslation(new Translation2d(-linearShiftDistance, 0.0))).getTranslation()
-                    .translateBy(pose.getTranslation().inverse());
-            Rotation2d deltaPositionHeading = new Rotation2d(deltaPosition, true);
-            Rotation2d oppositeHeading = deltaPositionHeading.rotateBy(Rotation2d.fromDegrees(180.0));
-            if (Math.abs(closestHeading.distance(oppositeHeading)) < Math
-                    .abs(closestHeading.distance(deltaPositionHeading))) {
-                deltaPositionHeading = oppositeHeading;
-            }
-            System.out.println("Closest target heading: " + closestHeading.getDegrees() + ". DeltaPosHeading: "
-                    + deltaPositionHeading.getDegrees() + ". Target orientation: "
-                    + orientedTarget.get().getRotation().getDegrees());
-            if (!robotScoringPosition.isEmpty()) {
-                if (pose.getTranslation().distance(robotScoringPosition.get().getTranslation()) <= 2.0) {
-                    System.out.println("Vision update rejected; robot is within 2 inches of scoring position");
-                } else {
-                    System.out.println("Generating vision traj, first pos is: " + pose.getTranslation().toString()
-                            + ", second pos is: " + robotScoringPosition.get().getTranslation().toString()
-                            + ", last traj vector: " + lastTrajectoryVector.toString());
-                    List<Pose2d> waypoints = new ArrayList<>();
-                    waypoints.add(new Pose2d(pose.getTranslation(),
-                            (getState() == ControlState.VISION || getState() == ControlState.TRAJECTORY)
-                                    ? lastTrajectoryVector.direction()
-                                    : deltaPositionHeading));
-                    waypoints.add(new Pose2d(robotScoringPosition.get().getTranslation(), closestHeading));
-                    Trajectory<TimedState<Pose2dWithCurvature>> trajectory = generator.generateTrajectory(false,
-                            waypoints, Arrays.asList(), 104.0, 66.0, 66.0, 9.0,
-                            (visionUpdateCount > 1)
-                                    ? lastTrajectoryVector.norm() * Constants.kSwerveMaxSpeedInchesPerSecond
-                                    : visionTrackingSpeed,
-                            1);
-                    motionPlanner.reset();
-                    motionPlanner.setTrajectory(new TrajectoryIterator<>(new TimedView<>(trajectory)));
-                    setPathHeading(closestHeading.getDegrees());
-                    rotationScalar = 0.25;
-                    visionTargetHeading = robotScoringPosition.get().getRotation();
-                    visionUpdateCount++;
-                    if (currentState != ControlState.VISION) {
-                        needsToNotifyDrivers = true;
-                    }
-                    visionState = VisionState.CURVED;
-                    setState(ControlState.VISION);
-                    System.out.println("Vision trajectory updated " + visionUpdateCount + " times. Distance: "
-                            + aimingParameters.get().getRange());
-                }
-            }
-        } else {
-            DriverStation.reportError("Vision update refused! " + orientedTarget.isPresent() + " "
-                    + robotState.seesTarget() + " " + visionUpdatesAllowed, false);
-        }
-    }
+    // for (Rotation2d r : (robotHasDisk ? Constants.kPossibleDiskTargetAngles
+    // : Constants.kPossibleBallTargetAngles)) {
+    // if (Math.abs(r.distance(/* orientedTarget.get().getRotation()
+    // */robotToTarget)) < distance) {
+    // closestHeading = r;
+    // distance = Math.abs(r.distance(/* orientedTarget.get().getRotation()
+    // */robotToTarget));
+    // }
+    // }
+    // }
+    // Optional<Pose2d> robotScoringPosition =
+    // robotState.getRobotScoringPosition(aimingParameters, closestHeading,
+    // endTranslation);
+    // Translation2d deltaPosition = new
+    // Pose2d(orientedTarget.get().getTranslation(), closestHeading)
+    // .transformBy(Pose2d.fromTranslation(new Translation2d(-linearShiftDistance,
+    // 0.0))).getTranslation()
+    // .translateBy(pose.getTranslation().inverse());
+    // Rotation2d deltaPositionHeading = new Rotation2d(deltaPosition, true);
+    // Rotation2d oppositeHeading =
+    // deltaPositionHeading.rotateBy(Rotation2d.fromDegrees(180.0));
+    // if (Math.abs(closestHeading.distance(oppositeHeading)) < Math
+    // .abs(closestHeading.distance(deltaPositionHeading))) {
+    // deltaPositionHeading = oppositeHeading;
+    // }
+    // System.out.println("Closest target heading: " + closestHeading.getDegrees() +
+    // ". DeltaPosHeading: "
+    // + deltaPositionHeading.getDegrees() + ". Target orientation: "
+    // + orientedTarget.get().getRotation().getDegrees());
+    // if (!robotScoringPosition.isEmpty()) {
+    // if
+    // (pose.getTranslation().distance(robotScoringPosition.get().getTranslation())
+    // <= 2.0) {
+    // System.out.println("Vision update rejected; robot is within 2 inches of
+    // scoring position");
+    // } else {
+    // System.out.println("Generating vision traj, first pos is: " +
+    // pose.getTranslation().toString()
+    // + ", second pos is: " +
+    // robotScoringPosition.get().getTranslation().toString()
+    // + ", last traj vector: " + lastTrajectoryVector.toString());
+    // List<Pose2d> waypoints = new ArrayList<>();
+    // waypoints.add(new Pose2d(pose.getTranslation(),
+    // (getState() == ControlState.VISION || getState() == ControlState.TRAJECTORY)
+    // ? lastTrajectoryVector.direction()
+    // : deltaPositionHeading));
+    // waypoints.add(new Pose2d(robotScoringPosition.get().getTranslation(),
+    // closestHeading));
+    // Trajectory<TimedState<Pose2dWithCurvature>> trajectory =
+    // generator.generateTrajectory(false,
+    // waypoints, Arrays.asList(), 104.0, 66.0, 66.0, 9.0,
+    // (visionUpdateCount > 1)
+    // ? lastTrajectoryVector.norm() * Constants.kSwerveMaxSpeedInchesPerSecond
+    // : visionTrackingSpeed,
+    // 1);
+    // motionPlanner.reset();
+    // motionPlanner.setTrajectory(new TrajectoryIterator<>(new
+    // TimedView<>(trajectory)));
+    // setPathHeading(closestHeading.getDegrees());
+    // rotationScalar = 0.25;
+    // visionTargetHeading = robotScoringPosition.get().getRotation();
+    // visionUpdateCount++;
+    // if (currentState != ControlState.VISION) {
+    // needsToNotifyDrivers = true;
+    // }
+    // visionState = VisionState.CURVED;
+    // setState(ControlState.VISION);
+    // System.out.println("Vision trajectory updated " + visionUpdateCount + "
+    // times. Distance: "
+    // + aimingParameters.get().getRange());
+    // }
+    // }
+    // } else {
+    // DriverStation.reportError("Vision update refused! " +
+    // orientedTarget.isPresent() + " "
+    // + robotState.seesTarget() + " " + visionUpdatesAllowed, false);
+    // }
+    // }
 
-    public synchronized void setLinearVisionTrajectory(Optional<ShooterAimingParameters> aim,
-            Translation2d endTranslation) {
-        visionTargetPosition = robotState.getCaptureTimeFieldToGoal().get(2).getTranslation();
-        lastVisionEndTranslation = endTranslation;
-        Optional<Pose2d> orientedTarget = robotState.getOrientedTargetPosition(aim);
-        if ((orientedTarget.isPresent() && robotState.seesTarget() && visionUpdatesAllowed)) {
+    // public synchronized void
+    // setLinearVisionTrajectory(Optional<ShooterAimingParameters> aim,
+    // Translation2d endTranslation) {
+    // visionTargetPosition =
+    // robotState.getCaptureTimeFieldToGoal().get(2).getTranslation();
+    // lastVisionEndTranslation = endTranslation;
+    // Optional<Pose2d> orientedTarget = robotState.getOrientedTargetPosition(aim);
+    // if ((orientedTarget.isPresent() && robotState.seesTarget() &&
+    // visionUpdatesAllowed)) {
 
-            Rotation2d closestHeading = fixedVisionOrientation;
-            double distance = 2.0 * Math.PI;
-            if (!useFixedVisionOrientation) {
-                Rotation2d robotToTarget = orientedTarget.get().getTranslation()
-                        .translateBy(pose.getTranslation().inverse()).direction();
-                Rotation2d oppRobotToTarget = robotToTarget.rotateBy(Rotation2d.fromDegrees(180.0));
-                if (Math.abs(pose.getRotation().distance(oppRobotToTarget)) < Math
-                        .abs(pose.getRotation().distance(robotToTarget))) {
-                    robotToTarget = oppRobotToTarget;
-                }
+    // Rotation2d closestHeading = fixedVisionOrientation;
+    // double distance = 2.0 * Math.PI;
+    // if (!useFixedVisionOrientation) {
+    // Rotation2d robotToTarget = orientedTarget.get().getTranslation()
+    // .translateBy(pose.getTranslation().inverse()).direction();
+    // Rotation2d oppRobotToTarget =
+    // robotToTarget.rotateBy(Rotation2d.fromDegrees(180.0));
+    // if (Math.abs(pose.getRotation().distance(oppRobotToTarget)) < Math
+    // .abs(pose.getRotation().distance(robotToTarget))) {
+    // robotToTarget = oppRobotToTarget;
+    // }
 
-                for (Rotation2d r : (robotHasDisk ? Constants.kPossibleDiskTargetAngles
-                        : Constants.kPossibleBallTargetAngles)) {
-                    if (Math.abs(r.distance(robotToTarget)) < distance) {
-                        closestHeading = r;
-                        distance = Math.abs(r.distance(robotToTarget));
-                    }
-                }
-            }
-            Pose2d robotScoringPosition = new Pose2d(visionTargetPosition, aim.get().getRobotToGoal())
-                    .transformBy(Pose2d.fromTranslation(
-                            new Translation2d(-Constants.kRobotHalfLength + endTranslation.x(), endTranslation.y())));
+    // for (Rotation2d r : (robotHasDisk ? Constants.kPossibleDiskTargetAngles
+    // : Constants.kPossibleBallTargetAngles)) {
+    // if (Math.abs(r.distance(robotToTarget)) < distance) {
+    // closestHeading = r;
+    // distance = Math.abs(r.distance(robotToTarget));
+    // }
+    // }
+    // }
+    // Pose2d robotScoringPosition = new Pose2d(visionTargetPosition,
+    // aim.get().getRobotToGoal())
+    // .transformBy(Pose2d.fromTranslation(
+    // new Translation2d(-Constants.kRobotHalfLength + endTranslation.x(),
+    // endTranslation.y())));
 
-            if (pose.getTranslation().distance(robotScoringPosition.getTranslation()) <= 2.0) {
-                System.out.println("Vision update rejected; robot is within 2 inches of scoring position");
-            } else {
-                Rotation2d linearHeading = robotScoringPosition.getTranslation()
-                        .translateBy(pose.getTranslation().inverse()).direction();
-                System.out.println("Generating vision traj, first pos is: " + pose.getTranslation().toString()
-                        + ", second pos is: " + robotScoringPosition.getTranslation().toString()
-                        + ", last traj vector: " + lastTrajectoryVector.toString());
-                List<Pose2d> waypoints = new ArrayList<>();
-                waypoints.add(new Pose2d(pose.getTranslation(), linearHeading));
-                waypoints.add(new Pose2d(robotScoringPosition.getTranslation(), linearHeading));
-                Trajectory<TimedState<Pose2dWithCurvature>> trajectory = generator.generateTrajectory(false, waypoints,
-                        Arrays.asList(), 104.0, 66.0, 66.0, 9.0,
-                        (visionUpdateCount > 1) ? lastTrajectoryVector.norm() * Constants.kSwerveMaxSpeedInchesPerSecond
-                                : visionTrackingSpeed,
-                        1);
-                motionPlanner.reset();
-                motionPlanner.setTrajectory(new TrajectoryIterator<>(new TimedView<>(trajectory)));
-                setPathHeading(aim.get().getRobotToGoal().getDegrees());
-                rotationScalar = 0.75;
-                visionTargetHeading = aim.get().getRobotToGoal();
-                visionUpdateCount++;
-                if (currentState != ControlState.VISION) {
-                    needsToNotifyDrivers = true;
-                }
-                visionState = VisionState.LINEAR;
-                setState(ControlState.VISION);
-                System.out.println(
-                        "Vision trajectory updated " + visionUpdateCount + " times. Distance: " + aim.get().getRange());
-            }
-        } else {
-            DriverStation.reportError("Vision update refused! " + orientedTarget.isPresent() + " "
-                    + robotState.seesTarget() + " " + visionUpdatesAllowed, false);
-        }
-    }
+    // if (pose.getTranslation().distance(robotScoringPosition.getTranslation()) <=
+    // 2.0) {
+    // System.out.println("Vision update rejected; robot is within 2 inches of
+    // scoring position");
+    // } else {
+    // Rotation2d linearHeading = robotScoringPosition.getTranslation()
+    // .translateBy(pose.getTranslation().inverse()).direction();
+    // System.out.println("Generating vision traj, first pos is: " +
+    // pose.getTranslation().toString()
+    // + ", second pos is: " + robotScoringPosition.getTranslation().toString()
+    // + ", last traj vector: " + lastTrajectoryVector.toString());
+    // List<Pose2d> waypoints = new ArrayList<>();
+    // waypoints.add(new Pose2d(pose.getTranslation(), linearHeading));
+    // waypoints.add(new Pose2d(robotScoringPosition.getTranslation(),
+    // linearHeading));
+    // Trajectory<TimedState<Pose2dWithCurvature>> trajectory =
+    // generator.generateTrajectory(false, waypoints,
+    // Arrays.asList(), 104.0, 66.0, 66.0, 9.0,
+    // (visionUpdateCount > 1) ? lastTrajectoryVector.norm() *
+    // Constants.kSwerveMaxSpeedInchesPerSecond
+    // : visionTrackingSpeed,
+    // 1);
+    // motionPlanner.reset();
+    // motionPlanner.setTrajectory(new TrajectoryIterator<>(new
+    // TimedView<>(trajectory)));
+    // setPathHeading(aim.get().getRobotToGoal().getDegrees());
+    // rotationScalar = 0.75;
+    // visionTargetHeading = aim.get().getRobotToGoal();
+    // visionUpdateCount++;
+    // if (currentState != ControlState.VISION) {
+    // needsToNotifyDrivers = true;
+    // }
+    // visionState = VisionState.LINEAR;
+    // setState(ControlState.VISION);
+    // System.out.println(
+    // "Vision trajectory updated " + visionUpdateCount + " times. Distance: " +
+    // aim.get().getRange());
+    // }
+    // } else {
+    // DriverStation.reportError("Vision update refused! " +
+    // orientedTarget.isPresent() + " "
+    // + robotState.seesTarget() + " " + visionUpdatesAllowed, false);
+    // }
+    // }
 
     /**
      * Creates and sets a trajectory for the robot to follow, in order to approach a
      * target and score a game piece
      */
-    public synchronized void setVisionTrajectory(double visionTargetHeight, Translation2d endTranslation,
-            boolean override, VisionState vState) {
-        Optional<ShooterAimingParameters> aim = robotState.getAimingParameters();
-        visionState = vState;
-        if (aim.isPresent()) {
-            if (pigeon.isGood()) {
-                if (aim.get().getRange() >= Constants.kClosestVisionDistance) {
-                    if (getState() != ControlState.VISION) {
-                        initialVisionDistance = aim.get().getRange();
-                        latestAim = aim.get();
-                    }
-                    double previousHeight = robotState.getVisionTargetHeight();
-                    robotState.setVisionTargetHeight(visionTargetHeight);
-                    if (!Util.epsilonEquals(previousHeight, visionTargetHeight)) {
-                        robotState.clearVisionTargets();
-                        lastVisionEndTranslation = endTranslation;
-                        visionUpdateRequested = true;
-                        System.out.println("Vision delayed until next cycle");
-                    } else {
-                        visionUpdatesAllowed = elevator
-                                .inVisionRange(robotHasDisk ? Constants.kElevatorDiskVisibleRanges
-                                        : Constants.kElevatorBallVisibleRanges);
-                        if (vState == VisionState.CURVED)
-                            setCurvedVisionTrajectory(aim.get().getRange() * 0.5, aim, endTranslation, override);
-                        else
-                            setLinearVisionTrajectory(aim, endTranslation);
-                    }
-                    // System.out.println("Vision attempted");
-                } else {
-                    System.out.println("Vision target too close");
-                }
-            } else {
-                System.out.println("Pigeon unresponsive");
-            }
-        } else {
-            visionUpdateRequested = true;
-            System.out.println("Vision delayed until next cycle");
-        }
-    }
+    // public synchronized void setVisionTrajectory(double visionTargetHeight,
+    // Translation2d endTranslation,
+    // boolean override, VisionState vState) {
+    // Optional<ShooterAimingParameters> aim = robotState.getAimingParameters();
+    // visionState = vState;
+    // if (aim.isPresent()) {
+    // if (pigeon.isGood()) {
+    // if (aim.get().getRange() >= Constants.kClosestVisionDistance) {
+    // if (getState() != ControlState.VISION) {
+    // initialVisionDistance = aim.get().getRange();
+    // latestAim = aim.get();
+    // }
+    // double previousHeight = robotState.getVisionTargetHeight();
+    // robotState.setVisionTargetHeight(visionTargetHeight);
+    // if (!Util.epsilonEquals(previousHeight, visionTargetHeight)) {
+    // robotState.clearVisionTargets();
+    // lastVisionEndTranslation = endTranslation;
+    // visionUpdateRequested = true;
+    // System.out.println("Vision delayed until next cycle");
+    // } else {
+    // visionUpdatesAllowed = elevator
+    // .inVisionRange(robotHasDisk ? Constants.kElevatorDiskVisibleRanges
+    // : Constants.kElevatorBallVisibleRanges);
+    // if (vState == VisionState.CURVED)
+    // setCurvedVisionTrajectory(aim.get().getRange() * 0.5, aim, endTranslation,
+    // override);
+    // else
+    // setLinearVisionTrajectory(aim, endTranslation);
+    // }
+    // // System.out.println("Vision attempted");
+    // } else {
+    // System.out.println("Vision target too close");
+    // }
+    // } else {
+    // System.out.println("Pigeon unresponsive");
+    // }
+    // } else {
+    // visionUpdateRequested = true;
+    // System.out.println("Vision delayed until next cycle");
+    // }
+    // }
 
-    public synchronized void setVisionTrajectory(Translation2d endTranslation, VisionState vState) {
-        Optional<ShooterAimingParameters> aim = robotState.getAimingParameters();
-        visionState = vState;
-        if (aim.isPresent()) {
-            if (pigeon.isGood()) {
-                if (aim.get().getRange() >= Constants.kClosestVisionDistance) {
-                    if (getState() != ControlState.VISION) {
-                        initialVisionDistance = aim.get().getRange();
-                        latestAim = aim.get();
-                    }
-                    visionUpdatesAllowed = elevator.inVisionRange(
-                            robotHasDisk ? Constants.kElevatorDiskVisibleRanges : Constants.kElevatorBallVisibleRanges);
-                    if (vState == VisionState.CURVED)
-                        setCurvedVisionTrajectory(aim.get().getRange() * 0.5, aim, endTranslation, false);
-                    else
-                        setLinearVisionTrajectory(aim, endTranslation);
-                } else {
-                    System.out.println("Vision target too close");
-                }
-            } else {
-                System.out.println("Pigeon unresponsive");
-            }
-        }
-    }
+    // public synchronized void setVisionTrajectory(Translation2d endTranslation,
+    // VisionState vState) {
+    // Optional<ShooterAimingParameters> aim = robotState.getAimingParameters();
+    // visionState = vState;
+    // if (aim.isPresent()) {
+    // if (pigeon.isGood()) {
+    // if (aim.get().getRange() >= Constants.kClosestVisionDistance) {
+    // if (getState() != ControlState.VISION) {
+    // initialVisionDistance = aim.get().getRange();
+    // latestAim = aim.get();
+    // }
+    // visionUpdatesAllowed = elevator.inVisionRange(
+    // robotHasDisk ? Constants.kElevatorDiskVisibleRanges :
+    // Constants.kElevatorBallVisibleRanges);
+    // if (vState == VisionState.CURVED)
+    // setCurvedVisionTrajectory(aim.get().getRange() * 0.5, aim, endTranslation,
+    // false);
+    // else
+    // setLinearVisionTrajectory(aim, endTranslation);
+    // } else {
+    // System.out.println("Vision target too close");
+    // }
+    // } else {
+    // System.out.println("Pigeon unresponsive");
+    // }
+    // }
+    // }
 
-    /****************************************************/
-    /* Vector Fields */
-    public synchronized void setVectorField(VectorField vf_) {
-        vf = vf_;
-        setState(ControlState.VECTORIZED);
-    }
+    // /****************************************************/
+    // /* Vector Fields */
+    // public synchronized void setVectorField(VectorField vf_) {
+    // vf = vf_;
+    // setState(ControlState.VECTORIZED);
+    // }
 
     /**
      * Determines which wheels the robot should rotate about in order to perform an
      * evasive maneuver
      */
     public synchronized void determineEvasionWheels() {
-        Translation2d here = lastDriveVector.rotateBy(pose.getRotation().inverse());
-        List<Translation2d> wheels = Constants.kModulePositions;
+        Translation2d here = lastDriveVector
+                .rotateBy(new Rotation2d(RobotState.getInstance().getCurrentTheta()).inverse());
+        List<Translation2d> wheels = Robot.bot.kModuleTranslations;
         clockwiseCenter = wheels.get(0);
         counterClockwiseCenter = wheels.get(wheels.size() - 1);
         for (int i = 0; i < wheels.size() - 1; i++) {
@@ -711,117 +763,125 @@ public class SwerveDrive extends Subsystem {
     }
 
     /** The tried and true algorithm for keeping track of position */
-    public synchronized void updatePose(double timestamp) {
-        double x = 0.0;
-        double y = 0.0;
-        Rotation2d heading = pigeon.getYaw();
+    // public synchronized void updatePose(double timestamp) {
+    // double x = 0.0;
+    // double y = 0.0;
+    // Rotation2d heading = pigeon.getYaw();
 
-        double averageDistance = 0.0;
-        double[] distances = new double[4];
-        for (SwerveModule m : positionModules) {
-            m.updatePose(heading);
-            double distance = m.getEstimatedRobotPose().getTranslation().translateBy(pose.getTranslation().inverse())
-                    .norm();
-            distances[m.moduleID] = distance;
-            averageDistance += distance;
-        }
-        averageDistance /= positionModules.size();
+    // double averageDistance = 0.0;
+    // double[] distances = new double[4];
+    // for (SwerveModule m : positionModules) {
+    // m.updatePose(heading);
+    // double distance =
+    // m.getEstimatedRobotPose().getTranslation().translateBy(pose.getTranslation().inverse())
+    // .norm();
+    // distances[m.moduleID] = distance;
+    // averageDistance += distance;
+    // }
+    // averageDistance /= positionModules.size();
 
-        int minDevianceIndex = 0;
-        double minDeviance = 100.0;
-        List<SwerveModule> modulesToUse = new ArrayList<>();
-        for (SwerveModule m : positionModules) {
-            double deviance = Math.abs(distances[m.moduleID] - averageDistance);
-            if (deviance < minDeviance) {
-                minDeviance = deviance;
-                minDevianceIndex = m.moduleID;
-            }
-            if (deviance <= 0.01) {
-                modulesToUse.add(m);
-            }
-        }
+    // int minDevianceIndex = 0;
+    // double minDeviance = 100.0;
+    // List<SwerveModule> modulesToUse = new ArrayList<>();
+    // for (SwerveModule m : positionModules) {
+    // double deviance = Math.abs(distances[m.moduleID] - averageDistance);
+    // if (deviance < minDeviance) {
+    // minDeviance = deviance;
+    // minDevianceIndex = m.moduleID;
+    // }
+    // if (deviance <= 0.01) {
+    // modulesToUse.add(m);
+    // }
+    // }
 
-        if (modulesToUse.isEmpty()) {
-            modulesToUse.add(modules.get(minDevianceIndex));
-        }
+    // if (modulesToUse.isEmpty()) {
+    // modulesToUse.add(modules.get(minDevianceIndex));
+    // }
 
-        // SmartDashboard.putNumber("Modules Used", modulesToUse.size());
+    // // SmartDashboard.putNumber("Modules Used", modulesToUse.size());
 
-        for (SwerveModule m : modulesToUse) {
-            x += m.getEstimatedRobotPose().getTranslation().x();
-            y += m.getEstimatedRobotPose().getTranslation().y();
-        }
-        Pose2d updatedPose = new Pose2d(new Translation2d(x / modulesToUse.size(), y / modulesToUse.size()), heading);
-        double deltaPos = updatedPose.getTranslation().translateBy(pose.getTranslation().inverse()).norm();
-        distanceTraveled += deltaPos;
-        currentVelocity = deltaPos / (timestamp - lastUpdateTimestamp);
-        pose = updatedPose;
-        modules.forEach((m) -> m.resetPose(pose));
-    }
+    // for (SwerveModule m : modulesToUse) {
+    // x += m.getEstimatedRobotPose().getTranslation().x();
+    // y += m.getEstimatedRobotPose().getTranslation().y();
+    // }
+    // Pose2d updatedPose = new Pose2d(new Translation2d(x / modulesToUse.size(), y
+    // / modulesToUse.size()), heading);
+    // double deltaPos =
+    // updatedPose.getTranslation().translateBy(pose.getTranslation().inverse()).norm();
+    // distanceTraveled += deltaPos;
+    // currentVelocity = deltaPos / (timestamp - lastUpdateTimestamp);
+    // pose = updatedPose;
+    // modules.forEach((m) -> m.resetPose(pose));
+    // }
 
-    /**
-     * Playing around with different methods of odometry. This will require the use
-     * of all four modules, however.
-     */
-    public synchronized void alternatePoseUpdate() {
-        double x = 0.0;
-        double y = 0.0;
-        Rotation2d heading = pigeon.getYaw();
+    // /**
+    // * Playing around with different methods of odometry. This will require the
+    // use
+    // * of all four modules, however.
+    // */
+    // public synchronized void alternatePoseUpdate() {
+    // double x = 0.0;
+    // double y = 0.0;
+    // Rotation2d heading = pigeon.getYaw();
 
-        double[][] distances = new double[4][2];
-        for (SwerveModule m : modules) {
-            m.updatePose(heading);
-            double distance = m.getEstimatedRobotPose().getTranslation().distance(pose.getTranslation());
-            distances[m.moduleID][0] = m.moduleID;
-            distances[m.moduleID][1] = distance;
-        }
+    // double[][] distances = new double[4][2];
+    // for (SwerveModule m : modules) {
+    // m.updatePose(heading);
+    // double distance =
+    // m.getEstimatedRobotPose().getTranslation().distance(pose.getTranslation());
+    // distances[m.moduleID][0] = m.moduleID;
+    // distances[m.moduleID][1] = distance;
+    // }
 
-        Arrays.sort(distances, new java.util.Comparator<double[]>() {
-            public int compare(double[] a, double[] b) {
-                return Double.compare(a[1], b[1]);
-            }
-        });
-        List<SwerveModule> modulesToUse = new ArrayList<>();
-        double firstDifference = distances[1][1] - distances[0][1];
-        double secondDifference = distances[2][1] - distances[1][1];
-        double thirdDifference = distances[3][1] - distances[2][1];
-        if (secondDifference > (1.5 * firstDifference)) {
-            modulesToUse.add(modules.get((int) distances[0][0]));
-            modulesToUse.add(modules.get((int) distances[1][0]));
-        } else if (thirdDifference > (1.5 * firstDifference)) {
-            modulesToUse.add(modules.get((int) distances[0][0]));
-            modulesToUse.add(modules.get((int) distances[1][0]));
-            modulesToUse.add(modules.get((int) distances[2][0]));
-        } else {
-            modulesToUse.add(modules.get((int) distances[0][0]));
-            modulesToUse.add(modules.get((int) distances[1][0]));
-            modulesToUse.add(modules.get((int) distances[2][0]));
-            modulesToUse.add(modules.get((int) distances[3][0]));
-        }
+    // Arrays.sort(distances, new java.util.Comparator<double[]>() {
+    // public int compare(double[] a, double[] b) {
+    // return Double.compare(a[1], b[1]);
+    // }
+    // });
+    // List<SwerveModule> modulesToUse = new ArrayList<>();
+    // double firstDifference = distances[1][1] - distances[0][1];
+    // double secondDifference = distances[2][1] - distances[1][1];
+    // double thirdDifference = distances[3][1] - distances[2][1];
+    // if (secondDifference > (1.5 * firstDifference)) {
+    // modulesToUse.add(modules.get((int) distances[0][0]));
+    // modulesToUse.add(modules.get((int) distances[1][0]));
+    // } else if (thirdDifference > (1.5 * firstDifference)) {
+    // modulesToUse.add(modules.get((int) distances[0][0]));
+    // modulesToUse.add(modules.get((int) distances[1][0]));
+    // modulesToUse.add(modules.get((int) distances[2][0]));
+    // } else {
+    // modulesToUse.add(modules.get((int) distances[0][0]));
+    // modulesToUse.add(modules.get((int) distances[1][0]));
+    // modulesToUse.add(modules.get((int) distances[2][0]));
+    // modulesToUse.add(modules.get((int) distances[3][0]));
+    // }
 
-        SmartDashboard.putNumber("Modules Used", modulesToUse.size());
+    // SmartDashboard.putNumber("Modules Used", modulesToUse.size());
 
-        for (SwerveModule m : modulesToUse) {
-            x += m.getEstimatedRobotPose().getTranslation().x();
-            y += m.getEstimatedRobotPose().getTranslation().y();
-        }
+    // for (SwerveModule m : modulesToUse) {
+    // x += m.getEstimatedRobotPose().getTranslation().x();
+    // y += m.getEstimatedRobotPose().getTranslation().y();
+    // }
 
-        Pose2d updatedPose = new Pose2d(new Translation2d(x / modulesToUse.size(), y / modulesToUse.size()), heading);
-        double deltaPos = updatedPose.getTranslation().distance(pose.getTranslation());
-        distanceTraveled += deltaPos;
-        pose = updatedPose;
-        modules.forEach((m) -> m.resetPose(pose));
-    }
+    // Pose2d updatedPose = new Pose2d(new Translation2d(x / modulesToUse.size(), y
+    // / modulesToUse.size()), heading);
+    // double deltaPos =
+    // updatedPose.getTranslation().distance(pose.getTranslation());
+    // distanceTraveled += deltaPos;
+    // pose = updatedPose;
+    // modules.forEach((m) -> m.resetPose(pose));
+    // }
 
     /** Called every cycle to update the swerve based on its control state */
     public synchronized void updateControlCycle(double timestamp) {
-        double rotationCorrection = headingController.updateRotationCorrection(pose.getRotation().getUnboundedDegrees(),
-                timestamp);
+        double rotationCorrection = headingController
+                .updateRotationCorrection(RobotState.getInstance().getCurrentTheta(), timestamp);
 
-        if (visionUpdateRequested) {
-            setVisionTrajectory(robotState.getVisionTargetHeight(), lastVisionEndTranslation, false, visionState);
-            visionUpdateRequested = false;
-        }
+        // if (visionUpdateRequested) {
+        // setVisionTrajectory(robotState.getVisionTargetHeight(),
+        // lastVisionEndTranslation, false, visionState);
+        // visionUpdateRequested = false;
+        // }
 
         switch (currentState) {
         case MANUAL:
@@ -849,110 +909,120 @@ public class SwerveDrive extends Subsystem {
                 if (lastDriveVector.equals(rotationalVector)) {
                     stop();
                 } else {
-                    setDriveOutput(inverseKinematics.updateDriveVectors(lastDriveVector, rotationCorrection, pose,
-                            robotCentric), 0.0);
+                    setDriveOutput(inverseKinematics.updateDriveVectors(lastDriveVector, rotationCorrection,
+                            RobotState.getInstance().getCurrentTheta(), robotCentric), 0.0);
                 }
             } else {
-                setDriveOutput(inverseKinematics.updateDriveVectors(translationalVector,
-                        rotationalInput + rotationCorrection, pose, robotCentric));
+                setDriveOutput(
+                        inverseKinematics.updateDriveVectors(translationalVector, rotationalInput + rotationCorrection,
+                                RobotState.getInstance().getCurrentTheta(), robotCentric));
             }
             break;
         case POSITION:
-            if (positionOnTarget())
-                rotate(headingController.getTargetHeading());
+            // if (positionOnTarget())
+            // rotate(headingController.getTargetHeading());
             break;
         case ROTATION:
-            setDriveOutput(inverseKinematics.updateDriveVectors(new Translation2d(),
-                    Util.deadBand(rotationCorrection, 0.1), pose, false));
+            // setDriveOutput(inverseKinematics.updateDriveVectors(new Translation2d(),
+            // Util.deadBand(rotationCorrection, 0.1), pose, false));
             break;
         case VECTORIZED:
-            Translation2d outputVectorV = vf.getVector(pose.getTranslation()).scale(0.25);
-            SmartDashboard.putNumber("Vector Direction", outputVectorV.direction().getDegrees());
-            SmartDashboard.putNumber("Vector Magnitude", outputVectorV.norm());
-            // System.out.println(outputVector.x()+" "+outputVector.y());
-            setDriveOutput(inverseKinematics.updateDriveVectors(outputVectorV, rotationCorrection, getPose(), false));
+            // Translation2d outputVectorV =
+            // vf.getVector(pose.getTranslation()).scale(0.25);
+            // SmartDashboard.putNumber("Vector Direction",
+            // outputVectorV.direction().getDegrees());
+            // SmartDashboard.putNumber("Vector Magnitude", outputVectorV.norm());
+            // // System.out.println(outputVector.x()+" "+outputVector.y());
+            // setDriveOutput(inverseKinematics.updateDriveVectors(outputVectorV,
+            // rotationCorrection, getPose(), false));
             break;
         case TRAJECTORY:
-            if (!motionPlanner.isDone()) {
-                Translation2d driveVector = motionPlanner.update(timestamp, pose);
+            // if (!motionPlanner.isDone()) {
+            // Translation2d driveVector = motionPlanner.update(timestamp, pose);
 
-                if (modulesReady) {
-                    if (!hasStartedFollowing) {
-                        if (moduleConfigRequested) {
-                            zeroSensors(startingPose);
-                            System.out.println("Position reset for auto");
-                        }
-                        hasStartedFollowing = true;
-                    }
-                    double rotationInput = Util
-                            .deadBand(Util.limit(rotationCorrection * rotationScalar * driveVector.norm(),
-                                    motionPlanner.getMaxRotationSpeed()), 0.01);
-                    if (Util.epsilonEquals(driveVector.norm(), 0.0, Constants.kEpsilon)) {
-                        driveVector = lastTrajectoryVector;
-                        setVelocityDriveOutput(
-                                inverseKinematics.updateDriveVectors(driveVector, rotationInput, pose, false), 0.0);
-                        // System.out.println("Trajectory Vector set: " + driveVector.toString());
-                    } else {
-                        setVelocityDriveOutput(
-                                inverseKinematics.updateDriveVectors(driveVector, rotationInput, pose, false));
-                        // System.out.println("Trajectory Vector set: " + driveVector.toString());
-                    }
-                } else if (!moduleConfigRequested) {
-                    // set10VoltRotationMode(true);
-                    setModuleAngles(inverseKinematics.updateDriveVectors(driveVector, 0.0, pose, false));
-                    moduleConfigRequested = true;
-                }
+            // if (modulesReady) {
+            // if (!hasStartedFollowing) {
+            // if (moduleConfigRequested) {
+            // zeroSensors(startingPose);
+            // System.out.println("Position reset for auto");
+            // }
+            // hasStartedFollowing = true;
+            // }
+            // double rotationInput = Util
+            // .deadBand(Util.limit(rotationCorrection * rotationScalar *
+            // driveVector.norm(),
+            // motionPlanner.getMaxRotationSpeed()), 0.01);
+            // if (Util.epsilonEquals(driveVector.norm(), 0.0, Constants.kEpsilon)) {
+            // driveVector = lastTrajectoryVector;
+            // setVelocityDriveOutput(
+            // inverseKinematics.updateDriveVectors(driveVector, rotationInput, pose,
+            // false), 0.0);
+            // // System.out.println("Trajectory Vector set: " + driveVector.toString());
+            // } else {
+            // setVelocityDriveOutput(
+            // inverseKinematics.updateDriveVectors(driveVector, rotationInput, pose,
+            // false));
+            // // System.out.println("Trajectory Vector set: " + driveVector.toString());
+            // }
+            // } else if (!moduleConfigRequested) {
+            // // set10VoltRotationMode(true);
+            // setModuleAngles(inverseKinematics.updateDriveVectors(driveVector, 0.0, pose,
+            // false));
+            // moduleConfigRequested = true;
+            // }
 
-                if (moduleAnglesOnTarget() && !modulesReady) {
-                    set10VoltRotationMode(false);
-                    modules.forEach((m) -> m.resetLastEncoderReading());
-                    modulesReady = true;
-                    System.out.println("Modules Ready");
-                }
+            // if (moduleAnglesOnTarget() && !modulesReady) {
+            // set10VoltRotationMode(false);
+            // modules.forEach((m) -> m.resetLastEncoderReading());
+            // modulesReady = true;
+            // System.out.println("Modules Ready");
+            // }
 
-                lastTrajectoryVector = driveVector;
-            } else {
-                if (!hasFinishedPath) {
-                    System.out.println("Path completed in: " + (timestamp - trajectoryStartTime));
-                    hasFinishedPath = true;
-                    if (alwaysConfigureModules)
-                        requireModuleConfiguration();
-                }
-            }
+            // lastTrajectoryVector = driveVector;
+            // } else {
+            // if (!hasFinishedPath) {
+            // System.out.println("Path completed in: " + (timestamp -
+            // trajectoryStartTime));
+            // hasFinishedPath = true;
+            // if (alwaysConfigureModules)
+            // requireModuleConfiguration();
+            // }
+            // }
             break;
         case VISION:
-            if (!motionPlanner.isDone()) {
-                visionUpdatesAllowed = elevator.inVisionRange(
-                        robotHasDisk ? Constants.kElevatorDiskVisibleRanges : Constants.kElevatorBallVisibleRanges);
-                Optional<ShooterAimingParameters> aim = robotState.getAimingParameters();
-                if (aim.isPresent() && visionUpdatesAllowed && firstVisionCyclePassed) {
-                    visionVisibleCycles++;
-                    latestAim = aim.get();
-                    if (aim.get()
-                            .getRange() < (initialVisionDistance - (Constants.kVisionDistanceStep
-                                    * (visionCriteria.successfulUpdates(VisionCriteria.Criterion.DISTANCE) + 1)))
-                            && visionCriteria.updateAllowed(VisionCriteria.Criterion.DISTANCE)
-                            && aim.get().getRange() >= visionCutoffDistance) {
-                        setVisionTrajectory(lastVisionEndTranslation, visionState);
-                        visionCriteria.addSuccessfulUpdate(VisionCriteria.Criterion.DISTANCE);
-                        attemptedVisionUpdates++;
-                    }
-                    if (visionState == VisionState.LINEAR) {
-                        setPathHeading(aim.get().getRobotToGoal().getDegrees());
-                    }
-                }
-                Translation2d driveVector = motionPlanner.update(timestamp, pose);
-                if (Util.epsilonEquals(driveVector.norm(), 0.0, Constants.kEpsilon)) {
-                    driveVector = lastTrajectoryVector;
-                    setVelocityDriveOutput(inverseKinematics.updateDriveVectors(driveVector,
-                            rotationCorrection * rotationScalar, pose, false), 0.0);
-                } else {
-                    setVelocityDriveOutput(inverseKinematics.updateDriveVectors(driveVector,
-                            rotationCorrection * rotationScalar, pose, false));
-                }
-                lastTrajectoryVector = driveVector;
-                firstVisionCyclePassed = true;
-            }
+            // if (!motionPlanner.isDone()) {
+            // visionUpdatesAllowed = elevator.inVisionRange(
+            // robotHasDisk ? Constants.kElevatorDiskVisibleRanges :
+            // Constants.kElevatorBallVisibleRanges);
+            // Optional<ShooterAimingParameters> aim = robotState.getAimingParameters();
+            // if (aim.isPresent() && visionUpdatesAllowed && firstVisionCyclePassed) {
+            // visionVisibleCycles++;
+            // latestAim = aim.get();
+            // if (aim.get()
+            // .getRange() < (initialVisionDistance - (Constants.kVisionDistanceStep
+            // * (visionCriteria.successfulUpdates(VisionCriteria.Criterion.DISTANCE) + 1)))
+            // && visionCriteria.updateAllowed(VisionCriteria.Criterion.DISTANCE)
+            // && aim.get().getRange() >= visionCutoffDistance) {
+            // setVisionTrajectory(lastVisionEndTranslation, visionState);
+            // visionCriteria.addSuccessfulUpdate(VisionCriteria.Criterion.DISTANCE);
+            // attemptedVisionUpdates++;
+            // }
+            // if (visionState == VisionState.LINEAR) {
+            // setPathHeading(aim.get().getRobotToGoal().getDegrees());
+            // }
+            // }
+            // Translation2d driveVector = motionPlanner.update(timestamp, pose);
+            // if (Util.epsilonEquals(driveVector.norm(), 0.0, Constants.kEpsilon)) {
+            // driveVector = lastTrajectoryVector;
+            // setVelocityDriveOutput(inverseKinematics.updateDriveVectors(driveVector,
+            // rotationCorrection * rotationScalar, pose, false), 0.0);
+            // } else {
+            // setVelocityDriveOutput(inverseKinematics.updateDriveVectors(driveVector,
+            // rotationCorrection * rotationScalar, pose, false));
+            // }
+            // lastTrajectoryVector = driveVector;
+            // firstVisionCyclePassed = true;
+            // }
             break;
         case VELOCITY:
 
@@ -968,262 +1038,280 @@ public class SwerveDrive extends Subsystem {
         }
     }
 
-    private final Loop loop = new Loop() {
+    // private final Loop loop = new Loop() {
 
-        @Override
-        public void onStart(double timestamp) {
-            synchronized (SwerveDrive.this) {
-                translationalVector = new Translation2d();
-                lastDriveVector = rotationalVector;
-                rotationalInput = 0;
-                resetAveragedDirection();
-                headingController.temporarilyDisable();
-                stop();
-                lastUpdateTimestamp = timestamp;
-            }
-        }
-
-        @Override
-        public void onLoop(double timestamp) {
-            synchronized (SwerveDrive.this) {
-                if (modulesReady || (getState() != ControlState.TRAJECTORY)) {
-                    // updatePose(timestamp);
-                    alternatePoseUpdate();
-                }
-                updateControlCycle(timestamp);
-                lastUpdateTimestamp = timestamp;
-            }
-        }
-
-        @Override
-        public void onStop(double timestamp) {
-            synchronized (SwerveDrive.this) {
-                translationalVector = new Translation2d();
-                rotationalInput = 0;
-                stop();
-            }
-        }
-
-    };
-
-    public Request trackRequest(double visionTargetHeight, Translation2d endTranslation, boolean hasDisk) {
-        return new Request() {
-
-            @Override
-            public void act() {
-                robotHasDisk = hasDisk;
-                useFixedVisionOrientation = false;
-                visionCutoffDistance = Constants.kClosestVisionDistance;
-                visionTrackingSpeed = Constants.kDefaultVisionTrackingSpeed;
-                resetVisionUpdates();
-                setVisionTrajectory(visionTargetHeight, endTranslation, false, VisionState.CURVED);
-            }
-
-            @Override
-            public boolean isFinished() {
-                return getState() == ControlState.VISION && (robotState.distanceToTarget() < visionCutoffDistance);
-            }
-
-        };
+    // @Override
+    public void onStart(double timestamp) {
+        // synchronized (SwerveDrive.this) {
+        translationalVector = new Translation2d();
+        lastDriveVector = rotationalVector;
+        rotationalInput = 0;
+        // resetAveragedDirection();
+        headingController.temporarilyDisable();
+        stop();
+        // lastUpdateTimestamp = timestamp;
+        // }
     }
 
-    public Request trackRequest(double visionTargetHeight, Translation2d endTranslation, boolean hasDisk,
-            Rotation2d fixedOrientation, double cutoffDistance, double trackingSpeed) {
-        return new Request() {
-
-            @Override
-            public void act() {
-                robotHasDisk = hasDisk;
-                fixedVisionOrientation = fixedOrientation;
-                useFixedVisionOrientation = true;
-                visionCutoffDistance = cutoffDistance;
-                visionTrackingSpeed = trackingSpeed;
-                resetVisionUpdates();
-                setVisionTrajectory(visionTargetHeight, endTranslation, false, VisionState.CURVED);
-            }
-
-            @Override
-            public boolean isFinished() {
-                return getState() == ControlState.VISION && (robotState.distanceToTarget() < visionCutoffDistance);
-            }
-
-        };
+    // @Override
+    public void onLoop(double timestamp) {
+        // synchronized (SwerveDrive.this) {
+        // if (modulesReady || (getState() != ControlState.TRAJECTORY)) {
+        // updatePose(timestamp);
+        // alternatePoseUpdate();
+        // }
+        updateControlCycle(timestamp);
+        writePeriodicOutputs();
+        readPeriodicInputs();
+        // lastUpdateTimestamp = timestamp;
+        // }
     }
 
-    public Request startTrackRequest(double visionTargetHeight, Translation2d endTranslation, boolean hasDisk,
-            VisionState vState) {
-        return new Request() {
-
-            @Override
-            public void act() {
-                robotHasDisk = hasDisk;
-                useFixedVisionOrientation = false;
-                visionCutoffDistance = Constants.kClosestVisionDistance;
-                visionTrackingSpeed = /* Constants.kDefaultVisionTrackingSpeed */ 48.0;
-                Optional<ShooterAimingParameters> aim = robotState.getAimingParameters();
-                if (aim.isPresent()) {
-                    if (vState == VisionState.LINEAR) {
-                        visionTrackingSpeed = Constants.kVisionSpeedTreemap
-                                .getInterpolated(new InterpolatingDouble(aim.get().getRange())).value;
-                        System.out.println("Vision tracking speed set to: " + visionTrackingSpeed);
-                    }
-                    if (aim.get().getRange() < 54.0) {
-                        // visionTrackingSpeed = 30.0;
-                        // System.out.println("Vision tracking speed set low");
-                    }
-                }
-                resetVisionUpdates();
-                setVisionTrajectory(visionTargetHeight, endTranslation, false, vState);
-            }
-
-        };
+    // @Override
+    public void onStop(double timestamp) {
+        // synchronized (SwerveDrive.this) {
+        translationalVector = new Translation2d();
+        rotationalInput = 0;
+        stop();
+        // }
     }
 
-    public void startTracking(double visionTargetHeight, Translation2d endTranslation, boolean hasDisk,
-            Rotation2d fixedOrientation) {
-        robotHasDisk = hasDisk;
-        fixedVisionOrientation = fixedOrientation;
-        useFixedVisionOrientation = true;
-        visionCutoffDistance = Constants.kClosestVisionDistance;
-        visionTrackingSpeed = Constants.kDefaultVisionTrackingSpeed;
-        resetVisionUpdates();
-        setVisionTrajectory(visionTargetHeight, endTranslation, true, VisionState.CURVED);
-    }
+    // };
 
-    public Request startTrackRequest(double visionTargetHeight, Translation2d endTranslation, boolean hasDisk,
-            Rotation2d fixedOrientation) {
-        return new Request() {
+    // public Request trackRequest(double visionTargetHeight, Translation2d
+    // endTranslation, boolean hasDisk) {
+    // return new Request() {
 
-            @Override
-            public void act() {
-                robotHasDisk = hasDisk;
-                fixedVisionOrientation = fixedOrientation;
-                useFixedVisionOrientation = true;
-                visionCutoffDistance = Constants.kClosestVisionDistance;
-                visionTrackingSpeed = Constants.kDefaultVisionTrackingSpeed;
-                resetVisionUpdates();
-                setVisionTrajectory(visionTargetHeight, endTranslation, false, VisionState.CURVED);
-            }
+    // @Override
+    // public void act() {
+    // robotHasDisk = hasDisk;
+    // useFixedVisionOrientation = false;
+    // visionCutoffDistance = Constants.kClosestVisionDistance;
+    // visionTrackingSpeed = Constants.kDefaultVisionTrackingSpeed;
+    // resetVisionUpdates();
+    // setVisionTrajectory(visionTargetHeight, endTranslation, false,
+    // VisionState.CURVED);
+    // }
 
-        };
-    }
+    // @Override
+    // public boolean isFinished() {
+    // return getState() == ControlState.VISION && (robotState.distanceToTarget() <
+    // visionCutoffDistance);
+    // }
 
-    public Request startTrackRequest(double visionTargetHeight, Translation2d endTranslation, boolean hasDisk,
-            Rotation2d fixedOrientation, double cutoffDistance, double trackingSpeed) {
-        return new Request() {
+    // };
+    // }
 
-            @Override
-            public void act() {
-                robotHasDisk = hasDisk;
-                fixedVisionOrientation = fixedOrientation;
-                useFixedVisionOrientation = true;
-                visionCutoffDistance = cutoffDistance;
-                visionTrackingSpeed = trackingSpeed;
-                resetVisionUpdates();
-                setVisionTrajectory(visionTargetHeight, endTranslation, false, VisionState.CURVED);
-            }
+    // public Request trackRequest(double visionTargetHeight, Translation2d
+    // endTranslation, boolean hasDisk,
+    // Rotation2d fixedOrientation, double cutoffDistance, double trackingSpeed) {
+    // return new Request() {
 
-        };
-    }
+    // @Override
+    // public void act() {
+    // robotHasDisk = hasDisk;
+    // fixedVisionOrientation = fixedOrientation;
+    // useFixedVisionOrientation = true;
+    // visionCutoffDistance = cutoffDistance;
+    // visionTrackingSpeed = trackingSpeed;
+    // resetVisionUpdates();
+    // setVisionTrajectory(visionTargetHeight, endTranslation, false,
+    // VisionState.CURVED);
+    // }
 
-    public Request waitForTrackRequest() {
-        return new Request() {
+    // @Override
+    // public boolean isFinished() {
+    // return getState() == ControlState.VISION && (robotState.distanceToTarget() <
+    // visionCutoffDistance);
+    // }
 
-            @Override
-            public void act() {
+    // };
+    // }
 
-            }
+    // public Request startTrackRequest(double visionTargetHeight, Translation2d
+    // endTranslation, boolean hasDisk,
+    // VisionState vState) {
+    // return new Request() {
 
-            @Override
-            public boolean isFinished() {
-                return getState() == ControlState.VISION
-                        && /* motionPlanner.isDone() */ (robotState.distanceToTarget() < visionCutoffDistance);
-            }
+    // @Override
+    // public void act() {
+    // robotHasDisk = hasDisk;
+    // useFixedVisionOrientation = false;
+    // visionCutoffDistance = Constants.kClosestVisionDistance;
+    // visionTrackingSpeed = /* Constants.kDefaultVisionTrackingSpeed */ 48.0;
+    // Optional<ShooterAimingParameters> aim = robotState.getAimingParameters();
+    // if (aim.isPresent()) {
+    // if (vState == VisionState.LINEAR) {
+    // visionTrackingSpeed = Constants.kVisionSpeedTreemap
+    // .getInterpolated(new InterpolatingDouble(aim.get().getRange())).value;
+    // System.out.println("Vision tracking speed set to: " + visionTrackingSpeed);
+    // }
+    // if (aim.get().getRange() < 54.0) {
+    // // visionTrackingSpeed = 30.0;
+    // // System.out.println("Vision tracking speed set low");
+    // }
+    // }
+    // resetVisionUpdates();
+    // setVisionTrajectory(visionTargetHeight, endTranslation, false, vState);
+    // }
 
-        };
-    }
+    // };
+    // }
 
-    public Request strictWaitForTrackRequest() {
-        return new Request() {
+    // public void startTracking(double visionTargetHeight, Translation2d
+    // endTranslation, boolean hasDisk,
+    // Rotation2d fixedOrientation) {
+    // robotHasDisk = hasDisk;
+    // fixedVisionOrientation = fixedOrientation;
+    // useFixedVisionOrientation = true;
+    // visionCutoffDistance = Constants.kClosestVisionDistance;
+    // visionTrackingSpeed = Constants.kDefaultVisionTrackingSpeed;
+    // resetVisionUpdates();
+    // setVisionTrajectory(visionTargetHeight, endTranslation, true,
+    // VisionState.CURVED);
+    // }
 
-            @Override
-            public void act() {
+    // public Request startTrackRequest(double visionTargetHeight, Translation2d
+    // endTranslation, boolean hasDisk,
+    // Rotation2d fixedOrientation) {
+    // return new Request() {
 
-            }
+    // @Override
+    // public void act() {
+    // robotHasDisk = hasDisk;
+    // fixedVisionOrientation = fixedOrientation;
+    // useFixedVisionOrientation = true;
+    // visionCutoffDistance = Constants.kClosestVisionDistance;
+    // visionTrackingSpeed = Constants.kDefaultVisionTrackingSpeed;
+    // resetVisionUpdates();
+    // setVisionTrajectory(visionTargetHeight, endTranslation, false,
+    // VisionState.CURVED);
+    // }
 
-            @Override
-            public boolean isFinished() {
-                return getState() == ControlState.VISION && motionPlanner.isDone();
-            }
+    // };
+    // }
 
-        };
-    }
+    // public Request startTrackRequest(double visionTargetHeight, Translation2d
+    // endTranslation, boolean hasDisk,
+    // Rotation2d fixedOrientation, double cutoffDistance, double trackingSpeed) {
+    // return new Request() {
 
-    public Request trajectoryRequest(Translation2d relativeEndPos, double targetHeading, double defaultVel) {
-        return new Request() {
+    // @Override
+    // public void act() {
+    // robotHasDisk = hasDisk;
+    // fixedVisionOrientation = fixedOrientation;
+    // useFixedVisionOrientation = true;
+    // visionCutoffDistance = cutoffDistance;
+    // visionTrackingSpeed = trackingSpeed;
+    // resetVisionUpdates();
+    // setVisionTrajectory(visionTargetHeight, endTranslation, false,
+    // VisionState.CURVED);
+    // }
 
-            @Override
-            public void act() {
-                setRobotCentricTrajectory(relativeEndPos, targetHeading, defaultVel);
-            }
+    // };
+    // }
 
-            @Override
-            public boolean isFinished() {
-                return (getState() == ControlState.TRAJECTORY && motionPlanner.isDone())
-                        || getState() == ControlState.MANUAL;
-            }
+    // public Request waitForTrackRequest() {
+    // return new Request() {
 
-        };
-    }
+    // @Override
+    // public void act() {
 
-    public Request startTrajectoryRequest(Translation2d relativeEndPos, double targetHeading, double defaultVel) {
-        return new Request() {
+    // }
 
-            @Override
-            public void act() {
-                setRobotCentricTrajectory(relativeEndPos, targetHeading, defaultVel);
-            }
+    // @Override
+    // public boolean isFinished() {
+    // return getState() == ControlState.VISION
+    // && /* motionPlanner.isDone() */ (robotState.distanceToTarget() <
+    // visionCutoffDistance);
+    // }
 
-        };
-    }
+    // };
+    // }
 
-    public Request openLoopRequest(Translation2d input, double rotation) {
-        return new Request() {
+    // public Request strictWaitForTrackRequest() {
+    // return new Request() {
 
-            @Override
-            public void act() {
-                setState(ControlState.MANUAL);
-                sendInput(input.x(), input.y(), rotation, false, false);
-            }
+    // @Override
+    // public void act() {
 
-        };
-    }
+    // }
 
-    public Request velocityRequest(Rotation2d direction, double magnitude) {
-        return new Request() {
+    // @Override
+    // public boolean isFinished() {
+    // return getState() == ControlState.VISION && motionPlanner.isDone();
+    // }
 
-            @Override
-            public void act() {
-                setVelocity(direction, magnitude);
-            }
+    // };
+    // }
 
-        };
-    }
+    // public Request trajectoryRequest(Translation2d relativeEndPos, double
+    // targetHeading, double defaultVel) {
+    // return new Request() {
 
-    public void setNominalDriveOutput(double voltage) {
-        modules.forEach((m) -> m.setNominalDriveOutput(voltage));
-    }
+    // @Override
+    // public void act() {
+    // setRobotCentricTrajectory(relativeEndPos, targetHeading, defaultVel);
+    // }
+
+    // @Override
+    // public boolean isFinished() {
+    // return (getState() == ControlState.TRAJECTORY && motionPlanner.isDone())
+    // || getState() == ControlState.MANUAL;
+    // }
+
+    // };
+    // }
+
+    // public Request startTrajectoryRequest(Translation2d relativeEndPos, double
+    // targetHeading, double defaultVel) {
+    // return new Request() {
+
+    // @Override
+    // public void act() {
+    // setRobotCentricTrajectory(relativeEndPos, targetHeading, defaultVel);
+    // }
+
+    // };
+    // }
+
+    // public Request openLoopRequest(Translation2d input, double rotation) {
+    // return new Request() {
+
+    // @Override
+    // public void act() {
+    // setState(ControlState.MANUAL);
+    // sendInput(input.x(), input.y(), rotation, false, false);
+    // }
+
+    // };
+    // }
+
+    // public Request velocityRequest(Rotation2d direction, double magnitude) {
+    // return new Request() {
+
+    // @Override
+    // public void act() {
+    // setVelocity(direction, magnitude);
+    // }
+
+    // };
+    // }
+
+    // public void setNominalDriveOutput(double voltage) {
+    //     modules.forEach((m) -> m.setNominalDriveOutput(voltage));
+    // }
 
     /**
      * Sets the maximum rotation speed opf the modules, based on the robot's
      * velocity
      */
-    public void setMaxRotationSpeed() {
-        double currentDriveSpeed = translationalVector.norm() * Constants.kSwerveMaxSpeedInchesPerSecond;
-        double newMaxRotationSpeed = Constants.kSwerveRotationMaxSpeed
-                / ((Constants.kSwerveRotationSpeedScalar * currentDriveSpeed) + 1.0);
-        modules.forEach((m) -> m.setMaxRotationSpeed(newMaxRotationSpeed));
-    }
+    // public void setMaxRotationSpeed() {
+    //     double currentDriveSpeed = translationalVector.norm() * Constants.kSwerveMaxSpeedInchesPerSecond;
+    //     double newMaxRotationSpeed = Constants.kSwerveRotationMaxSpeed
+    //             / ((Constants.kSwerveRotationSpeedScalar * currentDriveSpeed) + 1.0);
+    //     modules.forEach((m) -> m.setMaxRotationSpeed(newMaxRotationSpeed));
+    // }
 
     @Override
     public synchronized void readPeriodicInputs() {
@@ -1235,10 +1323,10 @@ public class SwerveDrive extends Subsystem {
         modules.forEach((m) -> m.writePeriodicOutputs());
     }
 
-    @Override
-    public void registerEnabledLoops(ILooper enabledLooper) {
-        enabledLooper.register(loop);
-    }
+    // @Override
+    // public void registerEnabledLoops(ILooper enabledLooper) {
+    //     enabledLooper.register(loop);
+    // }
 
     /** Puts all rotation and drive motors into open-loop mode */
     public synchronized void disable() {
@@ -1254,7 +1342,7 @@ public class SwerveDrive extends Subsystem {
 
     @Override
     public synchronized void zeroSensors() {
-        zeroSensors(Constants.kRobotLeftStartingPose);
+        // zeroSensors(Constants.kRobotLeftStartingPose);
     }
 
     /**
@@ -1262,46 +1350,46 @@ public class SwerveDrive extends Subsystem {
      * to match that of the fed pose
      */
     public synchronized void zeroSensors(Pose2d startingPose) {
-        pigeon.setAngle(startingPose.getRotation().getUnboundedDegrees());
-        modules.forEach((m) -> m.zeroSensors(startingPose));
-        pose = startingPose;
-        distanceTraveled = 0;
+        // pigeon.setAngle(startingPose.getRotation().getUnboundedDegrees());
+        // modules.forEach((m) -> m.zeroSensors(startingPose));
+        // pose = startingPose;
+        // distanceTraveled = 0;
     }
 
     public synchronized void resetPosition(Pose2d newPose) {
-        pose = new Pose2d(newPose.getTranslation(), pose.getRotation());
-        modules.forEach((m) -> m.zeroSensors(pose));
-        distanceTraveled = 0;
+        // pose = new Pose2d(newPose.getTranslation(), pose.getRotation());
+        // modules.forEach((m) -> m.zeroSensors(pose));
+        // distanceTraveled = 0;
     }
 
     public synchronized void setXCoordinate(double x) {
-        pose.getTranslation().setX(x);
-        modules.forEach((m) -> m.zeroSensors(pose));
-        System.out.println("X coordinate reset to: " + pose.getTranslation().x());
+        // pose.getTranslation().setX(x);
+        // modules.forEach((m) -> m.zeroSensors(pose));
+        // System.out.println("X coordinate reset to: " + pose.getTranslation().x());
     }
 
     public synchronized void setYCoordinate(double y) {
-        pose.getTranslation().setY(y);
-        modules.forEach((m) -> m.zeroSensors(pose));
-        System.out.println("Y coordinate reset to: " + pose.getTranslation().y());
+        // pose.getTranslation().setY(y);
+        // modules.forEach((m) -> m.zeroSensors(pose));
+        // System.out.println("Y coordinate reset to: " + pose.getTranslation().y());
     }
 
     @Override
     public void outputTelemetry() {
         modules.forEach((m) -> m.outputTelemetry());
-        SmartDashboard.putNumberArray("Robot Pose", new double[] { pose.getTranslation().x(), pose.getTranslation().y(),
-                pose.getRotation().getUnboundedDegrees() });
+        // SmartDashboard.putNumberArray("Robot Pose", new double[] { pose.getTranslation().x(), pose.getTranslation().y(),
+        //         pose.getRotation().getUnboundedDegrees() });
         SmartDashboard.putString("Swerve State", currentState.toString());
-        if (Constants.kDebuggingOutput) {
-            SmartDashboard.putNumber("Robot X", pose.getTranslation().x());
-            SmartDashboard.putNumber("Robot Y", pose.getTranslation().y());
-            SmartDashboard.putNumber("Robot Heading", pose.getRotation().getUnboundedDegrees());
+        if (Robot.bot.kDebuggingOutput) {
+            // SmartDashboard.putNumber("Robot X", pose.getTranslation().x());
+            // SmartDashboard.putNumber("Robot Y", pose.getTranslation().y());
+            SmartDashboard.putNumber("Robot Heading", RobotState.getInstance().getCurrentTheta());
             SmartDashboard.putString("Heading Controller", headingController.getState().toString());
             SmartDashboard.putNumber("Target Heading", headingController.getTargetHeading());
-            SmartDashboard.putNumber("Distance Traveled", distanceTraveled);
-            SmartDashboard.putNumber("Robot Velocity", currentVelocity);
+            // SmartDashboard.putNumber("Distance Traveled", distanceTraveled);
+            // SmartDashboard.putNumber("Robot Velocity", currentVelocity);
             SmartDashboard.putString("Swerve State", currentState.toString());
-            SmartDashboard.putBoolean("Vision Updates Allowed", visionUpdatesAllowed);
+            // SmartDashboard.putBoolean("Vision Updates Allowed", visionUpdatesAllowed);
             SmartDashboard.putNumberArray("Pigeon YPR", pigeon.getYPR());
         }
     }
