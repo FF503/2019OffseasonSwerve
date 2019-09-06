@@ -20,7 +20,7 @@ import motionProfiling.Trajectory;
 public class FollowTrajectoryCommand extends Command {
   private PurePursuitController controller;
   private SwerveDrive mSwerve = SwerveDrive.getInstance();
-  FFDashboard table = new FFDashboard("Localization");
+  FFDashboard table = new FFDashboard("PurePursuit");
 
   public FollowTrajectoryCommand(Trajectory traj) {
     controller = new PurePursuitController(traj);

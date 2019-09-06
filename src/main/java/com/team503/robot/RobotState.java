@@ -37,12 +37,8 @@ public class RobotState {
 	}
 
 	public synchronized double getCurrentTheta() {
-		currentTheta = Pigeon.getInstance().getYaw();
+		this.currentTheta = Pigeon.getInstance().getYaw();
 		return currentTheta;
-	}
-
-	public synchronized void setCurrentTheta(double currentTheta) {
-		this.currentTheta = currentTheta;
 	}
 
 	public synchronized void setStartingDirection(StartingDirection startingDirection) {

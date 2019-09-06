@@ -15,7 +15,7 @@ import com.team503.robot.RobotState.ArmDirection;
 import com.team503.robot.RobotState.Bot;
 import com.team503.robot.RobotState.GameElement;
 import com.team503.robot.auton.ForwardTest;
-import com.team503.robot.commands.DriveToPose;
+import com.team503.robot.commands.DriveToPosePID;
 import com.team503.robot.commands.EjectBall;
 import com.team503.robot.commands.GameElementSwitcher;
 import com.team503.robot.commands.ReleaseHatch;
@@ -110,7 +110,7 @@ public class Robot extends TimedRobot {
     mSwerve.resetDriveEncoder();
     LimelightProcessor.getInstance().setPipeline(Pipeline.CLOSEST);
     Pose target = new Pose(0.0,100.0,270.0);
-    DriveToPose driveCommand = new DriveToPose(target);
+    DriveToPosePID driveCommand = new DriveToPosePID(target);
     driveCommand.start();
   }
   /**
@@ -208,7 +208,6 @@ public class Robot extends TimedRobot {
     double swerveRotationInput = OI.getDriverRightXVal();
     boolean lowPower = OI.getDriverRightTriggerPressed();
     double deadband = 0.015;
-    double lastSnapTarget = 0;
 
     if (swerveRotationInput > -deadband && swerveRotationInput < deadband) {
       swerveRotationInput = mSwerve.getRotationalOutput();
