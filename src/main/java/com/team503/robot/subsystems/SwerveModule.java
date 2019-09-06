@@ -219,11 +219,11 @@ public class SwerveModule extends Subsystem {
 	}
 
 	public int degreesToEncUnits(double degrees) {
-		return (int) (degrees / 360.0 * Robot.bot.kSwerveAzEncoderResolution);
+		return (int) (degrees / 360.0 * Robot.bot.kTurnEncoderClicksperRevolution);
 	}
 
 	public double encUnitsToDegrees(double encUnits) {
-		return -encUnits / Robot.bot.kSwerveAzEncoderResolution * 360.0;
+		return -encUnits / Robot.bot.kTurnEncoderClicksperRevolution * 360.0;
 	}
 
 	@Override
