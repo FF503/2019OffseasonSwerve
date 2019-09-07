@@ -9,13 +9,11 @@ package com.team503.robot;
 
 import java.util.Arrays;
 
-import com.team503.lib.geometry.Pose;
 import com.team503.lib.io.PrecisionDriveController;
 import com.team503.robot.RobotState.ArmDirection;
 import com.team503.robot.RobotState.Bot;
 import com.team503.robot.RobotState.GameElement;
-import com.team503.robot.auton.ForwardTest;
-import com.team503.robot.commands.DriveToPosePID;
+import com.team503.robot.auton.pid.PIDTest;
 import com.team503.robot.commands.EjectBall;
 import com.team503.robot.commands.GameElementSwitcher;
 import com.team503.robot.commands.ReleaseHatch;
@@ -37,6 +35,7 @@ import com.team503.robot.subsystems.SwerveDrive.DriveMode;
 import com.team503.robot.subsystems.Wrist;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.command.Scheduler;
 
 /**
@@ -104,14 +103,12 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     // Pigeon.getInstance().zeroSensors();
-    FroggyPoseController.resetPose(new Pose(0,0,0));
+    // FroggyPoseController.resetPose(new Pose(0,0,0));
     mSwerve.setBrakeMode();
     Intake.getInstance().startVacuum();
     mSwerve.resetDriveEncoder();
     LimelightProcessor.getInstance().setPipeline(Pipeline.CLOSEST);
-    Pose target = new Pose(0.0,100.0,270.0);
-    DriveToPosePID driveCommand = new DriveToPosePID(target);
-    driveCommand.start();
+    new PIDTest().initAndStartAuton();
   }
   /**
    * This function is called periodically during autonomous.
@@ -191,7 +188,7 @@ public class Robot extends TimedRobot {
       break;
     }
 
-    if(OI.driverJoystick.leftCenterClick.isBeingPressed()) {
+    if(OI.driverJoystick.getStickButtonPressed(Hand.kLeft)) {
       mSwerve.setMode(DriveMode.TeleopDrive);
     }
 

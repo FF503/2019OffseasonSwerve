@@ -5,7 +5,7 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package com.team503.robot.auton;
+package com.team503.robot.auton.pure_pursuit;
 
 import com.team503.lib.controllers.PurePursuitController;
 import com.team503.lib.geometry.Translation2d;

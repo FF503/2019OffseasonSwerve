@@ -5,7 +5,9 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package com.team503.robot.auton;
+package com.team503.robot.auton.pure_pursuit;
+
+import com.team503.robot.auton.FroggyAuton;
 
 /**
  * Add your docs here.

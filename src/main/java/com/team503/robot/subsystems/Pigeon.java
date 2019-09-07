@@ -48,7 +48,8 @@ public class Pigeon extends Subsystem {
 		double[] ypr = new double[3];
 		pigeon.getYawPitchRoll(ypr);
 		PigeonIMU.FusionStatus fusionStatus = new PigeonIMU.FusionStatus();
-		double heading = boundTo360(Robot.bot.requestPigeonFlipped * pigeon.getFusedHeading(fusionStatus));
+		double heading = (Robot.bot.requestPigeonFlipped * pigeon.getFusedHeading(fusionStatus));
+		heading = boundTo360(heading + RobotState.getInstance().getGyroOffset());
 		SmartDashboard.putNumber("Pigeon Heading", heading);
 		return heading/*-ypr[0]*/;
 	}

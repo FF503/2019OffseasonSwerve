@@ -12,10 +12,13 @@ import com.team503.lib.util.FFDashboard;
 import com.team503.lib.util.ProfileLoader;
 import com.team503.lib.util.SnappingPosition;
 import com.team503.robot.RobotState;
+import com.team503.robot.auton.pid.DriveToPosePID;
+import com.team503.robot.auton.pure_pursuit.FollowTrajectoryCommand;
 import com.team503.robot.commands.SetSnappingAngle;
 import com.team503.robot.loops.FroggyPoseController;
 
 import edu.wpi.first.wpilibj.command.CommandGroup;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public abstract class FroggyAuton extends CommandGroup {
 
@@ -50,13 +53,25 @@ public abstract class FroggyAuton extends CommandGroup {
     }
 
     private void initStartingLocation(AutonStartingLocation startingLocation) {
-        FroggyPoseController.resetPose(startingLocation.getStartingPose());
+        Pose startingPose = startingLocation.getStartingPose();
+        startingPose = new Pose(-startingPose.getY(), startingPose.getX(), 90.0 - startingPose.getTheta());
+        SmartDashboard.putString("Starting Pose", startingPose.toString());
+        FroggyPoseController.resetPose(startingPose);
     }
 
     private void initStartingDirection() {
         RobotState.getInstance().setStartingDirection(getStartingDirection());
     }
 
+    public void sequentialPIDDrive(Pose targetPose) {
+        addSequential(new DriveToPosePID(targetPose));
+    }
+
+    public void parallelPIDDrive(Pose targetPose) {
+        addParallel(new DriveToPosePID(targetPose));
+    }
+
+    // PurePursuit
     private ProfileLoader getProfileInfo(String file) {
         ProfileLoader loader = new ProfileLoader();
         loader.storeTrajectory(file);
@@ -89,8 +104,7 @@ public abstract class FroggyAuton extends CommandGroup {
         new FFDashboard("Graph").putBoolean("start", false);
     }
 
-    protected enum AutonStartingLocation {
-
+     protected enum AutonStartingLocation {
         Right(212, 63, 90), RightLevel2(212, 32, 90), Origin(0, 0, 90), tenFeetForward(0, 120, 90),
         FirstCargoBay(208, 255, 180), Left(112, 63, 90), LeftLevel2(112, 32, 90), TEST(301, 15, -90),
         FirstHatch(223.0, 263.0, 0.0), FirstHatchTurned(234.0, 266.0, 90.0);
