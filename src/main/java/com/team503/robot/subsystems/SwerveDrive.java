@@ -14,6 +14,7 @@ import com.team503.robot.RobotState;
 import com.team503.robot.loops.LimelightProcessor;
 import com.team503.robot.loops.LimelightProcessor.Pipeline;
 
+import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class SwerveDrive extends Subsystem {
@@ -30,6 +31,26 @@ public class SwerveDrive extends Subsystem {
     private final double kLengthComponent;
     private final double kWidthComponent;
 
+    // Constructor
+    public SwerveDrive() {
+        try {
+            this.backRight = Util.readSwerveJSON(Robot.bot.getBackRightName());
+            this.backLeft = Util.readSwerveJSON(Robot.bot.getBackLeftName());
+            this.frontRight = Util.readSwerveJSON(Robot.bot.getFrontRightName());
+            this.frontLeft = Util.readSwerveJSON(Robot.bot.getFrontLeftName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        modules = Arrays.asList(backRight, backLeft, frontLeft, frontRight);
+
+        double width = Robot.bot.kWheelbaseWidth, length = Robot.bot.kWheelbaseLength;
+        double radius = Math.hypot(width, length);
+        kLengthComponent = length / radius;
+        kWidthComponent = width / radius;
+
+    }
+
     public static SwerveDrive getInstance() {
         if (instance == null)
             instance = new SwerveDrive();
@@ -37,7 +58,7 @@ public class SwerveDrive extends Subsystem {
     }
 
     public enum DriveMode {
-        TeleopDrive, Defense, MotionProfling, Vision, PurePursuit, KeyboardControl, PIDControl;
+        TeleopDrive, Defense, Vision, KeyboardControl, PIDControl, ProfilePID, MotionProfling, PurePursuit;
     }
 
     private DriveMode mode = DriveMode.TeleopDrive;
@@ -64,26 +85,6 @@ public class SwerveDrive extends Subsystem {
                 { backLeft.getXComponentVelocity() }, { backLeft.getYComponentVelocity() },
                 { backRight.getXComponentVelocity() }, { backRight.getYComponentVelocity() } };
         return returner;
-
-    }
-
-    // Constructor
-    public SwerveDrive() {
-        try {
-            this.backRight = Util.readSwerveJSON(Robot.bot.getBackRightName());
-            this.backLeft = Util.readSwerveJSON(Robot.bot.getBackLeftName());
-            this.frontRight = Util.readSwerveJSON(Robot.bot.getFrontRightName());
-            this.frontLeft = Util.readSwerveJSON(Robot.bot.getFrontLeftName());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        modules = Arrays.asList(backRight, backLeft, frontLeft, frontRight);
-
-        double width = Robot.bot.kWheelbaseWidth, length = Robot.bot.kWheelbaseLength;
-        double radius = Math.hypot(width, length);
-        kLengthComponent = length / radius;
-        kWidthComponent = width / radius;
 
     }
 
@@ -120,7 +121,6 @@ public class SwerveDrive extends Subsystem {
         double fwd = translationVector.getY();
         drive(str, fwd, rotationalInput, lowPower);
     }
-
 
     public void snapForward() {
         // backRight.drive(503.0, 0.0);

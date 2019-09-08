@@ -39,6 +39,10 @@ public class FroggyPoseController {
                 .setCurrentPose(mOdometry.update(Rotation2d.fromDegrees(robotAngle).unaryMinus(), moduleStates));
     }
 
+    /**
+     * 
+     * @param pose in terms of coordinate system (x forward and y sideways)
+     */
     public static synchronized void resetPose(final Pose pose) {
         mOdometry.resetPosition(pose);
     }
