@@ -253,4 +253,44 @@ public class Util {
         return 90 - angle;
     }
 
+    /**
+     * @return converted coordinates (x,y,theta)
+     * @param cSystem     coordinate system to convert to
+     * @param translation translation
+     * @param theta       input theta
+     */
+    public static double[] convertCoordinateSystem(CoordinateSystem cSystem, Translation2d translation, double theta) {
+        double x = translation.getX();
+        double y = translation.getY();
+        return convertCoordinateSystem(cSystem, x, y, theta);
+    }
+
+    /**
+     * @return converted coordinates (x,y,theta)
+     * @param cSystem coordinate system to convert to
+     * @param x       input x
+     * @param y       input y
+     * @param theta   input theta
+     */
+    public static double[] convertCoordinateSystem(CoordinateSystem cSystem, double x, double y, double theta) {
+        double[] converted = new double[3];
+        if (cSystem.equals(CoordinateSystem.UNIT_CIRCLE)) {
+            // Converts rotated to unit circle
+            converted[0] = -y;
+            converted[1] = x;
+            converted[2] = 90.0 + theta;
+        } else if (cSystem.equals(CoordinateSystem.ROTATED)) {
+            // Converts unit circle to rotated
+            converted[0] = y;
+            converted[1] = -x;
+            converted[2] = theta - 90.0;
+        }
+
+        return converted;
+    }
+
+    public static enum CoordinateSystem {
+        UNIT_CIRCLE, ROTATED;
+    }
+
 }

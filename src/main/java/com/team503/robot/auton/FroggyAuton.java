@@ -11,6 +11,8 @@ import com.team503.lib.geometry.Pose;
 import com.team503.lib.util.FFDashboard;
 import com.team503.lib.util.ProfileLoader;
 import com.team503.lib.util.SnappingPosition;
+import com.team503.lib.util.Util;
+import com.team503.lib.util.Util.CoordinateSystem;
 import com.team503.robot.RobotState;
 import com.team503.robot.auton.pid.DriveToPosePID;
 import com.team503.robot.auton.pure_pursuit.FollowTrajectoryCommand;
@@ -54,7 +56,9 @@ public abstract class FroggyAuton extends CommandGroup {
 
     private void initStartingLocation(AutonStartingLocation startingLocation) {
         Pose startingPose = startingLocation.getStartingPose();
-        startingPose = new Pose(-startingPose.getY(), startingPose.getX(), 90.0 - startingPose.getTheta());
+        var startingPoseArray = Util.convertCoordinateSystem(CoordinateSystem.ROTATED, startingPose.getTranslation(),
+                startingPose.getTheta());
+        startingPose = new Pose(startingPoseArray[0], startingPoseArray[1], startingPoseArray[2]);
         SmartDashboard.putString("Starting Pose", startingPose.toString());
         FroggyPoseController.resetPose(startingPose);
     }
@@ -104,7 +108,7 @@ public abstract class FroggyAuton extends CommandGroup {
         new FFDashboard("Graph").putBoolean("start", false);
     }
 
-     protected enum AutonStartingLocation {
+    protected enum AutonStartingLocation {
         Right(212, 63, 90), RightLevel2(212, 32, 90), Origin(0, 0, 90), tenFeetForward(0, 120, 90),
         FirstCargoBay(208, 255, 180), Left(112, 63, 90), LeftLevel2(112, 32, 90), TEST(301, 15, -90),
         FirstHatch(223.0, 263.0, 0.0), FirstHatchTurned(234.0, 266.0, 90.0);

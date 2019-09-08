@@ -135,7 +135,7 @@ public class SwerveDrive extends Subsystem {
     public void drive(double str, double fwd, double rcw, boolean lowPower) {
         final var xSpeed = fwd * Robot.bot.requestDriveReversed * (lowPower ? 0.5 : 1.0);
         final var ySpeed = -str * Robot.bot.requestDriveReversed * (lowPower ? 0.3 : 1.0);
-        final var rotation = -rcw * (lowPower ? 0.5 : 1.0);
+        final var rotation = -rcw * (lowPower ? 0.5 : 1.0) / 14.849242404917497;
 
         ChassisSpeeds speeds = fieldCentric
                 ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotation, (-Pigeon.getInstance().getYaw()))

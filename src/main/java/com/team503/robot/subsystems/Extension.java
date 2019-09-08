@@ -27,7 +27,6 @@ public class Extension extends Subsystem implements SuperStructureSystem {
   private TalonSRX extMotor;
   private MotionMagicPID extPID;
   private double lastVel, currVel, accel, maxVel, maxAccel = 0;
-  private boolean runExtension = true;
   private FFDashboard table = new FFDashboard("Extension");
 
   public Extension() {

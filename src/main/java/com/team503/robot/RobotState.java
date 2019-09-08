@@ -21,7 +21,6 @@ public class RobotState {
 	private boolean grabberDeployed;
 	private boolean isManualControl = true;
 	private boolean autoDone = false;
-	private int pipeline = 2;
 	private volatile StartingDirection startingDirection = StartingDirection.FORWARD;
 
 	public static RobotState getInstance() {
