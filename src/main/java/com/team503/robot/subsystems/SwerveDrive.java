@@ -6,6 +6,9 @@ import java.util.List;
 
 import com.team503.lib.controllers.VisionFollowerController;
 import com.team503.lib.geometry.Translation2d;
+import com.team503.lib.kinematics.ChassisSpeeds;
+import com.team503.lib.kinematics.SwerveDriveKinematics;
+import com.team503.lib.kinematics.SwerveModuleState;
 import com.team503.lib.util.SnappingPosition;
 import com.team503.lib.util.SwerveHeadingController;
 import com.team503.lib.util.Util;
@@ -14,7 +17,6 @@ import com.team503.robot.RobotState;
 import com.team503.robot.loops.LimelightProcessor;
 import com.team503.robot.loops.LimelightProcessor.Pipeline;
 
-import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class SwerveDrive extends Subsystem {
@@ -22,6 +24,7 @@ public class SwerveDrive extends Subsystem {
     // Instance declaration
     private static SwerveDrive instance = null;
     private SwerveHeadingController headingController = new SwerveHeadingController();
+    private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(Robot.bot.kModulePositions);
 
     // Teleop driving variables
     private Translation2d translationalVector = new Translation2d();
@@ -129,102 +132,26 @@ public class SwerveDrive extends Subsystem {
         // frontLeft.drive(503.0, 0.0);
     }
 
-    // Takes joystick input an calculates drive wheel speed and turn motor angle
     public void drive(double str, double fwd, double rcw, boolean lowPower) {
+        final var xSpeed = fwd * Robot.bot.requestDriveReversed * (lowPower ? 0.5 : 1.0);
+        final var ySpeed = -str * Robot.bot.requestDriveReversed * (lowPower ? 0.3 : 1.0);
+        final var rotation = -rcw * (lowPower ? 0.5 : 1.0);
+
+        ChassisSpeeds speeds = fieldCentric
+                ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotation, (-Pigeon.getInstance().getYaw()))
+                : new ChassisSpeeds(xSpeed, ySpeed, rotation);
+        SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds, centerOfRotation);
+        SwerveDriveKinematics.normalizeWheelSpeeds(states, 1.0);
+
         translationalVector = new Translation2d(str, fwd);
-        str *= (lowPower ? 0.3 : 1.0) * Robot.bot.requestDriveReversed;
-        fwd *= (lowPower ? 0.5 : 1.0) * Robot.bot.requestDriveReversed;
-        rcw *= lowPower ? 0.5 : 1.0;
-
-        if (fieldCentric) {
-            double angle = Math.toRadians(RobotState.getInstance().getCurrentTheta());
-            double temp = fwd * Math.cos(angle) + str * Math.sin(angle);
-            str = -fwd * Math.sin(angle) + str * Math.cos(angle);
-            fwd = temp;
-        }
-
         rotationalInput = rcw;
 
-        double a = str - rcw * kLengthComponent;
-        double b = str + rcw * kLengthComponent;
-        double c = fwd - rcw * kWidthComponent;
-        double d = fwd + rcw * kWidthComponent;
-
-        double backRightSpeed = Math.hypot(a, c);
-        double backLeftSpeed = Math.hypot(a, d);
-        double frontRightSpeed = Math.hypot(b, c);
-        double frontLeftSpeed = Math.hypot(b, d);
-
-        double backRightAngle = (Math.atan2(a, c) * 180 / Math.PI);
-        double backLeftAngle = (Math.atan2(a, d) * 180 / Math.PI);
-        double frontRightAngle = (Math.atan2(b, c) * 180 / Math.PI);
-        double frontLeftAngle = (Math.atan2(b, d) * 180 / Math.PI);
-
-        // normalize wheel speeds
-        double max = frontRightSpeed;
-        if (frontLeftSpeed > max) {
-            max = frontLeftSpeed;
+        for (int i = 0; i < 4; i++) {
+            var moduleState = states[i];
+            double speed = moduleState.speed;
+            double angle = -moduleState.angle.getDegrees();
+            modules.get(i).drive(speed, angle);
         }
-        if (backLeftSpeed > max) {
-            max = backLeftSpeed;
-        }
-        if (backRightSpeed > max) {
-            max = backRightSpeed;
-        }
-        if (max > 1.0) {
-            frontRightSpeed /= max;
-            frontLeftSpeed /= max;
-            backLeftSpeed /= max;
-            backRightSpeed /= max;
-        }
-        boolean reversing = false;
-        modules.forEach((mod) -> System.out.println(mod.getMotorPower()));
-        modules.forEach(
-                (mod) -> System.out.println(Util.boundAngle0to360Degrees(mod.getTurnEncoderPositioninDegrees())));
-        System.out.println("LF Calc Angle (deg)" + Util.boundAngle0to360Degrees(frontLeftAngle));
-        System.out.println("RF Calc Angle (deg)" + Util.boundAngle0to360Degrees(frontRightAngle));
-        System.out.println("LR Calc Angle (deg)" + Util.boundAngle0to360Degrees(backLeftAngle));
-        System.out.println("RR Calc Angle (deg)" + Util.boundAngle0to360Degrees(backRightAngle));
-        if (shouldReverse(backRightAngle, backRight.getTurnEncoderPositioninDegrees())) {
-            backRightAngle += 180;
-            backRightSpeed *= -1;
-            reversing = !reversing;
-        }
-
-        if (shouldReverse(backLeftAngle, backLeft.getTurnEncoderPositioninDegrees())) {
-            backLeftAngle += 180;
-            backLeftSpeed *= -1;
-            reversing = !reversing;
-
-        }
-
-        if (shouldReverse(frontRightAngle, frontRight.getTurnEncoderPositioninDegrees())) {
-            frontRightAngle += 180;
-            frontRightSpeed *= -1;
-            reversing = !reversing;
-        }
-
-        if (shouldReverse(frontLeftAngle, frontLeft.getTurnEncoderPositioninDegrees())) {
-            frontLeftAngle += 180;
-            frontLeftSpeed *= -1;
-            reversing = !reversing;
-        }
-        if (reversing) {
-            System.out.println("REVERSING SOME BUT NOT OTHERS");
-        }
-
-        // Send speeds and angles to the drive motors
-
-        backRight.drive(backRightSpeed, backRightAngle);
-        backLeft.drive(backLeftSpeed, backLeftAngle);
-        frontRight.drive(frontRightSpeed, frontRightAngle);
-        frontLeft.drive(frontLeftSpeed, frontLeftAngle);
-
-        SmartDashboard.putNumber("LF Calc Angle (deg)", frontLeftAngle);
-        SmartDashboard.putNumber("RF Calc Angle (deg)", frontRightAngle);
-        SmartDashboard.putNumber("LR Calc Angle (deg)", backLeftAngle);
-        SmartDashboard.putNumber("RR Calc Angle (deg)", backRightAngle);
-
     }
 
     public void defensePosition() {

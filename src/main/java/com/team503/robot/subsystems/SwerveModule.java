@@ -50,7 +50,7 @@ public class SwerveModule {
     private boolean kDriveEncoderInverted;
     private boolean kTurnMotorInverted;
     private boolean kTurnEncoderInverted;
-    
+
     private double lastSetAngle = 0.0;
 
     public SwerveModule(int driveMotorID, int turnMotorID, double P, double I, double D, double F,
@@ -112,20 +112,23 @@ public class SwerveModule {
     }
 
     public void drive(double speed, double angle) {
+        if (Util.alternateShouldReverse(angle, getTurnEncoderPositioninDegrees())) {
+            speed *= -1;
+            angle = Util.boundAngle0to360Degrees(angle + 180);
+        }
+
         double trueSpeed = speed;
-        if (speed == 503.0){
+        if (speed == 503.0) {
             trueSpeed = 0.0;
         }
         this.power = trueSpeed;
         setDriveMotorSpeed(trueSpeed);
-        
-
 
         // angle is bound to -180 - +180 and degrees are from 0-360
         // convert bounded angle into true compass degrees
         // double trueAngle = angle;
         // if (angle < 0) {
-        //     trueAngle = 180 + (180 + angle);
+        // trueAngle = 180 + (180 + angle);
         // }
         double trueAngle = Util.boundAngle0to360Degrees(angle);
 
@@ -148,12 +151,10 @@ public class SwerveModule {
                 desiredclicks -= kTurnEncoderClicksperRevolution;
             }
         }
-        if (Math.abs(speed) > 0.02 || speed == 503.0){
+        if (Math.abs(speed) > 0.02 || speed == 503.0) {
             turnMotor.set(ControlMode.MotionMagic, desiredclicks);
         }
     }
-
-    
 
     public void setDriveMotorSpeed(double speed) {
         driveMotor.set(speed);
@@ -176,7 +177,7 @@ public class SwerveModule {
     }
 
     public double getDriveEncoderRPM() {
-        double vol = motorEncoder.getVelocity() *countsPerRotation;
+        double vol = motorEncoder.getVelocity() * countsPerRotation;
         // if(kDriveEncoderInverted) {
         // vol *= -1;
         // }
