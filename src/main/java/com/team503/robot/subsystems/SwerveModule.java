@@ -165,9 +165,10 @@ public class SwerveModule extends Subsystem {
 	}
 
 	public void setModuleAngle(double goalAngle) {
-		SmartDashboard.putNumber(name+" AZ Target", goalAngle);
 		double newAngle = Util.placeInAppropriate0To360Scope(getRawAngle(),
 				encUnitsToDegrees(encoderOffset) + goalAngle * (this.kTurnCountsDecreasing ? 1 : -1));
+		SmartDashboard.putNumber(name + " AZ NEW Target", newAngle);
+
 		int setpoint = degreesToEncUnits(newAngle);
 		periodicIO.rotationControlMode = ControlMode.MotionMagic;
 		periodicIO.rotationDemand = setpoint;
@@ -257,7 +258,7 @@ public class SwerveModule extends Subsystem {
 	}
 
 	public double encUnitsToDegrees(double encUnits) {
-		return -encUnits / Robot.bot.kTurnEncoderClicksperRevolution * 360.0;
+		return encUnits / Robot.bot.kTurnEncoderClicksperRevolution * 360.0;
 	}
 
 	@Override
@@ -321,6 +322,8 @@ public class SwerveModule extends Subsystem {
 			// SmartDashboard.putNumber(name + "Y", position.y());
 			SmartDashboard.putNumber(name + "Drive Current", driveMotor.getOutputCurrent());
 			SmartDashboard.putNumber(name + "Rotation Speed", rotationMotor.getSelectedSensorVelocity(0));
+			SmartDashboard.putNumber(name + "Rotation Demand", periodicIO.rotationDemand);
+
 		}
 	}
 
