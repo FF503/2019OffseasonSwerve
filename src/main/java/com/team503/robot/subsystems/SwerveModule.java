@@ -61,7 +61,7 @@ public class SwerveModule extends Subsystem {
 		driveEncoder = new CANEncoder(driveMotor);
 
 		this.moduleID = moduleID;
-		this.encoderOffset = encoderOffset;
+		this.encoderOffset = encoderOffset - degreesToEncUnits(90);
 		this.kMagicCruiseVelocity = cruiseVelocity;
 		this.kMagicCruiseAcceleration = cruiseAccel;
 		this.kTurnCountsDecreasing = turnCountsDecreasing;
@@ -153,7 +153,7 @@ public class SwerveModule extends Subsystem {
 	}
 
 	public Rotation2d getModuleAngle() {
-		if (this.kTurnCountsDecreasing) {
+		if (!this.kTurnCountsDecreasing) {
 			return Rotation2d.fromDegrees(encUnitsToDegrees(encoderOffset) - getRawAngle());
 		}
 		return Rotation2d.fromDegrees(getRawAngle() - encUnitsToDegrees(encoderOffset));
@@ -165,11 +165,19 @@ public class SwerveModule extends Subsystem {
 	}
 
 	public void setModuleAngle(double goalAngle) {
+
+
 		double newAngle = Util.placeInAppropriate0To360Scope(getRawAngle(),
 				encUnitsToDegrees(encoderOffset) + goalAngle * (this.kTurnCountsDecreasing ? 1 : -1));
 		SmartDashboard.putNumber(name + " AZ NEW Target", newAngle);
+		SmartDashboard.putNumber(name + " AZ Target", goalAngle);
 
-		int setpoint = degreesToEncUnits(newAngle);
+		// int setpoint = degreesToEncUnits(encUnitsToDegrees(encoderOffset + 90));
+
+		double setpoint = degreesToEncUnits(newAngle);
+
+		SmartDashboard.putNumber(name + " AZ Setpoint", setpoint);
+
 		periodicIO.rotationControlMode = ControlMode.MotionMagic;
 		periodicIO.rotationDemand = setpoint;
 	}
@@ -184,6 +192,7 @@ public class SwerveModule extends Subsystem {
 			rotationMotor.selectProfileSlot(1, 0);
 			rotationMotor.configVoltageCompSaturation(10.0, 10);
 			tenVoltRotationMode = true;
+
 		} else if (!tenVolts && tenVoltRotationMode) {
 			rotationMotor.selectProfileSlot(0, 0);
 			rotationMotor.configVoltageCompSaturation(7.0, 10);
@@ -307,7 +316,7 @@ public class SwerveModule extends Subsystem {
 
 	@Override
 	public void outputTelemetry() {
-		SmartDashboard.putNumber(name + "Angle", getModuleAngle().getDegrees());
+		SmartDashboard.putNumber(name + this.rotationMotor.getDeviceID() + " Angle", getModuleAngle().getDegrees());
 		SmartDashboard.putNumber(name + "Inches Driven", getDriveDistanceInches());
 		// SmartDashboard.putNumber(name + "Velocity",
 		// encVelocityToInchesPerSecond(periodicIO.velocity));

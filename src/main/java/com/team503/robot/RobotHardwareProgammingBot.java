@@ -28,7 +28,7 @@ public class RobotHardwareProgammingBot extends RobotHardware {
         kWheelbaseLength = 21.0;
         kWheelbaseWidth = 21.0;
         wheelDiameter = 4.0;
-        kTurnEncoderClicksperRevolution = 1024;
+        kTurnEncoderClicksperRevolution = 1023;
         requestDriveReversed = -1;
 
         requestPigeonFlipped = -1;

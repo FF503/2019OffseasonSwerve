@@ -178,7 +178,7 @@ public class Util {
         JSONObject jo = (JSONObject) obj;
 
         // getting firstName and lastName
-        String moduleName = (String) jo.get("name")
+        String moduleName = (String) jo.get("name");
         int driveMotorID = Math.toIntExact((Long) jo.get("driveMotorID"));
         int turnMotorID = Math.toIntExact((Long) jo.get("turnMotorID"));
         double p = (double) jo.get("P");

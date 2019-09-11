@@ -23,7 +23,7 @@ public class SwerveInverseKinematics {
 	private List<Translation2d> updateRotationDirections() {
 		List<Translation2d> directions = new ArrayList<>(kNumberOfModules);
 		for (int i = 0; i < kNumberOfModules; i++) {
-			directions.add(moduleRelativePositions.get(i).rotateBy(Rotation2d.fromDegrees(90)));
+			directions.add(moduleRelativePositions.get(i).rotateBy(Rotation2d.fromDegrees(-90)));
 		}
 		return directions;
 	}

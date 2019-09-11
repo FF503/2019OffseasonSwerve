@@ -50,6 +50,7 @@ public class Robot extends TimedRobot {
 
   private SubsystemManager subsystems;
   public static RobotHardware bot;
+  private double theta = Math.PI / 2;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -217,8 +218,10 @@ public class Robot extends TimedRobot {
   }
 
   private void joystickInput() {
-    double swerveYInput = -OI.getDriverLeftYVal();
-    double swerveXInput = OI.getDriverLeftXVal();
+    double swerveYInput = 0.3*Math.sin(theta);//-OI.getDriverLeftYVal();
+    double swerveXInput = 0.3*Math.cos(theta);//OI.getDriverLeftXVal();
+    theta += 0.1;
+    theta %= 2 * Math.PI;
     double swerveRotationInput = OI.getDriverRightXVal();
     boolean lowPower = OI.getDriverRightTriggerPressed();
     double deadband = 0.015;

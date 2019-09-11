@@ -105,8 +105,8 @@ public class SwerveDrive extends Subsystem {
             e.printStackTrace();
         }
 
-        modules = Arrays.asList(frontRight, frontLeft, rearLeft, rearRight);
-        positionModules = Arrays.asList(frontRight, frontLeft, rearLeft, rearRight);
+        modules = Arrays.asList(frontRight, rearRight, rearLeft, frontLeft);
+        positionModules = Arrays.asList(frontRight, rearRight, rearLeft, frontLeft);
 
         pigeon = Pigeon.getInstance();
 
@@ -222,7 +222,7 @@ public class SwerveDrive extends Subsystem {
 
         setState(ControlState.MANUAL);
 
-        if (inputMagnitude > 0.3)
+        if (inputMagnitude > 0.1)
             lastDriveVector = new Translation2d(x, y);
         else if (translationalVector.x() == 0.0 && translationalVector.y() == 0.0 && rotate != 0.0) {
             lastDriveVector = rotationalVector;
@@ -306,27 +306,28 @@ public class SwerveDrive extends Subsystem {
     /** Configures each module to match its assigned vector */
     public void setDriveOutput(List<Translation2d> driveVectors) {
         for (int i = 0; i < modules.size(); i++) {
-            if (com.team503.lib.util.Util.shouldReverse(driveVectors.get(i).direction().getDegrees(),
-                    modules.get(i).getModuleAngle().getDegrees())) {
-                modules.get(i).setModuleAngle(driveVectors.get(i).direction().getDegrees() + 180.0);
-                modules.get(i).setDriveOpenLoop(-driveVectors.get(i).norm());
-            } else {
+            // if (com.team503.lib.util.Util.shouldReverse(driveVectors.get(i).direction().getDegrees(),
+            //         modules.get(i).getModuleAngle().getDegrees())) {
+            //     modules.get(i).setModuleAngle(driveVectors.get(i).direction().getDegrees() + 180.0);
+            //     modules.get(i).setDriveOpenLoop(-driveVectors.get(i).norm());
+            // } else {
                 modules.get(i).setModuleAngle(driveVectors.get(i).direction().getDegrees());
                 modules.get(i).setDriveOpenLoop(driveVectors.get(i).norm());
-            }
+            // }
         }
     }
 
+
     public void setDriveOutput(List<Translation2d> driveVectors, double percentOutputOverride) {
         for (int i = 0; i < modules.size(); i++) {
-            if (com.team503.lib.util.Util.shouldReverse(driveVectors.get(i).direction().getDegrees(),
-                    modules.get(i).getModuleAngle().getDegrees())) {
-                modules.get(i).setModuleAngle(driveVectors.get(i).direction().getDegrees() + 180.0);
-                modules.get(i).setDriveOpenLoop(-percentOutputOverride);
-            } else {
+            // if (com.team503.lib.util.Util.shouldReverse(driveVectors.get(i).direction().getDegrees(),
+            //         modules.get(i).getModuleAngle().getDegrees())) {
+            //     modules.get(i).setModuleAngle(driveVectors.get(i).direction().getDegrees() + 180.0);
+            //     modules.get(i).setDriveOpenLoop(-percentOutputOverride);
+            // } else {
                 modules.get(i).setModuleAngle(driveVectors.get(i).direction().getDegrees());
                 modules.get(i).setDriveOpenLoop(percentOutputOverride);
-            }
+            // }
         }
     }
 
@@ -874,8 +875,7 @@ public class SwerveDrive extends Subsystem {
 
     /** Called every cycle to update the swerve based on its control state */
     public synchronized void updateControlCycle(double timestamp) {
-        double rotationCorrection = headingController
-                .updateRotationCorrection(RobotState.getInstance().getCurrentTheta(), timestamp);
+        double rotationCorrection = 0; //headingController.updateRotationCorrection(RobotState.getInstance().getCurrentTheta(), timestamp);
 
         // if (visionUpdateRequested) {
         // setVisionTrajectory(robotState.getVisionTargetHeight(),
@@ -1386,6 +1386,8 @@ public class SwerveDrive extends Subsystem {
             SmartDashboard.putNumber("Robot Heading", RobotState.getInstance().getCurrentTheta());
             SmartDashboard.putString("Heading Controller", headingController.getState().toString());
             SmartDashboard.putNumber("Target Heading", headingController.getTargetHeading());
+            SmartDashboard.putString("Last Drive Vector", lastDriveVector.toString());
+
             // SmartDashboard.putNumber("Distance Traveled", distanceTraveled);
             // SmartDashboard.putNumber("Robot Velocity", currentVelocity);
             SmartDashboard.putString("Swerve State", currentState.toString());
