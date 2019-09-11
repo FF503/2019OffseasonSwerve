@@ -317,7 +317,6 @@ public class SwerveDrive extends Subsystem {
         }
     }
 
-
     public void setDriveOutput(List<Translation2d> driveVectors, double percentOutputOverride) {
         for (int i = 0; i < modules.size(); i++) {
             if (com.team503.lib.util.Util.shouldReverse(driveVectors.get(i).direction().getDegrees(),
@@ -875,7 +874,8 @@ public class SwerveDrive extends Subsystem {
 
     /** Called every cycle to update the swerve based on its control state */
     public synchronized void updateControlCycle(double timestamp) {
-        double rotationCorrection = 0; //headingController.updateRotationCorrection(RobotState.getInstance().getCurrentTheta(), timestamp);
+        double rotationCorrection = 0; // headingController.updateRotationCorrection(RobotState.getInstance().getCurrentTheta(),
+                                       // timestamp);
 
         // if (visionUpdateRequested) {
         // setVisionTrajectory(robotState.getVisionTargetHeight(),
@@ -1299,7 +1299,7 @@ public class SwerveDrive extends Subsystem {
     // }
 
     // public void setNominalDriveOutput(double voltage) {
-    //     modules.forEach((m) -> m.setNominalDriveOutput(voltage));
+    // modules.forEach((m) -> m.setNominalDriveOutput(voltage));
     // }
 
     /**
@@ -1307,10 +1307,11 @@ public class SwerveDrive extends Subsystem {
      * velocity
      */
     // public void setMaxRotationSpeed() {
-    //     double currentDriveSpeed = translationalVector.norm() * Constants.kSwerveMaxSpeedInchesPerSecond;
-    //     double newMaxRotationSpeed = Constants.kSwerveRotationMaxSpeed
-    //             / ((Constants.kSwerveRotationSpeedScalar * currentDriveSpeed) + 1.0);
-    //     modules.forEach((m) -> m.setMaxRotationSpeed(newMaxRotationSpeed));
+    // double currentDriveSpeed = translationalVector.norm() *
+    // Constants.kSwerveMaxSpeedInchesPerSecond;
+    // double newMaxRotationSpeed = Constants.kSwerveRotationMaxSpeed
+    // / ((Constants.kSwerveRotationSpeedScalar * currentDriveSpeed) + 1.0);
+    // modules.forEach((m) -> m.setMaxRotationSpeed(newMaxRotationSpeed));
     // }
 
     @Override
@@ -1325,7 +1326,7 @@ public class SwerveDrive extends Subsystem {
 
     // @Override
     // public void registerEnabledLoops(ILooper enabledLooper) {
-    //     enabledLooper.register(loop);
+    // enabledLooper.register(loop);
     // }
 
     /** Puts all rotation and drive motors into open-loop mode */
@@ -1377,8 +1378,9 @@ public class SwerveDrive extends Subsystem {
     @Override
     public void outputTelemetry() {
         modules.forEach((m) -> m.outputTelemetry());
-        // SmartDashboard.putNumberArray("Robot Pose", new double[] { pose.getTranslation().x(), pose.getTranslation().y(),
-        //         pose.getRotation().getUnboundedDegrees() });
+        // SmartDashboard.putNumberArray("Robot Pose", new double[] {
+        // pose.getTranslation().x(), pose.getTranslation().y(),
+        // pose.getRotation().getUnboundedDegrees() });
         SmartDashboard.putString("Swerve State", currentState.toString());
         if (Robot.bot.kDebuggingOutput) {
             // SmartDashboard.putNumber("Robot X", pose.getTranslation().x());

@@ -87,7 +87,8 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     subsystems.outputToSmartDashboard();
-    //System.out.println("ROBOT"+ RobotState.getInstance().getCurrentRobot().name());
+    // System.out.println("ROBOT"+
+    // RobotState.getInstance().getCurrentRobot().name());
   }
 
   /**
@@ -166,7 +167,6 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     OI.driverJoystick.update();
     RobotState.getInstance().setCurrentTheta(Pigeon.getInstance().getYaw());
-    
 
     // switch (SwerveDrive.getInstance().getMode()) {
     // case TeleopDrive:
@@ -184,8 +184,8 @@ public class Robot extends TimedRobot {
     // }
 
     // if (RobotState.getInstance().getCurrentRobot().equals(Bot.ProgrammingBot)) {
-    //   operatorInput();
-    //   Arm.getInstance().updateSuperstruture();
+    // operatorInput();
+    // Arm.getInstance().updateSuperstruture();
     // }
 
     // FroggyPoseController.updateOdometry();
@@ -218,10 +218,9 @@ public class Robot extends TimedRobot {
   }
 
   private void joystickInput() {
-    double swerveYInput = 0.3*Math.sin(theta);//-OI.getDriverLeftYVal();
-    double swerveXInput = 0.3*Math.cos(theta);//OI.getDriverLeftXVal();
-    theta += 0.1;
-    theta %= 2 * Math.PI;
+    double swerveYInput = -OI.getDriverLeftYVal();
+    double swerveXInput = OI.getDriverLeftXVal();
+
     double swerveRotationInput = OI.getDriverRightXVal();
     boolean lowPower = OI.getDriverRightTriggerPressed();
     double deadband = 0.015;
@@ -229,11 +228,22 @@ public class Robot extends TimedRobot {
 
     mSwerve.sendInput(swerveXInput, swerveYInput, swerveRotationInput, lowPower, lowPower);
 
-
     mSwerve.onLoop(Timer.getFPGATimestamp());
 
+  }
 
-    
+  private void azimuthDebugInput() {
+    double swerveYInput = 0.3*Math.sin(theta);
+    double swerveXInput = 0.3*Math.cos(theta);
+    double swerveRotationInput = OI.getDriverRightXVal();
+
+
+    theta += 0.1;
+    theta %= 2 * Math.PI;
+
+    mSwerve.sendInput(swerveXInput, swerveYInput, swerveRotationInput, false, false);
+
+    mSwerve.onLoop(Timer.getFPGATimestamp());
   }
 
   public void operatorInput() {
