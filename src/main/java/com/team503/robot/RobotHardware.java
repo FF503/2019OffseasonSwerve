@@ -62,8 +62,8 @@ public abstract class RobotHardware {
     public double requestDriveReversed;
 
     // Swerve drive and azimuth specs
-    public double kSwerveEncoderToWheelRatio;  // Wheel revs per encoder revs
-    public double kSwerveEncUnitsPerWheelRev;  // ticks per wheel rev
+    public double kSwerveEncoderToWheelRatio; // Wheel revs per encoder revs
+    public double kSwerveEncUnitsPerWheelRev; // ticks per wheel rev
     public final double kSwerveDriveEncoderResolution = 42.0; // ticks per drive encoder rev
     public double kSwerveWheelDiameter; // inches
     public double kSwerveEncUnitsPerInch; // ticks per inch

@@ -58,7 +58,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    RobotState.getInstance().setCurrentRobot(Bot.ProgrammingBot);
+    RobotState.getInstance().setCurrentRobot(Bot.Automatic);
     bot = RobotHardware.getInstance();
     OI.initialize();
 
@@ -171,7 +171,7 @@ public class Robot extends TimedRobot {
 
     // switch (SwerveDrive.getInstance().getMode()) {
     // case TeleopDrive:
-    joystickInput();
+    oneControllerMode();
     // break;
     // case Defense:
     // if (!OI.driverJoystick.getStartButton()) {
@@ -209,7 +209,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledInit() {
-    // mSwerve.setBrakeMode();
     subsystems.stop();
     mSwerve.onStop(Timer.getFPGATimestamp());
   }
@@ -297,5 +296,15 @@ public class Robot extends TimedRobot {
       ResetEncoderCommand.resetEncs();
     }
 
+  }
+
+  public void oneControllerMode() {
+    joystickInput();
+  }
+
+  public void twoControllerMode() {
+    oneControllerMode();
+    Arm.getInstance().updateSuperstruture();
+    operatorInput();
   }
 }

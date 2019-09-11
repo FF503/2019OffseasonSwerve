@@ -166,7 +166,6 @@ public class SwerveModule extends Subsystem {
 
 	public void setModuleAngle(double goalAngle) {
 
-
 		double newAngle = Util.placeInAppropriate0To360Scope(getRawAngle(),
 				encUnitsToDegrees(encoderOffset) + goalAngle * (this.kTurnCountsDecreasing ? 1 : -1));
 		SmartDashboard.putNumber(name + " AZ NEW Target", newAngle);
