@@ -1,292 +1,177 @@
 
 package com.team503.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
+
+import static com.ctre.phoenix.motorcontrol.ControlMode.*;
+
+
+import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import com.revrobotics.CANEncoder;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMax.IdleMode;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.team503.lib.geometry.Rotation2d;
-import com.team503.lib.kinematics.SwerveModuleState;
-import com.team503.lib.util.Util;
-import com.team503.robot.Robot;
-import com.team503.robot.RobotState;
-import com.team503.robot.RobotState.Bot;
+import java.util.Objects;
+import java.util.function.DoubleConsumer;
 
+/**
+ * Controls a swerve drive wheel azimuth and drive motors.
+ *
+ * <p>The swerve-drive inverse kinematics algorithm will always calculate individual wheel angles as
+ * -0.5 to 0.5 rotations, measured clockwise with zero being the straight-ahead position. Wheel
+ * speed is calculated as 0 to 1 in the direction of the wheel angle.
+ *
+ * <p>This class will calculate how to implement this angle and drive direction optimally for the
+ * azimuth and drive motors. In some cases it makes sense to reverse wheel direction to avoid
+ * rotating the wheel azimuth 180 degrees.
+ *
+ * <p>Hardware assumed by this class includes a CTRE magnetic encoder on the azimuth motor and no
+ * limits on wheel azimuth rotation. Azimuth Talons have an ID in the range 0-3 with corresponding
+ * drive Talon IDs in the range 10-13.
+ */
 public class SwerveModule {
-    private static final double kTurnEncoderClicksperRevolution = Robot.bot.kTurnEncoderClicksperRevolution;
-    private static final double kWheelDiameter = Robot.bot.wheelDiameter;
-    private static final double kAzimuthDegreesPerClick = 360.0 / kTurnEncoderClicksperRevolution;
-    private final double kAzimuthClicksPerDegree = kTurnEncoderClicksperRevolution / 360.0;
+  private static final int TICKS = 1024;
 
-    private final int countsPerRotation = 42; // Counts/Rotation
-    private final double driveGearRatio = (12.0 / 40.0) * (20.0 / 40.0); // Unitless
-    private final double CIRCUMFERENCE = (Math.PI * kWheelDiameter); // Rotations/inch
-    private final double COUNTS_PER_INCH = countsPerRotation / driveGearRatio / CIRCUMFERENCE; // Counts/Inch
-    private final double driveVelocityConversionFactor = (COUNTS_PER_INCH * 60.0); // 60 Inches/Rotation
+  
+  private final double driveSetpointMax;
+  private final TalonSRX driveTalon;
+  private final TalonSRX azimuthTalon;
+  protected DoubleConsumer driver;
+  private boolean isInverted = false;
 
-    private static final int kSlotIdx = 0;
-    private static final int kTimeoutMs = 30;
-    private static double power = 0.0;
+  /**
+   * This constructs a wheel with supplied azimuth and drive talons.
+   *
+   * <p>Wheels will scale closed-loop drive output to {@code driveSetpointMax}. For example, if
+   * closed-loop drive mode is tuned to have a max usable output of 10,000 ticks per 100ms, set this
+   * to 10,000 and the wheel will send a setpoint of 10,000 to the drive talon when wheel is set to
+   * max drive output (1.0).
+   *
+   * @param azimuth the configured azimuth TalonSRX
+   * @param drive the configured drive TalonSRX
+   * @param driveSetpointMax scales closed-loop drive output to this value when drive setpoint = 1.0
+   */
+  public SwerveModule(TalonSRX azimuth, TalonSRX drive, double driveSetpointMax) {
+    this.driveSetpointMax = driveSetpointMax;
+    azimuthTalon = Objects.requireNonNull(azimuth);
+    driveTalon = Objects.requireNonNull(drive);
+  }
 
-    private CANSparkMax driveMotor;
-    private TalonSRX turnMotor;
-    private CANEncoder motorEncoder;
-
-    // Swerve Module Specific - must be changed for each swerve module !!!!!
-    private double kP;
-    private double kI;
-    private double kD;
-    private double kF;
-    private int kBaseEncoderClicks;
-    private int kMagicCruiseVelocity;
-    private int kMagicCruiseAcceleration;
-    private boolean kTurnCountsDecreasing;
-    private boolean kDriveMotorInverted;
-    private boolean kDriveEncoderInverted;
-    private boolean kTurnMotorInverted;
-    private boolean kTurnEncoderInverted;
-    
-    private double lastSetAngle = 0.0;
-
-    public SwerveModule(int driveMotorID, int turnMotorID, double P, double I, double D, double F,
-            int startingEncoderClick, int cruiseVelocity, int cruiseAccel, boolean turnCountsDecreasing,
-            boolean DriveInverted, boolean DriveEncoderInverted, boolean TurnMotorInverted,
-            boolean TurnEncoderInverted) {
-
-        this.driveMotor = new CANSparkMax(driveMotorID, MotorType.kBrushless);
-        this.motorEncoder = new CANEncoder(this.driveMotor);
-        this.turnMotor = new TalonSRX(turnMotorID);
-
-        driveMotor.setIdleMode(IdleMode.kCoast);
-        turnMotor.setNeutralMode(NeutralMode.Brake);
-        // this is the encoder count when the wheel is aligned forward at the start
-        this.kBaseEncoderClicks = startingEncoderClick;
-        this.kMagicCruiseVelocity = cruiseVelocity;
-        this.kMagicCruiseAcceleration = cruiseAccel;
-        this.kTurnCountsDecreasing = turnCountsDecreasing;
-        this.kDriveMotorInverted = DriveInverted;
-        this.kDriveEncoderInverted = DriveEncoderInverted;
-        this.kTurnMotorInverted = TurnMotorInverted;
-        this.kTurnEncoderInverted = TurnEncoderInverted;
-        this.kP = P;
-        this.kI = I;
-        this.kD = D;
-        this.kF = F;
-
-        // configure drive motor
-        driveMotor.setInverted(kDriveMotorInverted);
-        driveMotor.setOpenLoopRampRate(1.0);
-
-        // configure turn motor
-        if (RobotState.getInstance().getCurrentRobot().equals(Bot.FFSwerve)) {
-            turnMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, kSlotIdx, kTimeoutMs);
-            turnMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, kTimeoutMs);
-        } else if (RobotState.getInstance().getCurrentRobot().equals(Bot.ProgrammingBot)) {
-            turnMotor.configSelectedFeedbackSensor(FeedbackDevice.Analog);
-        }
-        turnMotor.configFeedbackNotContinuous(true, kTimeoutMs);
-
-        // set to true to invert sensor
-        turnMotor.setInverted(kTurnMotorInverted);
-        turnMotor.setSensorPhase(kTurnEncoderInverted);
-
-        turnMotor.configNominalOutputForward(0, kTimeoutMs);
-        turnMotor.configNominalOutputReverse(0, kTimeoutMs);
-        turnMotor.configPeakOutputForward(1, kTimeoutMs);
-        turnMotor.configPeakOutputReverse(-1, kTimeoutMs);
-        turnMotor.selectProfileSlot(kSlotIdx, 0); // slot index = 0 , pidloopidx = 0
-        turnMotor.config_kF(kSlotIdx, kF, kTimeoutMs);
-        turnMotor.config_kP(kSlotIdx, kP, kTimeoutMs);
-        turnMotor.config_kI(kSlotIdx, kI, kTimeoutMs);
-        turnMotor.config_kD(kSlotIdx, kD, kTimeoutMs);
-        turnMotor.configMotionCruiseVelocity(kMagicCruiseVelocity, kTimeoutMs);
-        turnMotor.configMotionAcceleration(kMagicCruiseAcceleration, kTimeoutMs);
-
-        driveMotor.setSmartCurrentLimit(50);
-        // motorEncoder.setVelocityConversionFactor(driveVelocityConversionFactor);
+  /**
+   * This method calculates the optimal driveTalon settings and applies them.
+   *
+   * @param drive 0 to 1.0 in the direction of the wheel azimuth
+   * @param azimuth -180.0 to 180 degrees, measured clockwise with zero being the wheel's zeroed
+   *     position
+   * 
+   */
+  public void set(double drive, double azimuth) {
+    // don't reset wheel azimuth direction to zero when returning to neutral
+    azimuth = azimuth / 180.0;
+    if (drive == 0) {
+      driver.accept(0d);
+      return;
     }
 
-    public void drive(double speed, double angle) {
-        double trueSpeed = speed;
-        if (speed == 503.0){
-            trueSpeed = 0.0;
-        }
-        this.power = trueSpeed;
-        setDriveMotorSpeed(trueSpeed);
-        
+    azimuth *= -TICKS; // flip azimuth, hardware configuration dependent
 
+    double azimuthPosition = azimuthTalon.getSelectedSensorPosition(0);
+    double azimuthError = Math.IEEEremainder(azimuth - azimuthPosition, TICKS);
 
-        // angle is bound to -180 - +180 and degrees are from 0-360
-        // convert bounded angle into true compass degrees
-        // double trueAngle = angle;
-        // if (angle < 0) {
-        //     trueAngle = 180 + (180 + angle);
-        // }
-        double trueAngle = Util.boundAngle0to360Degrees(angle);
-
-        // convert angle (0-360) into encoder clicks (0-1024)
-        int desiredclicks = (int) Math.round(trueAngle * kAzimuthClicksPerDegree);
-
-        if (kTurnCountsDecreasing) {
-            // this means a positive right turn mean decreasing encoder counts
-            desiredclicks = kBaseEncoderClicks - desiredclicks;
-            if (desiredclicks < 0) {
-                desiredclicks += kTurnEncoderClicksperRevolution;
-            }
-
-        } else {
-            // this means a positive right trn with increasing encoder counts
-            // addin the base starting clicks when the wheel is pointing to zero
-            desiredclicks += kBaseEncoderClicks;
-            // becuase we are using an absolute encoder the value must be between 0 and 1024
-            if (desiredclicks > kTurnEncoderClicksperRevolution) {
-                desiredclicks -= kTurnEncoderClicksperRevolution;
-            }
-        }
-        if (Math.abs(speed) > 0.02 || speed == 503.0){
-            turnMotor.set(ControlMode.MotionMagic, desiredclicks);
-        }
+    // minimize azimuth rotation, reversing drive if necessary
+    isInverted = Math.abs(azimuthError) > 0.25 * TICKS;
+    if (isInverted) {
+      azimuthError -= Math.copySign(0.5 * TICKS, azimuthError);
+      drive = -drive;
     }
 
-    
+    azimuthTalon.set(MotionMagic, azimuthPosition + azimuthError);
+    driver.accept(drive);
+  }
 
-    public void setDriveMotorSpeed(double speed) {
-        driveMotor.set(speed);
-    }
+  /**
+   * Set azimuth to encoder position.
+   *
+   * @param position position in encoder ticks.
+   */
+  public void setAzimuthPosition(int position) {
+    azimuthTalon.set(MotionMagic, position);
+  }
 
-    public void resetDriveEncoder() {
-        motorEncoder.setPosition(0.0);
-    }
+  public void disableAzimuth() {
+    azimuthTalon.neutralOutput();
+  }
 
-    /**
-     * 
-     * @return clicks
-     */
-    public double getDriveEncoderClicks() {
-        double pos = countsPerRotation * motorEncoder.getPosition();
-        // if(kDriveEncoderInverted) {
-        // pos *= -1;
-        // }
-        return pos;
-    }
+  
+  /**
+   * Stop azimuth and drive movement. This resets the azimuth setpoint and relative encoder to the
+   * current position in case the wheel has been manually rotated away from its previous setpoint.
+   */
+  public void stop() {
+    azimuthTalon.set(MotionMagic, azimuthTalon.getSelectedSensorPosition(0));
+    driver.accept(0d);
+  }
 
-    public double getDriveEncoderRPM() {
-        double vol = motorEncoder.getVelocity() *countsPerRotation;
-        // if(kDriveEncoderInverted) {
-        // vol *= -1;
-        // }
-        return vol;
-    }
+  /**
+   * Set the azimuthTalon encoder relative to wheel zero alignment position. For example, if current
+   * absolute encoder = 0 and zero setpoint = 2767, then current relative setpoint = -2767.
+   *
+   * <pre>
+   *
+   * relative:  -2767                               0
+   *           ---|---------------------------------|-------
+   * absolute:    0                               2767
+   *
+   * </pre>
+   *
+   * @param zero zero setpoint, absolute encoder position (in ticks) where wheel is zeroed.
+   */
+  public void setAzimuthZero(int zero) {
+    int azimuthSetpoint = getAzimuthAbsolutePosition() - zero;
+    ErrorCode err = azimuthTalon.setSelectedSensorPosition(azimuthSetpoint, 0, 10);
+    azimuthTalon.set(MotionMagic, azimuthSetpoint);
+  }
 
-    /**
-     * 
-     * @return in inches
-     */
-    public double getDriveMotorPosition() {
-        return getDriveEncoderClicks() / COUNTS_PER_INCH;
-    }
+  /**
+   * Returns the wheel's azimuth absolute position in encoder ticks.
+   *
+   * @return 0 - 4095, corresponding to one full revolution.
+   */
+  public int getAzimuthAbsolutePosition() {
+    return azimuthTalon.getSensorCollection().getPulseWidthPosition() & 0xFFF;
+  }
 
-    /**
-     * 
-     * @return in inches/second
-     */
-    public double getDriveMotorVelocity() {
-        return getDriveEncoderRPM() / driveVelocityConversionFactor;
-    }
+  /**
+   * Get the azimuth Talon controller.
+   *
+   * @return azimuth Talon instance used by wheel
+   */
+  public TalonSRX getAzimuthTalon() {
+    return azimuthTalon;
+  }
 
-    public SwerveModuleState getState() {
-        return new SwerveModuleState(getDriveMotorVelocity(),
-                Rotation2d.fromDegrees(-getTurnEncoderPositioninDegrees()));
-    }
+  /**
+   * Get the drive Talon controller.
+   *
+   * @return drive Talon instance used by wheel
+   */
+  public TalonSRX getDriveTalon() {
+    return driveTalon;
+  }
 
-    public double getTurnEncoderPosition() {
-        return turnMotor.getSelectedSensorPosition(0);
-    }
+  public double getDriveSetpointMax() {
+    return driveSetpointMax;
+  }
 
-    public double getTurnClosedLoopError() {
-        return turnMotor.getClosedLoopError();
-    }
+  public boolean isInverted() {
+    return isInverted;
+  }
 
-    public void setDriveMotorCurrentLimit(int limit) {
-        driveMotor.setSmartCurrentLimit(limit);
-    }
-
-    public void coastDrive() {
-        driveMotor.setIdleMode(IdleMode.kCoast);
-    }
-
-    public void brakeDrive() {
-        driveMotor.setIdleMode(IdleMode.kBrake);
-    }
-
-    public double getTurnEncoderPositioninDegrees() {
-        // get the base clicks = zero degrees for this particular wheel
-
-        double pos = getTurnEncoderPosition();
-        // relative position
-        double relpos = 0;
-        // actual position
-        int actpos;
-
-        if (kTurnCountsDecreasing) {
-            // this means a positive right turn means decreasing encoder counts
-            relpos = (kBaseEncoderClicks - pos);
-        } else {
-            // this means a positive right turn with increasing encoder counts
-            relpos = (pos - kBaseEncoderClicks);
-        }
-
-        // adjust for absolute encoder with 0-1024 clicks
-        if (relpos < 0) {
-            relpos += kTurnEncoderClicksperRevolution;
-        }
-        actpos = (int) Math.round(relpos * kAzimuthDegreesPerClick);
-
-        if (actpos == 360) {
-            actpos = 0;
-        }
-
-        return actpos;
-    }
-
-    /********************************************************************************
-     * Section - Encoder Conversion Routines
-     *******************************************************************************/
-
-    private static double ticksToInches(double ticks) {
-        return rotationsToInches(ticksToRotations(ticks));
-    }
-
-    private static double rotationsToInches(double rotations) {
-        return rotations * (kWheelDiameter * Math.PI);
-    }
-
-    private static double ticksToRotations(double ticks) {
-        int kEncoderUnitsPerRev = 42; // Rev Native Internal Encoder clicks per revolution
-        return ticks / kEncoderUnitsPerRev;
-    }
-
-    private static double inchesToRotations(double inches) {
-        return inches / (kWheelDiameter * Math.PI);
-    }
-
-    public double getXComponentVelocity() {
-        return Math.cos(Math.toRadians(Util.unitCircleify(getTurnEncoderPositioninDegrees())))
-                * driveMotor.getEncoder().getVelocity();
-    }
-
-    public double getYComponentVelocity() {
-        return Math.sin(Math.toRadians(Util.unitCircleify(getTurnEncoderPositioninDegrees())))
-                * driveMotor.getEncoder().getVelocity();
-    }
-
-    public double getMotorPower() {
-        return power;
-    }
-
+  @Override
+  public String toString() {
+    return "Wheel{"
+        + "azimuthTalon="
+        + azimuthTalon
+        + ", driveTalon="
+        + driveTalon
+        + ", driveSetpointMax="
+        + driveSetpointMax
+        + '}';
+  }
 }

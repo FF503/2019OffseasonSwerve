@@ -1,388 +1,277 @@
 
 package com.team503.robot.subsystems;
 
-import java.util.Arrays;
-import java.util.List;
+import edu.wpi.first.wpilibj.Preferences;
 
-import com.team503.lib.controllers.VisionFollowerController;
-import com.team503.lib.geometry.Translation2d;
-import com.team503.lib.util.SnappingPosition;
-import com.team503.lib.util.SwerveHeadingController;
-import com.team503.lib.util.Util;
-import com.team503.robot.Robot;
-import com.team503.robot.RobotState;
-import com.team503.robot.loops.LimelightProcessor;
-import com.team503.robot.loops.LimelightProcessor.Pipeline;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class SwerveDrive extends Subsystem {
+/**
+ * Control a Third Coast swerve drive.
+ *
+ * <p>Wheels are a array numbered 0-3 from front to back, with even numbers on the left side when
+ * facing forward.
+ *
+ * <p>Derivation of inverse kinematic equations are from Ether's <a
+ * href="https://www.chiefdelphi.com/media/papers/2426">Swerve Kinematics and Programming</a>.
+ *
+ * @see Wheel
+ */
+@SuppressWarnings("unused")
+public class SwerveDrive {
 
-    // Instance declaration
-    private static SwerveDrive instance = null;
-    private SwerveHeadingController headingController = new SwerveHeadingController();
+  public static final int DEFAULT_ABSOLUTE_AZIMUTH_OFFSET = 200;
 
-    // Teleop driving variables
-    private Translation2d translationalVector = new Translation2d();
-    private Translation2d centerOfRotation = new Translation2d();
-    private double rotationalInput = 0;
+  private static final int WHEEL_COUNT = 4;
 
-    private final double kLengthComponent;
-    private final double kWidthComponent;
+  private final double kLengthComponent;
+  private final double kWidthComponent;
+  private final double kGyroRateCorrection;
+  private Pigeon gyro;
+  private final SwerveModule[] wheels;
+  private final double[] ws = new double[WHEEL_COUNT];
+  private final double[] wa = new double[WHEEL_COUNT];
+  private boolean isFieldOriented;
 
-    public static SwerveDrive getInstance() {
-        if (instance == null)
-            instance = new SwerveDrive();
-        return instance;
+  public SwerveDrive(SwerveDriveConfig config) {
+    gyro = Pigeon.getInstance();
+    final boolean summarizeErrors = config.summarizeTalonErrors;
+    Errors.setSummarized(summarizeErrors);
+    Errors.setCount(0);
+    logger.debug("TalonSRX configuration errors summarized = {}", summarizeErrors);
+
+    double length = config.length;
+    double width = config.width;
+    double radius = Math.hypot(length, width);
+    kLengthComponent = length / radius;
+    kWidthComponent = width / radius;
+
+    setFieldOriented(gyro != null && gyro.isConnected());
+
+    if (isFieldOriented) {
+      gyro.enableLogging(config.gyroLoggingEnabled);
+      double robotPeriod = config.robotPeriod;
+      double gyroRateCoeff = config.gyroRateCoeff;
+      int rate = gyro.getActualUpdateRate();
+      double gyroPeriod = 1.0 / rate;
+      kGyroRateCorrection = (robotPeriod / gyroPeriod) * gyroRateCoeff;
+      logger.debug("gyro frequency = {} Hz", rate);
+    } else {
+      logger.warn("gyro is missing or not enabled");
+      kGyroRateCorrection = 0;
     }
 
-    public enum DriveMode {
-        TeleopDrive, Defense, MotionProfling, Vision, PurePursuit, KeyboardControl, PIDControl;
+    logger.debug("length = {}", length);
+    logger.debug("width = {}", width);
+    logger.debug("enableGyroLogging = {}", config.gyroLoggingEnabled);
+    logger.debug("gyroRateCorrection = {}", kGyroRateCorrection);
+  }
+
+  /**
+   * Return key that wheel zero information is stored under in WPI preferences.
+   *
+   * @param wheel the wheel number
+   * @return the String key
+   */
+  public static String getPreferenceKeyForWheel(int wheel) {
+    return String.format("%s/wheel.%d", SwerveDrive.class.getSimpleName(), wheel);
+  }
+
+  /**
+   * Set the drive mode.
+   *
+   * @param driveMode the drive mode
+   */
+  public void setDriveMode(DriveMode driveMode) {
+    for (Wheel wheel : wheels) {
+      wheel.setDriveMode(driveMode);
+    }
+    logger.info("drive mode = {}", driveMode);
+  }
+
+  /**
+   * Set all four wheels to specified values.
+   *
+   * @param azimuth -0.5 to 0.5 rotations, measured clockwise with zero being the robot
+   *     straight-ahead position
+   * @param drive 0 to 1 in the direction of the wheel azimuth
+   */
+  public void set(double azimuth, double drive) {
+    for (Wheel wheel : wheels) {
+      wheel.set(azimuth, drive);
+    }
+  }
+
+  /**
+   * Drive the robot in given field-relative direction and with given rotation.
+   *
+   * @param forward Y-axis movement, from -1.0 (reverse) to 1.0 (forward)
+   * @param strafe X-axis movement, from -1.0 (left) to 1.0 (right)
+   * @param azimuth robot rotation, from -1.0 (CCW) to 1.0 (CW)
+   */
+  public void drive(double forward, double strafe, double azimuth) {
+
+    // Use gyro for field-oriented drive. We use getAngle instead of getYaw to enable arbitrary
+    // autonomous starting positions.
+    if (isFieldOriented) {
+      double angle = gyro.getAngle();
+      angle += gyro.getRate() * kGyroRateCorrection;
+      angle = Math.IEEEremainder(angle, 360.0);
+
+      angle = Math.toRadians(angle);
+      final double temp = forward * Math.cos(angle) + strafe * Math.sin(angle);
+      strafe = strafe * Math.cos(angle) - forward * Math.sin(angle);
+      forward = temp;
     }
 
-    private DriveMode mode = DriveMode.TeleopDrive;
+    final double a = strafe - azimuth * kLengthComponent;
+    final double b = strafe + azimuth * kLengthComponent;
+    final double c = forward - azimuth * kWidthComponent;
+    final double d = forward + azimuth * kWidthComponent;
 
-    public DriveMode getMode() {
-        return mode;
+    // wheel speed
+    ws[0] = Math.hypot(b, d);
+    ws[1] = Math.hypot(b, c);
+    ws[2] = Math.hypot(a, d);
+    ws[3] = Math.hypot(a, c);
+
+    // wheel azimuth
+    wa[0] = Math.atan2(b, d) * 0.5 / Math.PI;
+    wa[1] = Math.atan2(b, c) * 0.5 / Math.PI;
+    wa[2] = Math.atan2(a, d) * 0.5 / Math.PI;
+    wa[3] = Math.atan2(a, c) * 0.5 / Math.PI;
+
+    // normalize wheel speed
+    final double maxWheelSpeed = Math.max(Math.max(ws[0], ws[1]), Math.max(ws[2], ws[3]));
+    if (maxWheelSpeed > 1.0) {
+      for (int i = 0; i < WHEEL_COUNT; i++) {
+        ws[i] /= maxWheelSpeed;
+      }
     }
 
-    public void setMode(DriveMode mode) {
-        this.mode = mode;
+    // set wheels
+    for (int i = 0; i < WHEEL_COUNT; i++) {
+      wheels[i].set(wa[i], ws[i]);
     }
+  }
 
-    // Module declaration
-    private SwerveModule backRight, backLeft, frontRight, frontLeft;
-    private List<SwerveModule> modules;
-
-    public List<SwerveModule> getModules() {
-        return modules;
+  /**
+   * Stops all wheels' azimuth and drive movement. Calling this in the robots {@code teleopInit} and
+   * {@code autonomousInit} will reset wheel azimuth relative encoders to the current position and
+   * thereby prevent wheel rotation if the wheels were moved manually while the robot was disabled.
+   */
+  public void stop() {
+    for (Wheel wheel : wheels) {
+      wheel.stop();
     }
+    logger.info("stopped all wheels");
+  }
 
-    public double[][] getWheelComponentVelocities() {
-        double[][] returner = { { frontRight.getXComponentVelocity() }, { frontRight.getYComponentVelocity() },
-                { frontLeft.getXComponentVelocity() }, { frontLeft.getYComponentVelocity() },
-                { backLeft.getXComponentVelocity() }, { backLeft.getYComponentVelocity() },
-                { backRight.getXComponentVelocity() }, { backRight.getYComponentVelocity() } };
-        return returner;
+  /**
+   * Save the wheels' azimuth current position as read by absolute encoder. These values are saved
+   * persistently on the roboRIO and are normally used to calculate the relative encoder offset
+   * during wheel initialization.
+   *
+   * <p>The wheel alignment data is saved in the WPI preferences data store and may be viewed using
+   * a network tables viewer.
+   *
+   * @see #zeroAzimuthEncoders()
+   */
+  public void saveAzimuthPositions() {
+    saveAzimuthPositions(Preferences.getInstance());
+  }
 
+  void saveAzimuthPositions(Preferences prefs) {
+    for (int i = 0; i < WHEEL_COUNT; i++) {
+      int position = wheels[i].getAzimuthAbsolutePosition();
+      prefs.putInt(getPreferenceKeyForWheel(i), position);
+      logger.info("azimuth {}: saved zero = {}", i, position);
     }
+  }
 
-    // Constructor
-    public SwerveDrive() {
-        try {
-            this.backRight = Util.readSwerveJSON(Robot.bot.getBackRightName());
-            this.backLeft = Util.readSwerveJSON(Robot.bot.getBackLeftName());
-            this.frontRight = Util.readSwerveJSON(Robot.bot.getFrontRightName());
-            this.frontLeft = Util.readSwerveJSON(Robot.bot.getFrontLeftName());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+  /**
+   * Set wheels' azimuth relative offset from zero based on the current absolute position. This uses
+   * the physical zero position as read by the absolute encoder and saved during the wheel alignment
+   * process.
+   *
+   * @see #saveAzimuthPositions()
+   */
+  public void zeroAzimuthEncoders() {
+    zeroAzimuthEncoders(Preferences.getInstance());
+  }
 
-        modules = Arrays.asList(backRight, backLeft, frontLeft, frontRight);
-
-        double width = Robot.bot.kWheelbaseWidth, length = Robot.bot.kWheelbaseLength;
-        double radius = Math.hypot(width, length);
-        kLengthComponent = length / radius;
-        kWidthComponent = width / radius;
-
+  void zeroAzimuthEncoders(Preferences prefs) {
+    Errors.setCount(0);
+    for (int i = 0; i < WHEEL_COUNT; i++) {
+      int position = prefs.getInt(getPreferenceKeyForWheel(i), DEFAULT_ABSOLUTE_AZIMUTH_OFFSET);
+      wheels[i].setAzimuthZero(position);
+      logger.info("azimuth {}: loaded zero = {}", i, position);
     }
+    int errorCount = Errors.getCount();
+    if (errorCount > 0) logger.error("TalonSRX set azimuth zero error count = {}", errorCount);
+  }
 
-    private boolean fieldCentric = true;
+  /**
+   * Returns the four wheels of the swerve drive.
+   *
+   * @return the Wheel array.
+   */
+  public Wheel[] getWheels() {
+    return wheels;
+  }
 
-    /**
-     * @return the fieldCentric
-     */
-    public boolean isFieldCentric() {
-        return fieldCentric;
-    }
+  /**
+   * Get the gyro instance being used by the drive.
+   *
+   * @return the gyro instance
+   */
+  public AHRS getGyro() {
+    return gyro;
+  }
 
-    /**
-     * @param fieldCentric
-     */
-    public void setFieldCentric(boolean fieldCentric) {
-        this.fieldCentric = fieldCentric;
-    }
+  /**
+   * Get status of field-oriented driving.
+   *
+   * @return status of field-oriented driving.
+   */
+  public boolean isFieldOriented() {
+    return isFieldOriented;
+  }
 
-    public void toggleFieldCentric() {
-        this.fieldCentric = !this.fieldCentric;
-    }
+  /**
+   * Enable or disable field-oriented driving. Enabled by default if connected gyro is passed in via
+   * {@code SwerveDriveConfig} during construction.
+   *
+   * @param enabled true to enable field-oriented driving.
+   */
+  public void setFieldOriented(boolean enabled) {
+    isFieldOriented = enabled;
+    logger.info("field orientation driving is {}", isFieldOriented ? "ENABLED" : "DISABLED");
+  }
 
-    public void drive(Translation2d translationVector) {
-        drive(translationVector, getRotationalOutput());
-    }
+  /**
+   * Unit testing
+   *
+   * @return length
+   */
+  double getLengthComponent() {
+    return kLengthComponent;
+  }
 
-    public void drive(Translation2d translationVector, double rotationalInput) {
-        drive(translationVector, rotationalInput, false);
-    }
+  /**
+   * Unit testing
+   *
+   * @return width
+   */
+  double getWidthComponent() {
+    return kWidthComponent;
+  }
 
-    public void drive(Translation2d translationVector, double rotationalInput, boolean lowPower) {
-        double str = translationVector.getX();
-        double fwd = translationVector.getY();
-        drive(str, fwd, rotationalInput, lowPower);
-    }
-
-
-    public void snapForward() {
-        // backRight.drive(503.0, 0.0);
-        // backLeft.drive(503.0, 0.0);
-        // frontRight.drive(503.0, 0.0);
-        // frontLeft.drive(503.0, 0.0);
-    }
-
-    // Takes joystick input an calculates drive wheel speed and turn motor angle
-    public void drive(double str, double fwd, double rcw, boolean lowPower) {
-        translationalVector = new Translation2d(str, fwd);
-        str *= (lowPower ? 0.3 : 1.0) * Robot.bot.requestDriveReversed;
-        fwd *= (lowPower ? 0.5 : 1.0) * Robot.bot.requestDriveReversed;
-        rcw *= lowPower ? 0.5 : 1.0;
-
-        if (fieldCentric) {
-            double angle = Math.toRadians(RobotState.getInstance().getCurrentTheta());
-            double temp = fwd * Math.cos(angle) + str * Math.sin(angle);
-            str = -fwd * Math.sin(angle) + str * Math.cos(angle);
-            fwd = temp;
-        }
-
-        rotationalInput = rcw;
-
-        double a = str - rcw * kLengthComponent;
-        double b = str + rcw * kLengthComponent;
-        double c = fwd - rcw * kWidthComponent;
-        double d = fwd + rcw * kWidthComponent;
-
-        double backRightSpeed = Math.hypot(a, c);
-        double backLeftSpeed = Math.hypot(a, d);
-        double frontRightSpeed = Math.hypot(b, c);
-        double frontLeftSpeed = Math.hypot(b, d);
-
-        double backRightAngle = (Math.atan2(a, c) * 180 / Math.PI);
-        double backLeftAngle = (Math.atan2(a, d) * 180 / Math.PI);
-        double frontRightAngle = (Math.atan2(b, c) * 180 / Math.PI);
-        double frontLeftAngle = (Math.atan2(b, d) * 180 / Math.PI);
-
-        // normalize wheel speeds
-        double max = frontRightSpeed;
-        if (frontLeftSpeed > max) {
-            max = frontLeftSpeed;
-        }
-        if (backLeftSpeed > max) {
-            max = backLeftSpeed;
-        }
-        if (backRightSpeed > max) {
-            max = backRightSpeed;
-        }
-        if (max > 1.0) {
-            frontRightSpeed /= max;
-            frontLeftSpeed /= max;
-            backLeftSpeed /= max;
-            backRightSpeed /= max;
-        }
-        boolean reversing = false;
-        modules.forEach((mod) -> System.out.println(mod.getMotorPower()));
-        modules.forEach(
-                (mod) -> System.out.println(Util.boundAngle0to360Degrees(mod.getTurnEncoderPositioninDegrees())));
-        System.out.println("LF Calc Angle (deg)" + Util.boundAngle0to360Degrees(frontLeftAngle));
-        System.out.println("RF Calc Angle (deg)" + Util.boundAngle0to360Degrees(frontRightAngle));
-        System.out.println("LR Calc Angle (deg)" + Util.boundAngle0to360Degrees(backLeftAngle));
-        System.out.println("RR Calc Angle (deg)" + Util.boundAngle0to360Degrees(backRightAngle));
-        if (shouldReverse(backRightAngle, backRight.getTurnEncoderPositioninDegrees())) {
-            backRightAngle += 180;
-            backRightSpeed *= -1;
-            reversing = !reversing;
-        }
-
-        if (shouldReverse(backLeftAngle, backLeft.getTurnEncoderPositioninDegrees())) {
-            backLeftAngle += 180;
-            backLeftSpeed *= -1;
-            reversing = !reversing;
-
-        }
-
-        if (shouldReverse(frontRightAngle, frontRight.getTurnEncoderPositioninDegrees())) {
-            frontRightAngle += 180;
-            frontRightSpeed *= -1;
-            reversing = !reversing;
-        }
-
-        if (shouldReverse(frontLeftAngle, frontLeft.getTurnEncoderPositioninDegrees())) {
-            frontLeftAngle += 180;
-            frontLeftSpeed *= -1;
-            reversing = !reversing;
-        }
-        if (reversing) {
-            System.out.println("REVERSING SOME BUT NOT OTHERS");
-        }
-
-        // Send speeds and angles to the drive motors
-
-        backRight.drive(backRightSpeed, backRightAngle);
-        backLeft.drive(backLeftSpeed, backLeftAngle);
-        frontRight.drive(frontRightSpeed, frontRightAngle);
-        frontLeft.drive(frontLeftSpeed, frontLeftAngle);
-
-        SmartDashboard.putNumber("LF Calc Angle (deg)", frontLeftAngle);
-        SmartDashboard.putNumber("RF Calc Angle (deg)", frontRightAngle);
-        SmartDashboard.putNumber("LR Calc Angle (deg)", backLeftAngle);
-        SmartDashboard.putNumber("RR Calc Angle (deg)", backRightAngle);
-
-    }
-
-    public void defensePosition() {
-        if (mode == DriveMode.Defense) {
-            double backRightSpeed = 0, backLeftSpeed = 0, frontRightSpeed = 0, frontLeftSpeed = 0, backRightAngle = -45,
-                    backLeftAngle = 45, frontLeftAngle = -45, frontRightAngle = 45;
-
-            backRight.drive(backRightSpeed, backRightAngle);
-            backLeft.drive(backLeftSpeed, backLeftAngle);
-            frontRight.drive(frontRightSpeed, frontRightAngle);
-            frontLeft.drive(frontLeftSpeed, frontLeftAngle);
-        }
-    }
-
-    public synchronized double getRotationalOutput() {
-        return headingController.getRotationalOutput();
-    }
-
-    public synchronized void rotate(SnappingPosition snappingPosition) {
-        rotate(snappingPosition.getAngle());
-    }
-
-    // Various methods to control the heading controller
-    public synchronized void rotate(double goalHeading) {
-        if (translationalVector.getX() == 0 && translationalVector.getY() == 0)
-            rotateInPlace(goalHeading);
-        else {
-            stabilize(goalHeading);
-        }
-    }
-
-    public Translation2d getCurrentTranslationVector() {
-        return translationalVector;
-    }
-
-    public void setPathHeading(SnappingPosition pos) {
-        setPathHeading(pos.getAngle());
-    }
-
-    public void setPathHeading(double goalHeading) {
-        headingController.setSnapTarget(
-                Util.placeInAppropriate0To360Scope(RobotState.getInstance().getCurrentTheta(), goalHeading));
-    }
-
-    public synchronized void stabilize(double goalHeading) {
-        headingController.setStabilizationTarget(
-                Util.placeInAppropriate0To360Scope(RobotState.getInstance().getCurrentTheta(), goalHeading));
-    }
-
-    public void rotateInPlace(double goalHeading) {
-        headingController.setStationaryTarget(
-                Util.placeInAppropriate0To360Scope(RobotState.getInstance().getCurrentTheta(), goalHeading));
-    }
-
-    /**
-     * Targets the closest vision target and aproaches it using swerve/strafe
-     * control and locking the angle
-     * 
-     */
-    private VisionFollowerController visionFollower = new VisionFollowerController();
-
-    public synchronized void visionFollow() {
-        if (Robot.bot.hasLimelight()) {
-            LimelightProcessor.getInstance().setPipeline(Pipeline.CLOSEST);
-            setFieldCentric(false);
-            Translation2d vector = visionFollower.getVectorToTarget(LimelightProcessor.getInstance().getTA(),
-                    LimelightProcessor.getInstance().getTX());
-            drive(vector);
-        }
-    }
-
-    /**
-     * 
-     * @param goalAngle    Target Angle through drive vectors
-     * @param currentAngle Current Angle of swerve module
-     * @return if the module phase should be inverted
-     */
-    private boolean shouldReverse(double goalAngle, double currentAngle) {
-        return Util.alternateShouldReverse(goalAngle, currentAngle);
-    }
-
-    public Translation2d getCenterOfRotation() {
-        return this.centerOfRotation;
-    }
-
-    public void setCenterOfRotation(Translation2d centerOfRotation) {
-        this.centerOfRotation = centerOfRotation;
-    }
-
-    public void setCenterOfRotation(double x, double y) {
-        setCenterOfRotation(new Translation2d(x, y));
-    }
-
-    public void setBrakeMode() {
-        modules.forEach((mod) -> mod.brakeDrive());
-    }
-
-    public void setCoastMode() {
-        modules.forEach((mod) -> mod.coastDrive());
-    }
-
-    private void setCurrentLimit(int limit) {
-        modules.forEach((mod) -> mod.setDriveMotorCurrentLimit(limit));
-    }
-
-    public void resetDriveEncoder() {
-        modules.forEach((mod) -> mod.resetDriveEncoder());
-    }
-
-    @Override
-    public void outputTelemetry() {
-        SmartDashboard.putNumber("LF Drive Position (clicks)", frontLeft.getDriveEncoderClicks());
-        SmartDashboard.putNumber("LF Drive Position (inches)", frontLeft.getDriveMotorPosition());
-        SmartDashboard.putNumber("LF Drive Velocity", frontLeft.getDriveMotorVelocity());
-        SmartDashboard.putNumber("LF Turn Position (clicks)", frontLeft.getTurnEncoderPosition());
-        SmartDashboard.putNumber("LF Turn Position (degrees)", frontLeft.getTurnEncoderPositioninDegrees());
-        SmartDashboard.putNumber("LF Turn Closed Loop Error (clicks)", frontLeft.getTurnClosedLoopError());
-
-        SmartDashboard.putNumber("RF Drive Position (clicks)", frontRight.getDriveEncoderClicks());
-        SmartDashboard.putNumber("RF Drive Position (inches)", frontRight.getDriveMotorPosition());
-        SmartDashboard.putNumber("RF Drive Velocity", frontRight.getDriveMotorVelocity());
-        SmartDashboard.putNumber("RF Turn Position (clicks)", frontRight.getTurnEncoderPosition());
-        SmartDashboard.putNumber("RF Turn Position (degrees)", frontRight.getTurnEncoderPositioninDegrees());
-        SmartDashboard.putNumber("RF Turn Closed Loop Error (clicks)", frontRight.getTurnClosedLoopError());
-
-        SmartDashboard.putNumber("LR Drive Position (clicks)", backLeft.getDriveEncoderClicks());
-        SmartDashboard.putNumber("LR Drive Position (inches)", backLeft.getDriveMotorPosition());
-        SmartDashboard.putNumber("LR Drive Velocity", backLeft.getDriveMotorVelocity());
-        SmartDashboard.putNumber("LR Turn Position (clicks)", backLeft.getTurnEncoderPosition());
-        SmartDashboard.putNumber("LR Turn Position (degrees)", backLeft.getTurnEncoderPositioninDegrees());
-        SmartDashboard.putNumber("LR Turn Closed Loop Error (clicks)", backLeft.getTurnClosedLoopError());
-
-        SmartDashboard.putNumber("RR Drive Position (clicks)", backRight.getDriveEncoderClicks());
-        SmartDashboard.putNumber("RR Drive Position (inches)", backRight.getDriveMotorPosition());
-        SmartDashboard.putNumber("RR Drive Velocity", backRight.getDriveMotorVelocity());
-        SmartDashboard.putNumber("RR Turn Position (clicks)", backRight.getTurnEncoderPosition());
-        SmartDashboard.putNumber("RR Turn Position (degrees)", backRight.getTurnEncoderPositioninDegrees());
-        SmartDashboard.putNumber("RR Turn Closed Loop Error (clicks)", backRight.getTurnClosedLoopError());
-
-        SmartDashboard.putNumber("RF Power: ", frontRight.getMotorPower());
-        SmartDashboard.putNumber("RR Power: ", backRight.getMotorPower());
-        SmartDashboard.putNumber("LR Power: ", backLeft.getMotorPower());
-        SmartDashboard.putNumber("LF Power: ", frontLeft.getMotorPower());
-        SmartDashboard.putBoolean("Field Centric", isFieldCentric());
-        SmartDashboard.putString("Snap State", headingController.getState().toString());
-        // SmartDashboard.putNumber("Snap Angle", headingController.getTargetAngle());
-        // SmartDashboard.putNumber("Snap Output",
-        // headingController.getRotationalOutput());
-    }
-
-    @Override
-    public void stop() {
-        modules.forEach((m) -> m.setDriveMotorSpeed(0));
-    }
-
-    @Override
-    public void zeroSensors() {
-        resetDriveEncoder();
-    }
-
+  /** Swerve Drive drive mode */
+  public enum DriveMode {
+    OPEN_LOOP,
+    CLOSED_LOOP,
+    TELEOP,
+    TRAJECTORY,
+    AZIMUTH
+  }
 }
