@@ -158,6 +158,7 @@ public class Robot extends TimedRobot {
     LimelightProcessor.getInstance().setPipeline(Pipeline.CLOSEST);
 
     mSwerve.onStart(Timer.getFPGATimestamp());
+    mSwerve.setCenterOfRotation(bot.kVehicleToModuleOne);
   }
 
   /*
@@ -233,10 +234,9 @@ public class Robot extends TimedRobot {
   }
 
   private void azimuthDebugInput() {
-    double swerveYInput = 0.3*Math.sin(theta);
-    double swerveXInput = 0.3*Math.cos(theta);
+    double swerveYInput = 0.3 * Math.sin(theta);
+    double swerveXInput = 0.3 * Math.cos(theta);
     double swerveRotationInput = OI.getDriverRightXVal();
-
 
     theta += 0.1;
     theta %= 2 * Math.PI;

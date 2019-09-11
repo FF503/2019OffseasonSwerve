@@ -23,7 +23,8 @@ public class RobotState {
 	private boolean isManualControl = true;
 	private boolean autoDone = false;
 	private int pipeline = 2;
-	// private volatile StartingDirection startingDirection = StartingDirection.FORWARD;
+	// private volatile StartingDirection startingDirection =
+	// StartingDirection.FORWARD;
 
 	public static RobotState getInstance() {
 		return instance;
@@ -45,12 +46,13 @@ public class RobotState {
 		this.currentTheta = currentTheta;
 	}
 
-	// public synchronized void setStartingDirection(StartingDirection startingDirection) {
-	// 	this.startingDirection = startingDirection;
+	// public synchronized void setStartingDirection(StartingDirection
+	// startingDirection) {
+	// this.startingDirection = startingDirection;
 	// }
 
 	// public synchronized double getGyroOffset() {
-	// 	return this.startingDirection.getGyroOffset();
+	// return this.startingDirection.getGyroOffset();
 	// }
 
 	public boolean getHasElement() {
@@ -110,8 +112,7 @@ public class RobotState {
 		FRONT_CARGO_BUS(44.5, -27.8, 0.), BACK_CARGO_BUS(111, 53. + 180., 0.), FRONT_CARGO_INTAKE(-48, -15.5, 0.),
 		FRONT_CARGO_LOW(-12.0, 2., 0.), FRONT_CARGO_MID(69., -5., 0.), // 0., -3., 0.
 		FRONT_CARGO_HIGH(84.0, 48.0, 12.7), BACK_CARGO_INTAKE(222, 183, 0.), BACK_CARGO_LOW(170., 180., 0.),
-		BACK_CARGO_MID(94., 173., 0.)
-		, BACK_CARGO_HIGH(86., 124., 12.), FRONT_HATCH_INTAKE(-32, 85.0, 6.),
+		BACK_CARGO_MID(94., 173., 0.), BACK_CARGO_HIGH(86., 124., 12.), FRONT_HATCH_INTAKE(-32, 85.0, 6.),
 		FRONT_HATCH_LOW(-44, 85, 6.), FRONT_HATCH_MID(8.0 /* 13 */, 83. /* 90 */, 0.),
 		FRONT_HATCH_HIGH(59., 88.0, 12.3), BACK_HATCH_INTAKE(187., 90. + 180., 0.), BACK_HATCH_LOW(187., 255., 0.),
 		BACK_HATCH_MID(119.5, 90. + 180., 4.), // 180., 87., 0.

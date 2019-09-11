@@ -148,11 +148,11 @@ public class RobotHardwareProgammingBot extends RobotHardware {
 
         // Power Distribution Panel
         PdpID = 0;
-        
+
         // Drive contants for encoder counts
         kSwerveWheelDiameter = 4.0;
         kSwerveEncoderToWheelRatio = 7.0 / 32.0;
-        kSwerveEncUnitsPerWheelRev = kSwerveDriveEncoderResolution * kSwerveEncoderToWheelRatio; 
+        kSwerveEncUnitsPerWheelRev = kSwerveDriveEncoderResolution * kSwerveEncoderToWheelRatio;
         kSwerveEncUnitsPerInch = kSwerveEncUnitsPerWheelRev / (Math.PI * kSwerveWheelDiameter);
     }
 
