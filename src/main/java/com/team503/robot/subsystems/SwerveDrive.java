@@ -37,6 +37,10 @@ public class SwerveDrive extends Subsystem {
     boolean evading = false;
     boolean evadingToggled = false;
 
+    /**
+     * Toggle the swerve drive into an algorithmically
+     * determined center of rotation to get around defense.
+     */
     public void toggleEvade() {
         evading = !evading;
         evadingToggled = true;

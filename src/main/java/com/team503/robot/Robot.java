@@ -125,7 +125,6 @@ public class Robot extends TimedRobot {
 
     // switch (SwerveDrive.getInstance().getMode()) {
     // case TeleopDrive:
-    joystickInput();
 
     // break;
     // case Defense:
@@ -139,7 +138,7 @@ public class Robot extends TimedRobot {
     // break;
     // }
     // }
-    operatorInput();
+    oneControllerMode();
 
     // FroggyPoseController.updateOdometry();
     // FroggyPoseController.outputPoseToDashboard();
@@ -217,21 +216,6 @@ public class Robot extends TimedRobot {
   public void disabledPeriodic() {
   }
 
-  private void joystickInput() {
-    double swerveYInput = -OI.getDriverLeftYVal();
-    double swerveXInput = OI.getDriverLeftXVal();
-
-    double swerveRotationInput = OI.getDriverRightXVal();
-    boolean lowPower = OI.getDriverRightTriggerPressed();
-    double deadband = 0.015;
-    double lastSnapTarget = 0;
-
-    mSwerve.sendInput(swerveXInput, swerveYInput, swerveRotationInput, lowPower, lowPower);
-
-    mSwerve.onLoop(Timer.getFPGATimestamp());
-
-  }
-
   private void azimuthDebugInput() {
     double swerveYInput = 0.3 * Math.sin(theta);
     double swerveXInput = 0.3 * Math.cos(theta);
@@ -245,7 +229,27 @@ public class Robot extends TimedRobot {
     mSwerve.onLoop(Timer.getFPGATimestamp());
   }
 
-  public void operatorInput() {
+  public void oneControllerMode() {
+    double swerveYInput = -OI.getDriverLeftYVal();
+    double swerveXInput = OI.getDriverLeftXVal();
+
+    double swerveRotationInput = OI.getDriverRightXVal();
+    boolean lowPower = OI.getDriverRightTriggerPressed();
+    double deadband = 0.015;
+    double lastSnapTarget = 0;
+
+    if (OI.driverJoystick.startButton.shortReleased()) {
+      mSwerve.toggleEvade();
+    }
+
+    mSwerve.sendInput(swerveXInput, swerveYInput, swerveRotationInput, lowPower, lowPower);
+
+    mSwerve.onLoop(Timer.getFPGATimestamp());
+  }
+
+  public void twoControllerMode() {
+    oneControllerMode();
+
     if (OI.getOperatorA()) {
       RobotState.getInstance().setArmDirection(ArmDirection.FRONT);
       TargetHeightSwitcher.set(RobotState.TargetHeight.LOW);
@@ -296,15 +300,6 @@ public class Robot extends TimedRobot {
       ResetEncoderCommand.resetEncs();
     }
 
-  }
-
-  public void oneControllerMode() {
-    joystickInput();
-  }
-
-  public void twoControllerMode() {
-    oneControllerMode();
     Arm.getInstance().updateSuperstruture();
-    operatorInput();
   }
 }
