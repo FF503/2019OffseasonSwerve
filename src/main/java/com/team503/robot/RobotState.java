@@ -1,5 +1,6 @@
 package com.team503.robot;
 
+import com.team254.lib.geometry.Translation2d;
 import com.team503.lib.geometry.Pose;
 import com.team503.lib.util.FFDashboard;
 // import com.team503.robot.auton.FroggyAuton.StartingDirection;
@@ -23,6 +24,7 @@ public class RobotState {
 	private boolean isManualControl = true;
 	private boolean autoDone = false;
 	private int pipeline = 2;
+	private Translation2d centerOfRotation = new Translation2d();
 	// private volatile StartingDirection startingDirection =
 	// StartingDirection.FORWARD;
 
@@ -168,6 +170,14 @@ public class RobotState {
 
 	public boolean getPositionChanged() {
 		return armPositionChanged;
+	}
+
+	public void setCenterOfRotation(Translation2d center) {
+		this.centerOfRotation = center;
+	}
+
+	public Translation2d getCenterOfRotation() {
+		return centerOfRotation;
 	}
 
 	public boolean getAutonDone() {

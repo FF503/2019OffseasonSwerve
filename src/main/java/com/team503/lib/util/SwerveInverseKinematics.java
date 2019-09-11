@@ -6,6 +6,7 @@ import java.util.List;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Translation2d;
 import com.team503.robot.Robot;
+import com.team503.robot.RobotState;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -29,6 +30,7 @@ public class SwerveInverseKinematics {
 	}
 
 	public void setCenterOfRotation(Translation2d center) {
+		RobotState.getInstance().setCenterOfRotation(center);
 		List<Translation2d> positions = new ArrayList<>(kNumberOfModules);
 		double maxMagnitude = 0.0;
 		for (int i = 0; i < kNumberOfModules; i++) {

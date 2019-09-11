@@ -1389,6 +1389,7 @@ public class SwerveDrive extends Subsystem {
             SmartDashboard.putString("Heading Controller", headingController.getState().toString());
             SmartDashboard.putNumber("Target Heading", headingController.getTargetHeading());
             SmartDashboard.putString("Last Drive Vector", lastDriveVector.toString());
+            SmartDashboard.putString("Center Of Rotation", RobotState.getInstance().getCenterOfRotation())
 
             // SmartDashboard.putNumber("Distance Traveled", distanceTraveled);
             // SmartDashboard.putNumber("Robot Velocity", currentVelocity);
