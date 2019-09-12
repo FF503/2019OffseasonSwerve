@@ -194,8 +194,14 @@ public class Util {
         boolean turnMotorInvert = (boolean) jo.get("TurnMotorInverted");
         boolean turnEncInvert = (boolean) jo.get("TurnEncoderInverted");
 
-        SwerveModule m = new SwerveModule(driveMotorID, turnMotorID, p, i, d, f, startEnc, cv, ca, tcd, driveInvert,
-                driveEncInvert, turnMotorInvert, turnEncInvert);
+        // SwerveModule m = new SwerveModule(driveMotorID, turnMotorID, p, i, d, f,
+        // startEnc, cv, ca, tcd, driveInvert,
+        // driveEncInvert, turnMotorInvert, turnEncInvert);
+
+        SwerveModule m = new SwerveModule(turnMotorID, driveMotorID, moduleName, startEnc, p, i, d, f, cv, ca, tcd,
+                driveInvert, driveEncInvert, turnMotorInvert, turnEncInvert,
+                new com.team254.lib.geometry.Translation2d());
+
         return m;
     }
 

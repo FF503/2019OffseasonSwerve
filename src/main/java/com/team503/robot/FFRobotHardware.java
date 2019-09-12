@@ -7,6 +7,9 @@
 
 package com.team503.robot;
 
+import java.util.Arrays;
+import java.util.List;
+
 import com.team503.lib.geometry.Translation2d;
 
 public class FFRobotHardware extends RobotHardware {
@@ -41,6 +44,14 @@ public class FFRobotHardware extends RobotHardware {
 
         kModulePositions = new Translation2d[] { kVehicleToFrontLeft, kVehicleToFrontRight, kVehicleToBackLeft,
                 kVehicleToBackRight };
+
+        kVehicleToModuleZero = new com.team254.lib.geometry.Translation2d(kWheelbaseLength / 2, kWheelbaseWidth / 2);
+        kVehicleToModuleOne = new com.team254.lib.geometry.Translation2d(kWheelbaseLength / 2, -kWheelbaseWidth / 2);
+        kVehicleToModuleTwo = new com.team254.lib.geometry.Translation2d(-kWheelbaseLength / 2, -kWheelbaseWidth / 2);
+        kVehicleToModuleThree = new com.team254.lib.geometry.Translation2d(-kWheelbaseLength / 2, kWheelbaseWidth / 2);
+
+        kModuleTranslations = Arrays.asList(kVehicleToModuleZero, kVehicleToModuleOne, kVehicleToModuleTwo,
+                kVehicleToModuleThree);
 
         gTimeoutMs = 0;
         gSlotIdx = 0;
@@ -140,6 +151,12 @@ public class FFRobotHardware extends RobotHardware {
 
         // Power Distribution Panel
         PdpID = 0;
+
+        // Drive contants for encoder counts
+        kSwerveWheelDiameter = 3.0;
+        kSwerveEncoderToWheelRatio = 3.0 / 20.0;
+        kSwerveEncUnitsPerWheelRev = kSwerveDriveEncoderResolution * kSwerveEncoderToWheelRatio; 
+        kSwerveEncUnitsPerInch = kSwerveEncUnitsPerWheelRev / (Math.PI * kSwerveWheelDiameter);
     }
 
     @Override

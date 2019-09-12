@@ -9,7 +9,9 @@ package com.team503.robot;
 
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.List;
 
 import com.team503.lib.controllers.PurePursuitController.Lookahead;
 import com.team503.lib.geometry.Translation2d;
@@ -59,6 +61,13 @@ public abstract class RobotHardware {
     public double kTurnEncoderClicksperRevolution;
     public double requestDriveReversed;
 
+    // Swerve drive and azimuth specs
+    public double kSwerveEncoderToWheelRatio; // Wheel revs per encoder revs
+    public double kSwerveEncUnitsPerWheelRev; // ticks per wheel rev
+    public final double kSwerveDriveEncoderResolution = 42.0; // ticks per drive encoder rev
+    public double kSwerveWheelDiameter; // inches
+    public double kSwerveEncUnitsPerInch; // ticks per inch
+
     public int requestPigeonFlipped;
 
     // Swerve Module Positions (relative to the center of the drive base)
@@ -69,10 +78,21 @@ public abstract class RobotHardware {
 
     public Translation2d[] kModulePositions;
 
+    // Swerve Module Positions (relative to the center of the drive base)
+    public com.team254.lib.geometry.Translation2d kVehicleToModuleZero;
+    public com.team254.lib.geometry.Translation2d kVehicleToModuleOne;
+    public com.team254.lib.geometry.Translation2d kVehicleToModuleTwo;
+    public com.team254.lib.geometry.Translation2d kVehicleToModuleThree;
+
+    public List<com.team254.lib.geometry.Translation2d> kModuleTranslations;
+
     public final String motionProfilingRioFolder = "/home/lvuser/MotionProfiles/";
 
     // Pure Pursuit
     public final double POSE_LOOP_DT = 0.01;
+
+    // Debugging
+    public final boolean kDebuggingOutput = true;
 
     public double kMinLookAhead;
     public double kMinLookAheadSpeed;

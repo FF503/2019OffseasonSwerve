@@ -10,12 +10,11 @@ package com.team503.robot;
 import java.util.Arrays;
 
 import com.team503.lib.geometry.Pose;
-import com.team503.lib.io.PrecisionDriveController;
+// import com.team503.lib.io.PrecisionDriveController;
 import com.team503.robot.RobotState.ArmDirection;
 import com.team503.robot.RobotState.Bot;
 import com.team503.robot.RobotState.GameElement;
-import com.team503.robot.auton.ForwardTest;
-import com.team503.robot.commands.DriveToPose;
+// import com.team503.robot.auton.ForwardTest;
 import com.team503.robot.commands.EjectBall;
 import com.team503.robot.commands.GameElementSwitcher;
 import com.team503.robot.commands.ReleaseHatch;
@@ -24,7 +23,7 @@ import com.team503.robot.commands.SwitchArmDirection;
 import com.team503.robot.commands.TargetHeightSwitcher;
 import com.team503.robot.commands.ToggleControlMode;
 import com.team503.robot.commands.ToggleIntake;
-import com.team503.robot.loops.FroggyPoseController;
+// import com.team503.robot.loops.FroggyPoseController;
 import com.team503.robot.loops.LimelightProcessor;
 import com.team503.robot.loops.LimelightProcessor.Pipeline;
 import com.team503.robot.subsystems.Arm;
@@ -33,10 +32,11 @@ import com.team503.robot.subsystems.Intake;
 import com.team503.robot.subsystems.Pigeon;
 import com.team503.robot.subsystems.SubsystemManager;
 import com.team503.robot.subsystems.SwerveDrive;
-import com.team503.robot.subsystems.SwerveDrive.DriveMode;
+// import com.team503.robot.subsystems.SwerveDrive.DriveMode;
 import com.team503.robot.subsystems.Wrist;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Scheduler;
 
 /**
@@ -52,6 +52,7 @@ public class Robot extends TimedRobot {
 
   private SubsystemManager subsystems;
   public static RobotHardware bot;
+  private double theta = Math.PI / 2;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -87,6 +88,8 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     subsystems.outputToSmartDashboard();
+    // System.out.println("ROBOT"+
+    // RobotState.getInstance().getCurrentRobot().name());
   }
 
   /**
@@ -103,25 +106,44 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    // Pigeon.getInstance().zeroSensors();
-    FroggyPoseController.resetPose(new Pose(0,0,0));
-    mSwerve.setBrakeMode();
+    Pigeon.getInstance().zeroSensors();
+    // mSwerve.setBrakeMode();
     Intake.getInstance().startVacuum();
-    mSwerve.resetDriveEncoder();
+    // mSwerve.resetDriveEncoder();
     LimelightProcessor.getInstance().setPipeline(Pipeline.CLOSEST);
-    Pose target = new Pose(0.0,100.0,270.0);
-    DriveToPose driveCommand = new DriveToPose(target);
-    driveCommand.start();
+
+    // new ForwardTest().initAndStartAuton();
   }
   /**
    * This function is called periodically during autonomous.
    */
   @Override
   public void autonomousPeriodic() {
-    //OILoop();
+    RobotState.getInstance().setCurrentTheta(Pigeon.getInstance().getYaw());
+    OI.driverJoystick.update();
 
-    FroggyPoseController.updateOdometry();
-    FroggyPoseController.outputPoseToDashboard();
+    // if (RobotState.getInstance().getAutonDone()) {
+
+    // switch (SwerveDrive.getInstance().getMode()) {
+    // case TeleopDrive:
+
+    // break;
+    // case Defense:
+    // if (!OI.driverJoystick.getStartButton()) {
+    // mSwerve.setMode(DriveMode.TeleopDrive);
+    // break;
+    // }
+    // mSwerve.defensePosition();
+    // break;
+    // default:
+    // break;
+    // }
+    // }
+    oneControllerMode();
+
+    // FroggyPoseController.updateOdometry();
+    // FroggyPoseController.outputPoseToDashboard();
+    // Arm.getInstance().updateSuperstruture();
 
     Scheduler.getInstance().run();
   }
@@ -132,11 +154,12 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
-    mSwerve.setBrakeMode();
-    mSwerve.snapForward();
+    // mSwerve.setBrakeMode();
     Intake.getInstance().startVacuum();
     LimelightProcessor.getInstance().setPipeline(Pipeline.CLOSEST);
-    PrecisionDriveController.activatePrecisionDrive();
+
+    mSwerve.onStart(Timer.getFPGATimestamp());
+    mSwerve.setCenterOfRotation(bot.kVehicleToModuleOne);
   }
 
   /*
@@ -144,9 +167,32 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopPeriodic() {
-    OILoop();
-    FroggyPoseController.updateOdometry();
-    FroggyPoseController.outputPoseToDashboard();
+    OI.driverJoystick.update();
+    RobotState.getInstance().setCurrentTheta(Pigeon.getInstance().getYaw());
+
+    // switch (SwerveDrive.getInstance().getMode()) {
+    // case TeleopDrive:
+    oneControllerMode();
+    // break;
+    // case Defense:
+    // if (!OI.driverJoystick.getStartButton()) {
+    // mSwerve.setMode(DriveMode.TeleopDrive);
+    // break;
+    // }
+    // mSwerve.defensePosition();
+    // break;
+    // default:
+    // break;
+    // }
+
+    // if (RobotState.getInstance().getCurrentRobot().equals(Bot.ProgrammingBot)) {
+    // operatorInput();
+    // Arm.getInstance().updateSuperstruture();
+    // }
+
+    // FroggyPoseController.updateOdometry();
+    // FroggyPoseController.outputPoseToDashboard();
+    subsystems.outputToSmartDashboard();
     Scheduler.getInstance().run();
   }
 
@@ -164,9 +210,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledInit() {
-    mSwerve.setBrakeMode();
     subsystems.stop();
-    PrecisionDriveController.disablePrecisionDrive();
+    mSwerve.onStop(Timer.getFPGATimestamp());
   }
 
   @Override
@@ -174,85 +219,68 @@ public class Robot extends TimedRobot {
     subsystems.outputToSmartDashboard();
   }
 
-  private void OILoop() {
-    OI.driverJoystick.update();
-    switch (mSwerve.getMode()) {
-    case TeleopDrive:
-      joystickInput();
-      break;
-    case Defense:
-      if (!OI.driverJoystick.getStartButton()) {
-        mSwerve.setMode(DriveMode.TeleopDrive);
-        break;
-      }
-      mSwerve.defensePosition();
-      break;
-    default:
-      break;
-    }
+  // private void OILoop() {
+  //   OI.driverJoystick.update();
+  //   switch (mSwerve.getMode()) {
+  //   case TeleopDrive:
+  //     joystickInput();
+  //     break;
+  //   case Defense:
+  //     if (!OI.driverJoystick.getStartButton()) {
+  //       mSwerve.setMode(DriveMode.TeleopDrive);
+  //       break;
+  //     }
+  //     mSwerve.defensePosition();
+  //     break;
+  //   default:
+  //     break;
+  //   }
 
-    if(OI.driverJoystick.leftCenterClick.isBeingPressed()) {
-      mSwerve.setMode(DriveMode.TeleopDrive);
-    }
+  //   if(OI.driverJoystick.leftCenterClick.isBeingPressed()) {
+  //     mSwerve.setMode(DriveMode.TeleopDrive);
+  //   }
 
-    if (RobotState.getInstance().getCurrentRobot().equals(Bot.ProgrammingBot)) {
-      operatorInput();
-      Arm.getInstance().updateSuperstruture();
-    }
+  //   if (RobotState.getInstance().getCurrentRobot().equals(Bot.ProgrammingBot)) {
+  //     operatorInput();
+  //     Arm.getInstance().updateSuperstruture();
+  //   }
     
+  // }
+
+  private void azimuthDebugInput() {
+    double swerveYInput = 0.3 * Math.sin(theta);
+    double swerveXInput = 0.3 * Math.cos(theta);
+    double swerveRotationInput = OI.getDriverRightXVal();
+
+    theta += 0.1;
+    theta %= 2 * Math.PI;
+
+    mSwerve.sendInput(swerveXInput, swerveYInput, swerveRotationInput, false, false);
+
+    mSwerve.onLoop(Timer.getFPGATimestamp());
   }
 
-  private void joystickInput() {
+  public void oneControllerMode() {
     double swerveYInput = -OI.getDriverLeftYVal();
     double swerveXInput = OI.getDriverLeftXVal();
+
     double swerveRotationInput = OI.getDriverRightXVal();
     boolean lowPower = OI.getDriverRightTriggerPressed();
     double deadband = 0.015;
     double lastSnapTarget = 0;
 
-    if (swerveRotationInput > -deadband && swerveRotationInput < deadband) {
-      swerveRotationInput = mSwerve.getRotationalOutput();
-    } else {
-      mSwerve.rotate(RobotState.getInstance().getCurrentTheta());
+    if (OI.driverJoystick.startButton.shortReleased()) {
+      mSwerve.toggleEvade();
     }
 
-    if (OI.getDriverYButton()) {
-      mSwerve.visionFollow();
-    } else {
-      LimelightProcessor.getInstance().setPipeline(Pipeline.DRIVER);
-      if (OI.driverJoystick.leftBumper.shortReleased()) {
-        mSwerve.rotate(-30);
-        swerveRotationInput = mSwerve.getRotationalOutput();
-      } else if (OI.driverJoystick.leftBumper.longPressed()) {
-        mSwerve.rotate(-150.0);
-        swerveRotationInput = mSwerve.getRotationalOutput();
-      } else if (OI.driverJoystick.rightBumper.shortReleased()) {
-        mSwerve.rotate(30);
-        swerveRotationInput = mSwerve.getRotationalOutput();
-      } else if (OI.driverJoystick.rightBumper.longPressed()) {
-        mSwerve.rotate(150.0);
-        swerveRotationInput = mSwerve.getRotationalOutput();
-      } else if (OI.driverJoystick.getPOV() == 180) {
-        mSwerve.rotate(179);
-        swerveRotationInput = mSwerve.getRotationalOutput();
-      } else if (OI.driverJoystick.getPOV() == 90) {
-        mSwerve.rotate(90);
-        swerveRotationInput = mSwerve.getRotationalOutput();
-      } else if (OI.driverJoystick.getPOV() == 270) {
-        mSwerve.rotate(270);
-        swerveRotationInput = mSwerve.getRotationalOutput();
-      } else if (OI.driverJoystick.getPOV() == 0) {
-        mSwerve.rotate(1);
-        swerveRotationInput = mSwerve.getRotationalOutput();
-      } else if (OI.driverJoystick.getStartButtonPressed()) {
-        mSwerve.setMode(DriveMode.Defense);
-      }
-      mSwerve.setFieldCentric(!OI.getDriverRightTriggerPressed());
-      mSwerve.drive(swerveXInput, swerveYInput, swerveRotationInput, lowPower);
-    }
+    mSwerve.sendInput(swerveXInput, swerveYInput, swerveRotationInput, lowPower, lowPower);
+
+    mSwerve.onLoop(Timer.getFPGATimestamp());
   }
 
-  private void operatorInput() {
+  public void twoControllerMode() {
+    oneControllerMode();
+
     if (OI.getOperatorA()) {
       RobotState.getInstance().setArmDirection(ArmDirection.FRONT);
       TargetHeightSwitcher.set(RobotState.TargetHeight.LOW);
@@ -303,5 +331,6 @@ public class Robot extends TimedRobot {
       ResetEncoderCommand.resetEncs();
     }
 
+    Arm.getInstance().updateSuperstruture();
   }
 }

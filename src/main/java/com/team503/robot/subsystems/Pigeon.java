@@ -11,7 +11,7 @@ import com.ctre.phoenix.sensors.PigeonIMU;
 import com.ctre.phoenix.sensors.PigeonIMU.PigeonState;
 import com.team503.robot.Robot;
 import com.team503.robot.RobotState;
-import com.team503.robot.auton.FroggyAuton.StartingDirection;
+// import com.team503.robot.auton.FroggyAuton.StartingDirection;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -80,7 +80,7 @@ public class Pigeon extends Subsystem {
 	}
 
 	public void reset() {
-		setAngle(RobotState.getInstance().getGyroOffset());
+		// setAngle(RobotState.getInstance().getGyroOffset());
 	}
 
 	public void setAngle(double angle) {

@@ -7,6 +7,8 @@
 
 package com.team503.robot;
 
+import java.util.Arrays;
+
 import com.team503.lib.geometry.Translation2d;
 
 public class RobotHardwareProgammingBot extends RobotHardware {
@@ -26,7 +28,7 @@ public class RobotHardwareProgammingBot extends RobotHardware {
         kWheelbaseLength = 21.0;
         kWheelbaseWidth = 21.0;
         wheelDiameter = 4.0;
-        kTurnEncoderClicksperRevolution = 1024;
+        kTurnEncoderClicksperRevolution = 1023;
         requestDriveReversed = -1;
 
         requestPigeonFlipped = -1;
@@ -39,6 +41,14 @@ public class RobotHardwareProgammingBot extends RobotHardware {
 
         kModulePositions = new Translation2d[] { kVehicleToFrontLeft, kVehicleToFrontRight, kVehicleToBackLeft,
                 kVehicleToBackRight };
+
+        kVehicleToModuleZero = new com.team254.lib.geometry.Translation2d(kWheelbaseLength / 2, kWheelbaseWidth / 2);
+        kVehicleToModuleOne = new com.team254.lib.geometry.Translation2d(kWheelbaseLength / 2, -kWheelbaseWidth / 2);
+        kVehicleToModuleTwo = new com.team254.lib.geometry.Translation2d(-kWheelbaseLength / 2, -kWheelbaseWidth / 2);
+        kVehicleToModuleThree = new com.team254.lib.geometry.Translation2d(-kWheelbaseLength / 2, kWheelbaseWidth / 2);
+
+        kModuleTranslations = Arrays.asList(kVehicleToModuleZero, kVehicleToModuleOne, kVehicleToModuleTwo,
+                kVehicleToModuleThree);
 
         gTimeoutMs = 0;
         gSlotIdx = 0;
@@ -138,6 +148,12 @@ public class RobotHardwareProgammingBot extends RobotHardware {
 
         // Power Distribution Panel
         PdpID = 0;
+
+        // Drive contants for encoder counts
+        kSwerveWheelDiameter = 4.0;
+        kSwerveEncoderToWheelRatio = 7.0 / 32.0;
+        kSwerveEncUnitsPerWheelRev = kSwerveDriveEncoderResolution * kSwerveEncoderToWheelRatio;
+        kSwerveEncUnitsPerInch = kSwerveEncUnitsPerWheelRev / (Math.PI * kSwerveWheelDiameter);
     }
 
     @Override

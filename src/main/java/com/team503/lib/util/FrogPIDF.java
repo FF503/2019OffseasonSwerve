@@ -32,6 +32,16 @@ public class FrogPIDF {
         this.f = (controlMode == ControlMode.Velocity_Control) ? f : 0.0;
     }
 
+    public FrogPIDF(double p, double i, double d, double f) {
+        this.p = p;
+        this.i = i;
+        this.d = d;
+        this.f = f;
+
+        this.control = (f != 0.0) ? ControlMode.Velocity_Control : ControlMode.Position_Control;
+
+    }
+
     public void setSetpoint(double setPoint) {
         this.setPoint = setPoint;
         this.integral = 0;
@@ -56,10 +66,10 @@ public class FrogPIDF {
         double fOut = f * setPoint;
 
         SmartDashboard.putNumber("FrogPIDF Error", error);
-        
+
         lastTime = time;
         lastError = error;
-        
+
         return Math.max(-1, Math.min(pOut + iOut + dOut + fOut, 1));
     }
 
