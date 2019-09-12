@@ -27,14 +27,14 @@ import com.team503.robot.commands.ToggleIntake;
 import com.team503.robot.loops.FroggyPoseController;
 import com.team503.robot.loops.LimelightProcessor;
 import com.team503.robot.loops.LimelightProcessor.Pipeline;
-import com.team503.robot.subsystems.Arm;
+import com.team503.robot.subsystems.AndyArm;
 import com.team503.robot.subsystems.Extension;
 import com.team503.robot.subsystems.Intake;
 import com.team503.robot.subsystems.Pigeon;
 import com.team503.robot.subsystems.SubsystemManager;
 import com.team503.robot.subsystems.SwerveDrive;
 import com.team503.robot.subsystems.SwerveDrive.DriveMode;
-import com.team503.robot.subsystems.Wrist;
+import com.team503.robot.subsystems.AndyWrist;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
@@ -69,8 +69,8 @@ public class Robot extends TimedRobot {
     if (RobotState.getInstance().getCurrentRobot().equals(Bot.FFSwerve)) {
       subsystems = new SubsystemManager(Arrays.asList(mSwerve, Pigeon.getInstance()));
     } else if(RobotState.getInstance().getCurrentRobot().equals(Bot.ProgrammingBot)){
-      subsystems = new SubsystemManager(Arrays.asList(mSwerve, Pigeon.getInstance(), Arm.getInstance(),
-          Wrist.getInstance(), Extension.getInstance(), Intake.getInstance()));
+      subsystems = new SubsystemManager(Arrays.asList(mSwerve, Pigeon.getInstance(), AndyArm.getInstance(),
+          AndyWrist.getInstance(), Extension.getInstance(), Intake.getInstance()));
     }
     subsystems.resetSensor();
   }
@@ -197,7 +197,7 @@ public class Robot extends TimedRobot {
 
     if (RobotState.getInstance().getCurrentRobot().equals(Bot.ProgrammingBot)) {
       operatorInput();
-      Arm.getInstance().updateSuperstruture();
+      AndyArm.getInstance().updateSuperstruture();
     }
     
   }

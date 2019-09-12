@@ -15,9 +15,9 @@ import com.team503.robot.RobotState.ArmDirection;
 import com.team503.robot.RobotState.GameElement;
 import com.team503.robot.RobotState.SuperStructurePreset;
 import com.team503.robot.RobotState.TargetHeight;
-import com.team503.robot.subsystems.Arm;
+import com.team503.robot.subsystems.AndyArm;
 import com.team503.robot.subsystems.Extension;
-import com.team503.robot.subsystems.Wrist;
+import com.team503.robot.subsystems.AndyWrist;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
@@ -40,7 +40,7 @@ public class SuperStructureCommand extends Command {
 	// Called just before this Command runs the first time
 	@Override
 	protected void initialize() {
-		aTgt = Arm.getInstance().getEncoderDeg();
+		aTgt = AndyArm.getInstance().getEncoderDeg();
 		eTgt = Robot.bot.gExtMinLim;
 		wTgt = 90.0;
 		RobotState.getInstance().setIsManual(false);
@@ -165,15 +165,15 @@ public class SuperStructureCommand extends Command {
 				eTgt = preset.getExtPosition();
 			}
 			if (Robot.bot.hasWrist()) {
-				double wristPower = Wrist.getInstance().getTalon().getOutputCurrent()
-						* Wrist.getInstance().getTalon().getMotorOutputVoltage();
+				double wristPower = AndyWrist.getInstance().getTalon().getOutputCurrent()
+						* AndyWrist.getInstance().getTalon().getMotorOutputVoltage();
 			//	System.out.println("Wrist Power Watts: " + wristPower);
 				if (wristPower > Robot.bot.MAX_WRIST_POWER) {
-					Wrist.getInstance().setMotorOutput(0.0);
+					AndyWrist.getInstance().setMotorOutput(0.0);
 					System.out.println("WRIST POWER TOO HIGH BURN OUT WARNING");
 				} else {
-					if (!(RobotState.getInstance().getSuperStructurePreset() == SuperStructurePreset.FRONT_CARGO_BUS && Arm.getInstance().getEncoderDeg() < -30)) {
-						Wrist.getInstance().setTargetPosition(wTgt);
+					if (!(RobotState.getInstance().getSuperStructurePreset() == SuperStructurePreset.FRONT_CARGO_BUS && AndyArm.getInstance().getEncoderDeg() < -30)) {
+						AndyWrist.getInstance().setTargetPosition(wTgt);
 					}
 
 				}
@@ -186,8 +186,8 @@ public class SuperStructureCommand extends Command {
 				// }
 			}
 			if (Robot.bot.hasArm()) {
-				Arm.getInstance().setTargetPosition(aTgt);
-				if (Arm.getInstance().getEncoderDeg() > -40) {
+				AndyArm.getInstance().setTargetPosition(aTgt);
+				if (AndyArm.getInstance().getEncoderDeg() > -40) {
 					Extension.getInstance().setTargetPosition(eTgt);
 				} else {
 					Extension.getInstance().setTargetPosition(0.0);
@@ -200,22 +200,22 @@ public class SuperStructureCommand extends Command {
 			}
 			if (Robot.bot.hasArm()) {
 
-				if (Arm.getInstance().getEncoderDeg() > 0.0 && Arm.getInstance().getEncoderDeg() < 180.0) {
+				if (AndyArm.getInstance().getEncoderDeg() > 0.0 && AndyArm.getInstance().getEncoderDeg() < 180.0) {
 					eLim = Robot.bot.gArmExtLength
-							* (1 / Math.cos(Math.toRadians(Arm.getInstance().getEncoderDeg())) - 1);
+							* (1 / Math.cos(Math.toRadians(AndyArm.getInstance().getEncoderDeg())) - 1);
 					eLim = Math.abs(eLim);
 				} else {
 					eLim = 0.0;
 				}
 
-				aTgt = Arm.getInstance().getEncoderDeg();
-				wTgt = Wrist.getInstance().getHRelEncoderDeg();
+				aTgt = AndyArm.getInstance().getEncoderDeg();
+				wTgt = AndyWrist.getInstance().getHRelEncoderDeg();
 				eTgt = Extension.getInstance().getExtPosition();
 
 				// eIsMax = Extension.getInstance().getExtPosition() > eLim;
 				// eIsMin = Extension.getInstance().getExtPosition() < Robot.bot.gExtMinLim;
-				Arm.getInstance().setMotorOutput(-OI.operator.getY(Hand.kLeft));
-				Wrist.getInstance().setMotorOutput(-OI.operator.getY(Hand.kRight));
+				AndyArm.getInstance().setMotorOutput(-OI.operator.getY(Hand.kLeft));
+				AndyWrist.getInstance().setMotorOutput(-OI.operator.getY(Hand.kRight));
 
 				// Extension.getInstance().setTargetPosition(eLim);
 
@@ -239,8 +239,8 @@ public class SuperStructureCommand extends Command {
 	// Called once after isFinished returns true
 	@Override
 	protected void end() {
-		Arm.getInstance().setMotorOutput(0.0);
-		Wrist.getInstance().setMotorOutput(0.0);
+		AndyArm.getInstance().setMotorOutput(0.0);
+		AndyWrist.getInstance().setMotorOutput(0.0);
 		Extension.getInstance().setMotorPower(0.0);
 	}
 

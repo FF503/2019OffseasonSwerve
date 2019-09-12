@@ -8,7 +8,7 @@
 package com.team503.robot.commands;
 
 import com.team503.robot.RobotState;
-import com.team503.robot.subsystems.Wrist;
+import com.team503.robot.subsystems.AndyWrist;
 
 import edu.wpi.first.wpilibj.command.Command;
 
@@ -22,7 +22,7 @@ public class ResetWristEncoderCommand extends Command {
   @Override
   protected void initialize() {
     if(RobotState.getInstance().getIsManual()) {
-      Wrist.getInstance().resetEncoder();
+      AndyWrist.getInstance().resetEncoder();
     }
   }
 

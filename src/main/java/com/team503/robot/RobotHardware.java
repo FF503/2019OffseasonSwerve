@@ -47,6 +47,9 @@ public abstract class RobotHardware {
 
     public abstract boolean hasLimelight();
 
+
+    public static final boolean kDebuggingOutput = true;
+
     // Limelight Constants
     public double visionAreaConstant = 1.0;
     public double yVisionkP = 0.57;
@@ -173,6 +176,33 @@ public abstract class RobotHardware {
 
     // Power Distribution Panel
     public int PdpID;
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////////
+
+    // FF Swerve Constants
+
+    // ARM
+    public static final int ARM = 24; //TODO
+
+    // Constraints
+    public static final double kArmMaxControlAngle = 0; //degrees //TODO
+    public static final double kArmMinControlAngle = 0; //degrees //TODO
+    public static final double kArmMaxPhysicalAngle = 0; //degrees //TODO
+    public static final double kArmMinPhysicalAngle = 0; //degrees //TODO
+    public static final double kArmMaxCurrent = 40.0; //amps //TODO
+
+
+    // Motion Control
+    public static final double kArmMaxSpeed = 1000; //enc units per 100 MS //TODO
+    public static final double kArmAngleTolerance = 5; //degrees //TODO
+
+    // Position/Encoder relations
+    public static final double kArmEncoderToOutputRatio = 1.0; //arm rev per enc rev //TODO
+    public static final int kArmStartingAngle = 0; //physical starting angle (degrees) //TODO
+    public static final int kArmStartingEncoderPosition = 0; //starting encoder counts (enc units) //TODO
+
 
     public final Lookahead getLookahead() {
         final Lookahead lookahead = new Lookahead(kMinLookAhead, kMaxLookAhead, kMinLookAheadSpeed, kMaxLookAheadSpeed);
