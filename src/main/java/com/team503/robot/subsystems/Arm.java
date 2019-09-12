@@ -2,6 +2,7 @@ package com.team503.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.team254.drivers.LazyCANSparkMax;
 import com.team254.drivers.LazyTalonSRX;
 // import com.team1323.frc2019.Robot.bot;
 // import com.team1323.frc2019.Robot.bot;

@@ -210,16 +210,36 @@ public abstract class RobotHardware {
     public static final double kArmMinPhysicalAngle = 0; //degrees //TODO
     public static final double kArmMaxCurrent = 40.0; //amps //TODO
 
-
     // Motion Control
     public static final double kArmMaxSpeed = 1000; //enc units per 100 MS //TODO
     public static final double kArmAngleTolerance = 5; //degrees //TODO
 
-    // Position/Encoder relations
+    // Position-Encoder relations
     public static final double kArmEncoderToOutputRatio = 1.0; //arm rev per enc rev //TODO
     public static final int kArmStartingAngle = 0; //physical starting angle (degrees) //TODO
     public static final int kArmStartingEncoderPosition = 0; //starting encoder counts (enc units) //TODO
 
+
+    // ELEVATOR
+    public static final int ELEVATOR = 25; //TODO
+    
+    public static final double kElevatorTeleopManualSpeed = 0.5; // Percent max output manual //TODO
+
+    // Constraints
+    public static final double kElevatorMinHeight = 50.0; //inches //TODO
+    public static final double kElevatorMaxHeight = 50.0; //inches //TODO
+    public static final int kElevatorCurrentLimit = 40; //amps //TODO
+    public static final int kElevatorMaxCurrent = 50; //amps //TODO
+
+    // Motion Control
+    public static final double kElevatorMaxSpeed = 1000; //rev per min //TODO
+    public static final double kElevatorHeightTolerance = 5; //inches //TODO
+
+    // Position-Encoder Relations
+    public static double kElevatorTicksPerInch = 4332; // enc counts per inch //TODO
+    public static double kElevatorEncoderStartingPosition = 0; // enc counts //TODO
+    public static double kElevatorMaxInitialHeight = 7.0; //inches //TODO
+    public static double kElevatorMinInitialHeight = 7.0; //inches //TODO
 
     public final Lookahead getLookahead() {
         final Lookahead lookahead = new Lookahead(kMinLookAhead, kMaxLookAhead, kMinLookAheadSpeed, kMaxLookAheadSpeed);
