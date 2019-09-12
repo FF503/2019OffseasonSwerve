@@ -31,7 +31,7 @@ public class SetSnappingAngle extends InstantCommand {
   // Called once when the command executes
   @Override
   protected void initialize() {
-    SwerveDrive.getInstance().rotate(pos);
+    SwerveDrive.getInstance().rotate(pos.getAngle());
   }
 
 }

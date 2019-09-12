@@ -5,22 +5,11 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package com.team503.robot.commands;
+package com.team503.robot.subsystems.requests;
 
-
-import com.team503.robot.RobotState;
-import com.team503.robot.subsystems.AndyArm;
-import com.team503.robot.subsystems.Extension;
-import com.team503.robot.subsystems.AndyWrist;
-
-public class ResetEncoderCommand{
-  
-  public static void resetEncs() {
-    if (RobotState.getInstance().getIsManual()) {
-      AndyArm.getInstance().resetEncoder();
-      AndyWrist.getInstance().resetEncoder();
-      Extension.getInstance().resetEncoder();
-    }
-  }
-
+/**
+ * A state which must be met before a Request can be acted upon
+ */
+public abstract class Prerequisite {
+    public abstract boolean met();
 }

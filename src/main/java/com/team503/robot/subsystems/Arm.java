@@ -1,471 +1,438 @@
-/*----------------------------------------------------------------------------*/
-/* Copyright (c) 2018 FIRST. All Rights Reserved.                             */
-/* Open Source Software - may be modified and shared by FRC teams. The code   */
-/* must be accompanied by the FIRST BSD license file in the root directory of */
-/* the project.                                                               */
-/*----------------------------------------------------------------------------*/
-
 package com.team503.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.VelocityMeasPeriod;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import com.team503.lib.util.FFDashboard;
-import com.team503.lib.util.MotionMagicPID;
-import com.team503.robot.OI;
+import com.team254.drivers.LazyTalonSRX;
+// import com.team1323.frc2019.Robot.bot;
+// import com.team1323.frc2019.Robot.bot;
+// import com.team1323.frc2019.loops.ILooper;
+// import com.team1323.frc2019.loops.Loop;
+// import com.team1323.frc2019.subsystems.requests.Prerequisite;
+// import com.team1323.frc2019.subsystems.requests.Request;
+import com.team503.lib.util.Util;
 import com.team503.robot.Robot;
-import com.team503.robot.RobotState;
-import com.team503.robot.RobotState.ArmDirection;
-import com.team503.robot.RobotState.GameElement;
-import com.team503.robot.RobotState.SuperStructurePreset;
-import com.team503.robot.RobotState.TargetHeight;
+import com.team503.robot.subsystems.requests.Prerequisite;
+import com.team503.robot.subsystems.requests.Request;
 
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.GenericHID.Hand;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-/**
- * Subsystem for arm motion magic trajectories
- */
-public class Arm extends Subsystem implements SuperStructureSystem {
-  // Put methods for controlling this subsystem
-  // here. Call these from Commands.
-  private TalonSRX armMaster, armSlave;
-  private FFDashboard table = new FFDashboard("Arm");
-  private MotionMagicPID armPID;
-  private double lastVel, currVel, accel, maxVel, maxAccel, minAccel = 0;
+public class Arm extends Subsystem {
+	private static Arm instance = null;
 
-  private static double aTgt, eTgt, wTgt, eLim = 0;
-	private static boolean eIsMax, eIsMin = false;
-	private static int manualIdx = 0;
+	public static Arm getInstance() {
+		if (instance == null)
+			instance = new Arm();
+		return instance;
+	}
 
-  public Arm() {
-    // if (!RobotState.getInstance().getCurrentRobot().equals(Bot.ProgrammingBot)) {
-    armMaster = new TalonSRX(Robot.bot.armMasterID);
-    armSlave = new TalonSRX(Robot.bot.armSlaveID);
-    armMaster.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative /* CTRE_MagEncoder_Absolute */,
-        Robot.bot.gSlotIdx, Robot.bot.gTimeoutMs);
+	LazyTalonSRX arm;
 
-    armMaster.setSensorPhase(Robot.bot.armMasterSensorPhase);
-    armMaster.setInverted(Robot.bot.armMasterInverted);
-    armSlave.setInverted(Robot.bot.armSlaveInverted);
-    armMaster.setNeutralMode(NeutralMode.Brake);
-    armSlave.setNeutralMode(NeutralMode.Brake);
-    armMaster.selectProfileSlot(0, 0);
+	private double targetAngle = 0.0;
+	private double maxAllowableAngle = Robot.bot.kArmMaxControlAngle;
 
-    // armMaster.getSensorCollection().setPulseWidthPosition(0, 10);
+	public void setMaxAllowableAngle(double angle) {
+		maxAllowableAngle = angle;
+		lockAngle();
+	}
 
-    armSlave.set(ControlMode.Follower, Robot.bot.armMasterID);
-    armPID = new MotionMagicPID(this, Robot.bot.kArmP, Robot.bot.kArmI, Robot.bot.kArmD, Robot.bot.kArmF,
-        Robot.bot.kArmCruiseVel, Robot.bot.kArmAcceleration);
+	// Solenoid shifter;
 
-    armPID.configPIDs();
-    armMaster.config_IntegralZone(Robot.bot.gSlotIdx, 50);
+	// boolean isHighGear = false;
 
-    aTgt = getEncoderDeg();
-    eTgt = Robot.bot.gExtMinLim;
-    wTgt = 90.0;
-    RobotState.getInstance().setIsManual(false);
-    RobotState.getInstance().setArmDirection(ArmDirection.FRONT);
-  }
+	// public boolean isHighGear() {
+	// return isHighGear;
+	// }
 
-  private static Arm instance = new Arm();
+	// boolean highGearConfig = false;
 
-  public static Arm getInstance() {
+	public enum ArmControlState {
+		OPEN_LOOP, POSITION
+	}
 
-    return instance;
-  }
+	private ArmControlState currentState = ArmControlState.OPEN_LOOP;
 
-  public double getEncoderCounts() {
-    if (Robot.bot.hasArm()) {
-      return armMaster.getSelectedSensorPosition(0);
-    } else {
-      return 0;
-    }
-  }
+	PeriodicIO periodicIO = new PeriodicIO();
 
-  public double getEncoderDeg() {
-    if (Robot.bot.hasArm()) {
-      return c2d(getEncoderCounts()) - Robot.bot.gArmAngularOffset;
-    } else {
-      return 0.0;
-    }
-  }
+	private Arm() {
+		arm = new LazyTalonSRX(Robot.bot.ARM);
 
-  public void resetEncoder() {
-    if (Robot.bot.hasArm()) {
-      armMaster.setSelectedSensorPosition(0);
-      // armMaster.getSensorCollection().setPulseWidthPosition(0, 10);
-    }
-  }
+		arm.configVoltageCompSaturation(12.0, 10);
+		arm.enableVoltageCompensation(true);
+		arm.configNominalOutputForward(0.0 / 12.0, 10);
+		arm.configContinuousCurrentLimit(25, 10); // TODO
+		arm.configPeakCurrentLimit(30, 10);
+		arm.configPeakCurrentDuration(100, 10);
+		arm.enableCurrentLimit(true);
 
-  public double getMotorOutput() {
-    if (Robot.bot.hasArm()) {
-      return armMaster.getMotorOutputVoltage() / armMaster.getBusVoltage();
-    } else {
-      return 0;
-    }
-  }
+		arm.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 10);
+		arm.setInverted(false);
+		arm.setSensorPhase(false);
+		arm.getSensorCollection().setPulseWidthPosition(0, 100);
+		resetToAbsolutePosition();
+		configurationOne();
+		arm.configForwardSoftLimitThreshold(armAngleToEncUnits(Robot.bot.kArmMaxControlAngle), 10);
+		arm.configReverseSoftLimitThreshold(armAngleToEncUnits(Robot.bot.kArmMinControlAngle), 10);
+		arm.configForwardSoftLimitEnable(true, 10);
+		arm.configReverseSoftLimitEnable(true, 10);
 
-  /**
-   * Sets power to the arm motors
-   *
-   * @param power Desired percent output to assign to the arm motors
-   */
-  public void setMotorOutput(double power) {
-    if (Robot.bot.hasArm()) {
-      armMaster.set(ControlMode.PercentOutput, power);
-    }
-  }
+		setOpenLoop(0.0);
 
-  public double getEncoderVelocity() {
-    if (Robot.bot.hasArm()) {
-      return armMaster.getSelectedSensorVelocity(0);
-    } else {
-      return 0;
-    }
-  }
+		// shifter = new Solenoid(Robot.bot.DRIVEBASE_PCM, Robot.bot.WRIST_SHIFTER);
+	}
 
-  public double getAngularVelocity() {
-    return c2d(getEncoderVelocity()) * 10;
-  }
+	private void configurationOne() { // TODO TUNE
+		arm.selectProfileSlot(0, 0);
+		arm.config_kP(0, 1.25, 10); // going down 2.5
+		arm.config_kI(0, 0.0, 10);
+		arm.config_kD(0, 60.0, 10);// 80.0
+		arm.config_kF(0, 1023.0 / Robot.bot.kArmMaxSpeed, 10);
+		arm.config_kP(1, 1.25, 10);// going up 2.0
+		arm.config_kI(1, 0.0, 10);
+		arm.config_kD(1, 60.0, 10);// 80.0
+		arm.config_kF(1, 1023.0 / Robot.bot.kArmMaxSpeed, 10);
+		arm.configMotionCruiseVelocity((int) (Robot.bot.kArmMaxSpeed * 1.0), 10);
+		arm.configMotionAcceleration((int) (Robot.bot.kArmMaxSpeed * 3.0), 10);
+		arm.configMotionSCurveStrength(6);
 
-  /**
-   * Takes the derivative of the velocity of the sensor collection relative to
-   * units per 100ms per second. Prefered to only use this data in enhanced sensor
-   * collection in kinematics testing
-   *
-   * @return Acceleration in units per 100ms per second
-   */
-  public double getEncoderAcceleration() {
-    currVel = getEncoderVelocity();
-    accel = (currVel - lastVel) / .02;
-    lastVel = currVel;
-    return accel;
-  }
+		// highGearConfig = true;
+	}
 
-  /**
-   * Determines the highest achieved velocity so far
-   *
-   *
-   * @return Highest recorded velocity in Units per 100ms.
-   */
-  public double getMaxVel() {
-    double mCurrVel = getEncoderVelocity();
-    maxVel = (mCurrVel > maxVel) ? mCurrVel : maxVel;
-    return maxVel;
-  }
+	// public void configForLowGear() {
+	// arm.selectProfileSlot(2, 0);
+	// arm.config_kP(2, 3.0, 10);
+	// arm.config_kI(2, 0.0, 10);
+	// arm.config_kD(2, 30.0, 10);
+	// arm.config_kF(2, 1023.0 / Robot.bot.kArmMaxSpeedLowGear, 10);
+	// arm.config_kP(3, 3.0, 10);
+	// arm.config_kI(3, 0.0, 10);
+	// arm.config_kD(3, 60.0, 10);
+	// arm.config_kF(3, 1023.0 / Robot.bot.kArmMaxSpeedLowGear, 10);
+	// arm.configMotionCruiseVelocity((int) (Robot.bot.kArmMaxSpeedLowGear * 1.0),
+	// 10);
+	// arm.configMotionAcceleration((int) (Robot.bot.kArmMaxSpeedLowGear * 3.0),
+	// 10);
+	// arm.configMotionSCurveStrength(4);
 
-  /**
-   * Determines the highest achieved acceleration so far
-   *
-   *
-   * @return Highest recorded acceleration in Units per 100ms per second.
-   */
-  public double getMaxAccel() {
-    double mCurrAccel = getEncoderAcceleration();
-    maxAccel = (mCurrAccel > maxAccel) ? mCurrAccel : maxAccel;
-    return maxAccel;
-  }
+	// highGearConfig = false;
+	// System.out.println("Low gear set");
+	// }
 
-  /**
-   * Determines the highest achieved deceleration so far
-   *
-   *
-   * @return Highest recorded deceleration in Units per 100ms per second.
-   */
-  public double getMaxDecel() {
-    double mCurrAccel = getEncoderAcceleration();
-    minAccel = (mCurrAccel < minAccel) ? mCurrAccel : minAccel;
-    return minAccel;
-  }
+	// public void setHighGear(boolean high) {
+	// if (high && !isHighGear) {
+	// shifter.set(true);
+	// configForHighGear();
+	// isHighGear = true;
+	// } else if (!high && isHighGear) {
+	// shifter.set(false);
+	// configForLowGear();
+	// isHighGear = false;
+	// }
+	// DriverStation.reportError("Arm shifted to: " + (high ? "high" : "low"),
+	// true);
+	// }
 
-  @Override
-  public void setTargetPosition(double tgt) {
-    double encTgt = d2c(tgt/* +Robot.bot.gArmAngularOffset */);
-    // System.err.println("enc targ:" + encTgt);
-    armMaster.set(ControlMode.MotionMagic, encTgt);
-  }
+	public void setOpenLoop(double output) {
+		periodicIO.demand = output * 0.5;// TODO update coefficient
+		currentState = ArmControlState.OPEN_LOOP;
+	}
 
-  @Override
-  public boolean getMagicStall() {
-    return getMotorOutput() < 0.05;
-  }
+	public boolean isOpenLoop() {
+		return currentState == ArmControlState.OPEN_LOOP;
+	}
 
-  @Override
-  public double getMagicError() {
-    if (Robot.bot.hasArm()) {
-      return armMaster.getClosedLoopError(Robot.bot.gSlotIdx);
-    } else {
-      return 0;
-    }
-  }
+	public void setAngle(double angle) {
+		if (isSensorConnected()) {
+			// if (isHighGear && !highGearConfig) {
+			configurationOne();
+			// } else if (!isHighGear && highGearConfig) {
+			// configForLowGear();
+			// }
+			if (angle <= maxAllowableAngle) {
+				targetAngle = angle;
+			} else {
+				targetAngle = maxAllowableAngle;
+			}
+			if (angle > getAngle())
+				arm.selectProfileSlot(1, 0);
+			else
+				arm.selectProfileSlot(0, 0);
+			periodicIO.demand = armAngleToEncUnits(targetAngle);
+			currentState = ArmControlState.POSITION;
+		} else {
+			DriverStation.reportError("Arm encoder not detected!", false);
+			stop();
+		}
+	}
 
-  @Override
-  public TalonSRX getTalon() {
-    return armMaster;
-  }
+	public void lockAngle() {
+		setAngle(getAngle());
+	}
 
-  /**
-   * 
-   * Enters a shorter velocity measurement period of 1ms compared to the default
-   * 100ms. Used to measure better data collection especially acceleration.
-   * 
-   */
-  private void enhancedVelMeas() {
-    armMaster.configVelocityMeasurementPeriod(VelocityMeasPeriod.Period_1Ms);
-    armMaster.configVelocityMeasurementWindow(32);
-  }
+	public Request angleRequest(double angle) {
+		return new Request() {
 
-  /**
-   * Returns the selected motor's output current
-   * 
-   * @return The motor output current in amps ()
-   */
-  public double getMotorCurrent() {
-    if (Robot.bot.hasArm()) {
-      return armMaster.getOutputCurrent();
-    } else {
-      return 0.0;
-    }
-  }
+			@Override
+			public void act() {
+				arm.configMotionCruiseVelocity((int) (Robot.bot.kArmMaxSpeed));
+				setAngle(angle);
+			}
 
+			@Override
+			public boolean isFinished() {
+				return hasReachedTargetAngle();
+			}
 
-  public boolean isEncoderFault() {
-    return getEncoderDeg() > 0.0 && Extension.getInstance().getExtPosition() < 8.0;
-  }
+		};
+	}
 
-  private double d2c(double val) {
-    return (val + Robot.bot.gArmAngularOffset) * Robot.bot.kEncoderUnitsPerRev / 360;
-  }
+	public Request angleRequest(double angle, double speedScalar) {
+		return new Request() {
 
-  private double c2d(double val) {
-    return (val / Robot.bot.kEncoderUnitsPerRev) * 360;
-  }
+			@Override
+			public void act() {
+				// arm.configMotionCruiseVelocity(
+				// (int) ((isHighGear ? Robot.bot.kArmMaxSpeedHighGear :
+				// Robot.bot.kArmMaxSpeedLowGear)
+				// * speedScalar));
 
-  public synchronized void updateSuperstruture() {
-    if ((DriverStation.getInstance().isAutonomous() || !RobotState.getInstance().getIsManual())) {
-      
-      manualIdx = 0;
-      if (RobotState.getInstance().getPositionChanged()) {
-        ArmDirection armDirection = RobotState.getInstance().getArmDirection();
-        TargetHeight tgtHeight = RobotState.getInstance().getTargetHeight();
+				arm.configMotionCruiseVelocity((int) (Robot.bot.kArmMaxSpeed * speedScalar));
+				setAngle(angle);
+			}
 
-        // ArmPosition armPos = RobotState.getInstance().getArmPosition();
-        // ExtensionPosition extPos = RobotState.getInstance().getExtPosition();
-        if (armDirection.equals(ArmDirection.FRONT)) {
-          if (RobotState.getInstance().getGameElement() == GameElement.CARGO) {
-            switch (tgtHeight) {
-            case INTAKE:
-              RobotState.getInstance().setSuperStructurePreset(SuperStructurePreset.FRONT_CARGO_INTAKE);
-              break;
-            case LOW:
-              RobotState.getInstance().setSuperStructurePreset(SuperStructurePreset.FRONT_CARGO_LOW);
-              break;
-            case MIDDLE:
-              RobotState.getInstance().setSuperStructurePreset(SuperStructurePreset.FRONT_CARGO_MID);
-              break;
-            case HIGH:
-              RobotState.getInstance().setSuperStructurePreset(SuperStructurePreset.FRONT_CARGO_HIGH);
-              break;
-            case BUS:
-              RobotState.getInstance().setSuperStructurePreset(SuperStructurePreset.FRONT_CARGO_BUS);
-              break;
-            case HOME:
-              RobotState.getInstance().setSuperStructurePreset(SuperStructurePreset.CARGO_HOME);
-              break;
-            }
+			@Override
+			public boolean isFinished() {
+				return hasReachedTargetAngle();
+			}
 
-          } else {
-            switch (tgtHeight) {
-            case INTAKE:
-              RobotState.getInstance().setSuperStructurePreset(SuperStructurePreset.FRONT_HATCH_INTAKE);
-              break;
-            case LOW:
-              RobotState.getInstance().setSuperStructurePreset(SuperStructurePreset.FRONT_HATCH_LOW);
-              break;
-            case MIDDLE:
-              RobotState.getInstance().setSuperStructurePreset(SuperStructurePreset.FRONT_HATCH_MID);
-              break;
-            case HIGH:
-              RobotState.getInstance().setSuperStructurePreset(SuperStructurePreset.FRONT_HATCH_HIGH);
-              break;
-            case BUS:
-              RobotState.getInstance().setSuperStructurePreset(SuperStructurePreset.FRONT_CARGO_BUS);
-              break;
-            case HOME:
-              RobotState.getInstance().setSuperStructurePreset(SuperStructurePreset.HATCH_HOME);
-              break;
-            }
-          }
-        } else if (armDirection.equals(ArmDirection.BACK)) {
-          if (RobotState.getInstance().getGameElement() == GameElement.CARGO) {
-            switch (tgtHeight) {
-            case INTAKE:
-              RobotState.getInstance().setSuperStructurePreset(SuperStructurePreset.BACK_CARGO_INTAKE);
-              break;
-            case LOW:
-              RobotState.getInstance().setSuperStructurePreset(SuperStructurePreset.BACK_CARGO_LOW);
-              break;
-            case MIDDLE:
-              RobotState.getInstance().setSuperStructurePreset(SuperStructurePreset.BACK_CARGO_MID);
-              break;
-            case HIGH:
-              RobotState.getInstance().setSuperStructurePreset(SuperStructurePreset.BACK_CARGO_HIGH);
-              break;
-            case BUS:
-              RobotState.getInstance().setSuperStructurePreset(SuperStructurePreset.BACK_CARGO_BUS);
-              break;
-            case HOME:
-              RobotState.getInstance().setSuperStructurePreset(SuperStructurePreset.HATCH_HOME);
-              break;
-            }
-          } else {
-            switch (tgtHeight) {
-            case INTAKE:
-              if (DriverStation.getInstance().isAutonomous()) {
-                RobotState.getInstance().setSuperStructurePreset(SuperStructurePreset.VIEW_AUTO_REAR);
-                break;
-              }
-              RobotState.getInstance().setSuperStructurePreset(SuperStructurePreset.BACK_HATCH_INTAKE);
-              break;
-            case LOW:
-              if (DriverStation.getInstance().isAutonomous()) {
-                RobotState.getInstance().setSuperStructurePreset(SuperStructurePreset.BACK_HATCH_LOW);
-                break;
-              }
-              RobotState.getInstance().setSuperStructurePreset(SuperStructurePreset.BACK_HATCH_LOW);
-              break;
-            case MIDDLE:
-              RobotState.getInstance().setSuperStructurePreset(SuperStructurePreset.BACK_HATCH_MID);
-              break;
-            case HIGH:
-              RobotState.getInstance().setSuperStructurePreset(SuperStructurePreset.BACK_HATCH_HIGH);
-              break;
-            case BUS:
-              RobotState.getInstance().setSuperStructurePreset(SuperStructurePreset.BACK_CARGO_BUS);
-              break;
-            case HOME:
-              RobotState.getInstance().setSuperStructurePreset(SuperStructurePreset.HATCH_HOME);
-              break;
-            }
+		};
+	}
 
-          }
-        }
-        RobotState.getInstance().setPositionChanged(false);
+	public Request angleRequest(double angle, double speedScalar, boolean wait) {
+		return new Request() {
 
-        SuperStructurePreset preset = RobotState.getInstance().getSuperStructurePreset();
-        wTgt = preset.getWristPosition();
-        aTgt = preset.getArmPosition();
-        eTgt = preset.getExtPosition();
+			@Override
+			public void act() {
+				// arm.configMotionCruiseVelocity(
+				// (int) ((isHighGear ? Robot.bot.kArmMaxSpeedHighGear :
+				// Robot.bot.kArmMaxSpeedLowGear)
+				// * speedScalar));
+				arm.configMotionCruiseVelocity((int) (Robot.bot.kArmMaxSpeed * speedScalar));
+				setAngle(angle);
+			}
 
-        //.println("a tgt:  " + aTgt);
+			@Override
+			public boolean isFinished() {
+				if (wait)
+					return hasReachedTargetAngle();
+				else
+					return true;
+			}
 
-      }
-      if (Robot.bot.hasWrist()) {
-        double wristPower = Wrist.getInstance().getTalon().getOutputCurrent()
-            * Wrist.getInstance().getTalon().getMotorOutputVoltage();
-        // System.out.println("Wrist Power Watts: " + wristPower);
-        if (wristPower > Robot.bot.MAX_WRIST_POWER) {
-          Wrist.getInstance().setMotorOutput(0.0);
-          //System.out.println("WRIST POWER TOO HIGH BURN OUT WARNING");
-        } else {
-          if (!(RobotState.getInstance().getSuperStructurePreset() == SuperStructurePreset.FRONT_CARGO_BUS
-              && Arm.getInstance().getEncoderDeg() < -30)) {
-            Wrist.getInstance().setTargetPosition(wTgt);
-          }
+		};
+	}
 
-        }
-        // if (RobotState.getInstance().getGameElement() == GameElement.CARGO
-        // && (Arm.getInstance().getEncoderDeg() > -37)) {
-        // Wrist.getInstance().setTargetPosition(wTgt);
-        // } else {
-        // Wrist.getInstance().setTargetPosition(RobotState.SuperStructurePreset.FRONT_CARGO_INTAKE.getWristPosition());
-        // }
-        // }
-      }
-      if (Robot.bot.hasArm()) {
-        Arm.getInstance().setTargetPosition(aTgt);
-        if (Arm.getInstance().getEncoderDeg() > -47) {
-          Extension.getInstance().setTargetPosition(eTgt);
-        } else {
-          Extension.getInstance().setTargetPosition(0.0);
-        }
-      }
-    } else {
-      if (manualIdx == 0) {
-        // (new RumbleOperatorJoystick(1.0)).start();
-        manualIdx++;
-      }
-      if (Robot.bot.hasArm()) {
+	public Request lockAngleRequest() {
+		return new Request() {
 
-        if (Arm.getInstance().getEncoderDeg() > 0.0 && Arm.getInstance().getEncoderDeg() < 180.0) {
-          eLim = Robot.bot.gArmExtLength * (1 / Math.cos(Math.toRadians(Arm.getInstance().getEncoderDeg())) - 1);
-          eLim = Math.abs(eLim);
-        } else {
-          eLim = 0.0;
-        }
+			@Override
+			public void act() {
+				lockAngle();
+			}
 
-        aTgt = Arm.getInstance().getEncoderDeg();
-        wTgt = Wrist.getInstance().getHRelEncoderDeg();
-        eTgt = Extension.getInstance().getExtPosition();
-        // eIsMax = Extension.getInstance().getExtPosition() > eLim;
-        // eIsMin = Extension.getInstance().getExtPosition() < Robot.bot.gExtMinLim;
-        Arm.getInstance().setMotorOutput(-OI.operator.getY(Hand.kLeft));
-        Wrist.getInstance().setMotorOutput(-OI.operator.getY(Hand.kRight));
+		};
+	}
 
-        // Extension.getInstance().setTargetPosition(eLim);
+	public Request openLoopRequest(double output) {
+		return new Request() {
 
-        if (OI.operator.getPOV() == 0) {// && !eIsMax) {
-          Extension.getInstance().setMotorOutput(0.50);
-        } else if (OI.operator.getPOV() == 180 /* && !eIsMin */) {
-          Extension.getInstance().setMotorOutput(-0.50);
-        } else {
-          Extension.getInstance().setMotorOutput(0.00);
-        }
-      }
-    }
-  }
+			@Override
+			public void act() {
+				setOpenLoop(output);
+			}
 
-  public void sendDashboardData() {
-    table.putNumber("Arm Position", getEncoderDeg());
-    table.putNumber("Arm Velocity", getAngularVelocity());
-    table.putNumber("Arm Enc Position", getEncoderCounts());
-    table.putNumber("Arm Enc Velocity", getEncoderVelocity());
-    table.putNumber("Arm Enc Acceleration", getEncoderAcceleration());
-    table.putNumber("Arm Enc Max Vel", getMaxVel());
-    table.putNumber("Arm Enc Max Accel", getMaxAccel());
-    table.putNumber("Arm Enc Max Decel", getMaxDecel());
-    table.putNumber("Arm Percent Output", getMotorOutput());
-    table.putBoolean("Arm Stall", getMagicStall());
-    SmartDashboard.putNumber("Arm Error", getMagicError());
-    // SmartDashboard.putNumber("Arm Current", getMotorCurrent());
-    SmartDashboard.putNumber("Arm Position", getEncoderDeg());
-    // SmartDashboard.putNumber("Arm Velocity", getAngularVelocity());
-    // SmartDashboard.putNumber("Arm Enc Position", getEncoderCounts());
-    if (Robot.bot.hasArm()) {
-      table.putNumber("Arm Output Voltage", armMaster.getMotorOutputVoltage());
-    } else {
-      table.putNumber("Arm Output Voltage", 0);
-    }
-  }
+		};
+	}
 
-  @Override
-  public void zeroSensors() {
-    resetEncoder();
-  }
+	// public Request gearShiftRequest(boolean high) {
+	// return new Request() {
 
-  @Override
-  public void outputTelemetry() {
-    sendDashboardData();
-  }
+	// @Override
+	// public void act() {
+	// setHighGear(high);
+	// }
 
-  @Override
-  public void stop() {
-    Arm.getInstance().setMotorOutput(0.0);
-		Wrist.getInstance().setMotorOutput(0.0);
-		Extension.getInstance().setMotorPower(0.0);
-  }
+	// };
+	// }
+
+	public Prerequisite angleRequisite(double angle, boolean above) {
+		return new Prerequisite() {
+
+			@Override
+			public boolean met() {
+				return Util.epsilonEquals(Math.signum(angle - getAngle()), above ? -1.0 : 1.0);
+			}
+
+		};
+	}
+
+	public double getAngle() {
+		return encUnitsToArmAngle(periodicIO.position);
+	}
+
+	public boolean hasReachedTargetAngle() {
+		return Math.abs(targetAngle - getAngle()) <= Robot.bot.kArmAngleTolerance;
+	}
+
+	public double encUnitsToDegrees(double encUnits) {
+		return encUnits / 4096.0 / Robot.bot.kArmEncoderToOutputRatio * 360.0;
+	}
+
+	public int degreesToEncUnits(double degrees) {
+		return (int) (degrees / 360.0 * Robot.bot.kArmEncoderToOutputRatio * 4096.0);
+	}
+
+	public double encUnitsToArmAngle(int encUnits) {
+		return Robot.bot.kArmStartingAngle + encUnitsToDegrees(encUnits - Robot.bot.kArmStartingEncoderPosition);
+	}
+
+	public int armAngleToEncUnits(double armAngle) {
+		return Robot.bot.kArmStartingEncoderPosition + degreesToEncUnits(armAngle - Robot.bot.kArmStartingAngle);
+	}
+
+	public boolean isSensorConnected() {
+		int pulseWidthPeriod = arm.getSensorCollection().getPulseWidthRiseToRiseUs();
+		boolean connected = pulseWidthPeriod != 0;
+		if (!connected)
+			hasEmergency = true;
+		return connected; // TODO Does this work
+	}
+
+	public void resetToAbsolutePosition() {
+		int absolutePosition = (int) Util.boundToScope(0, 4096, arm.getSensorCollection().getPulseWidthPosition());
+		if (encUnitsToArmAngle(absolutePosition) > Robot.bot.kArmMaxPhysicalAngle) {
+			absolutePosition -= 4096;
+		} else if (encUnitsToArmAngle(absolutePosition) < Robot.bot.kArmMinPhysicalAngle) {
+			absolutePosition += 4096;
+		}
+		double armAngle = encUnitsToArmAngle(absolutePosition);
+		if (armAngle > Robot.bot.kArmMaxPhysicalAngle || armAngle < Robot.bot.kArmMinPhysicalAngle) {
+			DriverStation.reportError("Arm angle is out of bounds", false);
+			hasEmergency = true;
+		}
+		arm.setSelectedSensorPosition(absolutePosition, 0, 10);
+	}
+
+	// private final Loop loop = new Loop() {
+
+	// @Override
+	// public void onStart(double timestamp) {
+
+	// }
+
+	// @Override
+	public void onLoop(double timestamp) {
+		if (arm.getOutputCurrent() > Robot.bot.kArmMaxCurrent) {
+			// stop();
+			DriverStation.reportError("Arm current high", false);
+		}
+	}
+
+	// @Override
+	// public void onStop(double timestamp) {
+
+	// }
+
+	// };
+
+	@Override
+	public synchronized void readPeriodicInputs() {
+		periodicIO.position = arm.getSelectedSensorPosition(0);
+		if (Robot.bot.kDebuggingOutput) {
+			periodicIO.velocity = arm.getSelectedSensorVelocity(0);
+			periodicIO.voltage = arm.getMotorOutputVoltage();
+			periodicIO.current = arm.getOutputCurrent();
+		}
+	}
+
+	@Override
+	public synchronized void writePeriodicOutputs() {
+		if (currentState == ArmControlState.POSITION)
+			arm.set(ControlMode.MotionMagic, periodicIO.demand);
+		else
+			arm.set(ControlMode.PercentOutput, periodicIO.demand);
+	}
+
+	@Override
+	public void stop() {
+		setOpenLoop(0.0);
+	}
+
+	@Override
+	public void zeroSensors() {
+
+	}
+
+	// @Override
+	// public void registerEnabledLoops(ILooper enabledLooper) {
+	// enabledLooper.register(loop);
+	// }
+
+	@Override
+	public void outputTelemetry() {
+		SmartDashboard.putNumber("Arm Angle", getAngle());
+		if (Robot.bot.kDebuggingOutput) {
+			SmartDashboard.putNumber("Arm Current", periodicIO.current);
+			SmartDashboard.putNumber("Arm Voltage", periodicIO.voltage);
+			SmartDashboard.putNumber("Arm Encoder", periodicIO.position);
+			SmartDashboard.putNumber("Arm Pulse Width Position", arm.getSensorCollection().getPulseWidthPosition());
+			SmartDashboard.putNumber("Arm Velocity", periodicIO.velocity);
+			SmartDashboard.putNumber("Arm Error", encUnitsToDegrees(arm.getClosedLoopError(0)));
+			if (arm.getControlMode() == ControlMode.MotionMagic)
+				SmartDashboard.putNumber("Arm Setpoint", arm.getClosedLoopTarget(0));
+		}
+	}
+
+	public boolean checkSystem() {
+		double currentMinimum = 0.5;
+		double currentMaximum = 20.0;
+
+		boolean passed = true;
+
+		if (!isSensorConnected()) {
+			System.out.println("Arm sensor is not connected, connect and retest");
+			return false;
+		}
+
+		double startingEncPosition = arm.getSelectedSensorPosition(0);
+		arm.set(ControlMode.PercentOutput, 3.0 / 12.0);
+		Timer.delay(1.0);
+		double current = arm.getOutputCurrent();
+		arm.set(ControlMode.PercentOutput, 0.0);
+		if (Math.signum(arm.getSelectedSensorPosition(0) - startingEncPosition) != 1.0) {
+			System.out.println("Arm needs to be reversed");
+			passed = false;
+		}
+		if (current < currentMinimum) {
+			System.out.println("Arm current too low: " + current);
+			passed = false;
+		} else if (current > currentMaximum) {
+			System.out.println("Arm current too high: " + current);
+			passed = false;
+		}
+
+		return passed;
+	}
+
+	public static class PeriodicIO {
+		// Inputs
+		public int position;
+		public int velocity;
+		public double voltage;
+		public double current;
+
+		// Outputs
+		public double demand;
+	}
 }
