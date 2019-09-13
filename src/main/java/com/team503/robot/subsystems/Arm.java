@@ -2,6 +2,7 @@ package com.team503.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.team254.drivers.LazyCANSparkMax;
 import com.team254.drivers.LazyTalonSRX;
 // import com.team1323.frc2019.Robot.bot;
@@ -68,15 +69,18 @@ public class Arm extends Subsystem {
 		arm.enableCurrentLimit(true);
 
 		arm.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 10);
-		arm.setInverted(false);
-		arm.setSensorPhase(false);
-		arm.getSensorCollection().setPulseWidthPosition(0, 100);
-		resetToAbsolutePosition();
+		arm.setInverted(true);
+		arm.setSensorPhase(true);
+		arm.setNeutralMode(NeutralMode.Brake);
+		// arm.getSensorCollection().setPulseWidthPosition(0, 100);
+		// arm.setSelectedSensorPosition(0, 0, 10);
+
+		// resetToAbsolutePosition();
 		configurationOne();
 		arm.configForwardSoftLimitThreshold(armAngleToEncUnits(Robot.bot.kArmMaxControlAngle), 10);
 		arm.configReverseSoftLimitThreshold(armAngleToEncUnits(Robot.bot.kArmMinControlAngle), 10);
-		arm.configForwardSoftLimitEnable(true, 10);
-		arm.configReverseSoftLimitEnable(true, 10);
+		// arm.configForwardSoftLimitEnable(true, 10); //TODO
+		// arm.configReverseSoftLimitEnable(true, 10);
 
 		setOpenLoop(0.0);
 
@@ -85,13 +89,13 @@ public class Arm extends Subsystem {
 
 	private void configurationOne() { // TODO TUNE
 		arm.selectProfileSlot(0, 0);
-		arm.config_kP(0, 1.25, 10); // going down 2.5
+		arm.config_kP(0, 8.525, 10); // going down 2.5
 		arm.config_kI(0, 0.0, 10);
-		arm.config_kD(0, 60.0, 10);// 80.0
+		arm.config_kD(0, 85, 10);// 80.0
 		arm.config_kF(0, 1023.0 / Robot.bot.kArmMaxSpeed, 10);
-		arm.config_kP(1, 1.25, 10);// going up 2.0
+		arm.config_kP(1, 8.525, 10);// going up 2.0
 		arm.config_kI(1, 0.0, 10);
-		arm.config_kD(1, 60.0, 10);// 80.0
+		arm.config_kD(1, 240, 10);// 80.0
 		arm.config_kF(1, 1023.0 / Robot.bot.kArmMaxSpeed, 10);
 		arm.configMotionCruiseVelocity((int) (Robot.bot.kArmMaxSpeed * 1.0), 10);
 		arm.configMotionAcceleration((int) (Robot.bot.kArmMaxSpeed * 3.0), 10);
@@ -135,7 +139,7 @@ public class Arm extends Subsystem {
 	// }
 
 	public void setOpenLoop(double output) {
-		periodicIO.demand = output * 0.5;// TODO update coefficient
+		periodicIO.demand = output ;// TODO update coefficient
 		currentState = ArmControlState.OPEN_LOOP;
 	}
 

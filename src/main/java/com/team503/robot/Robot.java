@@ -7,15 +7,9 @@
 
 package com.team503.robot;
 
-import java.util.Arrays;
-
-import com.team503.lib.geometry.Pose;
-import com.team503.lib.io.PrecisionDriveController;
 import com.team503.robot.RobotState.ArmDirection;
 import com.team503.robot.RobotState.Bot;
 import com.team503.robot.RobotState.GameElement;
-import com.team503.robot.auton.ForwardTest;
-import com.team503.robot.commands.DriveToPose;
 import com.team503.robot.commands.EjectBall;
 import com.team503.robot.commands.GameElementSwitcher;
 import com.team503.robot.commands.ReleaseHatch;
@@ -24,19 +18,19 @@ import com.team503.robot.commands.SwitchArmDirection;
 import com.team503.robot.commands.TargetHeightSwitcher;
 import com.team503.robot.commands.ToggleControlMode;
 import com.team503.robot.commands.ToggleIntake;
-import com.team503.robot.loops.FroggyPoseController;
 import com.team503.robot.loops.LimelightProcessor;
 import com.team503.robot.loops.LimelightProcessor.Pipeline;
 import com.team503.robot.subsystems.AndyArm;
-import com.team503.robot.subsystems.Extension;
-import com.team503.robot.subsystems.Intake;
-import com.team503.robot.subsystems.Pigeon;
+import com.team503.robot.subsystems.Arm;
+import com.team503.robot.subsystems.BallIntake;
+import com.team503.robot.subsystems.Elevator;
 import com.team503.robot.subsystems.SubsystemManager;
 import com.team503.robot.subsystems.SwerveDrive;
+import com.team503.robot.subsystems.BallIntake.State;
 import com.team503.robot.subsystems.SwerveDrive.DriveMode;
-import com.team503.robot.subsystems.AndyWrist;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Scheduler;
 
 /**
@@ -49,6 +43,9 @@ import edu.wpi.first.wpilibj.command.Scheduler;
 public class Robot extends TimedRobot {
 
   private SwerveDrive mSwerve;
+  private Elevator mElevator;
+  private Arm mArm;
+  private BallIntake mIntake;
 
   private SubsystemManager subsystems;
   public static RobotHardware bot;
@@ -64,15 +61,19 @@ public class Robot extends TimedRobot {
     OI.initialize();
 
     mSwerve = SwerveDrive.getInstance();
+    mElevator = Elevator.getInstance();
+    mArm = Arm.getInstance();
+    mIntake = BallIntake.getInstance();
 
     // Subsytem Manager
-    if (RobotState.getInstance().getCurrentRobot().equals(Bot.FFSwerve)) {
-      subsystems = new SubsystemManager(Arrays.asList(mSwerve, Pigeon.getInstance()));
-    } else if(RobotState.getInstance().getCurrentRobot().equals(Bot.ProgrammingBot)){
-      subsystems = new SubsystemManager(Arrays.asList(mSwerve, Pigeon.getInstance(), AndyArm.getInstance(),
-          AndyWrist.getInstance(), Extension.getInstance(), Intake.getInstance()));
-    }
-    subsystems.resetSensor();
+
+    // if (RobotState.getInstance().getCurrentRobot().equals(Bot.FFSwerve)) {
+    //   subsystems = new SubsystemManager(Arrays.asList(mSwerve, Pigeon.getInstance()));
+    // } else if(RobotState.getInstance().getCurrentRobot().equals(Bot.ProgrammingBot)){
+    //   subsystems = new SubsystemManager(Arrays.asList(mSwerve, Pigeon.getInstance(), AndyArm.getInstance(),
+    //       AndyWrist.getInstance(), Extension.getInstance(), Intake.getInstance()));
+    // }
+    // subsystems.resetSensor();
   }
 
   /**
@@ -86,7 +87,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    subsystems.outputToSmartDashboard();
+    // subsystems.outputToSmartDashboard();
   }
 
   /**
@@ -104,14 +105,14 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     // Pigeon.getInstance().zeroSensors();
-    FroggyPoseController.resetPose(new Pose(0,0,0));
-    mSwerve.setBrakeMode();
-    Intake.getInstance().startVacuum();
-    mSwerve.resetDriveEncoder();
-    LimelightProcessor.getInstance().setPipeline(Pipeline.CLOSEST);
-    Pose target = new Pose(0.0,100.0,270.0);
-    DriveToPose driveCommand = new DriveToPose(target);
-    driveCommand.start();
+    // FroggyPoseController.resetPose(new Pose(0,0,0));
+    // mSwerve.setBrakeMode();
+    // Intake.getInstance().startVacuum();
+    // mSwerve.resetDriveEncoder();
+    // LimelightProcessor.getInstance().setPipeline(Pipeline.CLOSEST);
+    // Pose target = new Pose(0.0,100.0,270.0);
+    // DriveToPose driveCommand = new DriveToPose(target);
+    // driveCommand.start();
   }
   /**
    * This function is called periodically during autonomous.
@@ -120,10 +121,10 @@ public class Robot extends TimedRobot {
   public void autonomousPeriodic() {
     //OILoop();
 
-    FroggyPoseController.updateOdometry();
-    FroggyPoseController.outputPoseToDashboard();
+    // FroggyPoseController.updateOdometry();
+    // FroggyPoseController.outputPoseToDashboard();
 
-    Scheduler.getInstance().run();
+    // Scheduler.getInstance().run();
   }
 
   /**
@@ -132,11 +133,13 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
-    mSwerve.setBrakeMode();
-    mSwerve.snapForward();
-    Intake.getInstance().startVacuum();
-    LimelightProcessor.getInstance().setPipeline(Pipeline.CLOSEST);
-    PrecisionDriveController.activatePrecisionDrive();
+    // mSwerve.setBrakeMode();
+    // mSwerve.snapForward();
+    // Intake.getInstance().startVacuum();
+    // LimelightProcessor.getInstance().setPipeline(Pipeline.CLOSEST);
+    // PrecisionDriveController.activatePrecisionDrive();
+    mIntake.onStart(Timer.getFPGATimestamp());
+
   }
 
   /*
@@ -144,9 +147,51 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopPeriodic() {
-    OILoop();
-    FroggyPoseController.updateOdometry();
-    FroggyPoseController.outputPoseToDashboard();
+
+    double targetHeight, targetAngle;
+  
+    // OILoop();
+    // mElevator.setOpenLoop(-OI.getDriverLeftYVal());
+    OI.driverJoystick.update();
+
+
+    if(OI.getDriverAButton()) {
+      targetHeight = 45.5;
+      targetAngle = 0.0;
+    } else {
+      targetHeight = 23.0;
+      targetAngle = 0.0;
+    }
+
+    if(OI.driverJoystick.bButton.isBeingPressed()) {
+      mIntake.conformToState(State.EJECTING);
+    }
+    else if(OI.driverJoystick.xButton.shortReleased()) {
+      mIntake.conformToState(State.INTAKING);
+    } else if(OI.driverJoystick.yButton.isBeingPressed()) {
+      mIntake.setRelease(true);
+    } else {
+      mIntake.setRelease(false);
+
+    }
+
+
+    mElevator.setTargetHeight(targetHeight);
+    mElevator.readPeriodicInputs();
+    mElevator.writePeriodicOutputs();
+    mElevator.outputTelemetry();
+
+    // mArm.setOpenLoop(-OI.getDriverRightYVal());
+    mArm.setAngle(targetAngle);
+    mArm.readPeriodicInputs();
+    mArm.writePeriodicOutputs();
+    mArm.outputTelemetry();
+
+
+    mIntake.onLoop(Timer.getFPGATimestamp());
+    mIntake.setSuctionOutput(0.4);
+    // FroggyPoseController.updateOdometry();
+    // FroggyPoseController.outputPoseToDashboard();
     Scheduler.getInstance().run();
   }
 
@@ -164,14 +209,16 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledInit() {
-    mSwerve.setBrakeMode();
-    subsystems.stop();
-    PrecisionDriveController.disablePrecisionDrive();
+    // mSwerve.setBrakeMode();
+    // subsystems.stop();
+    // PrecisionDriveController.disablePrecisionDrive();
+
+    mIntake.onStop(Timer.getFPGATimestamp());
   }
 
   @Override
   public void disabledPeriodic() {
-    subsystems.outputToSmartDashboard();
+    // subsystems.outputToSmartDashboard();
   }
 
   private void OILoop() {
