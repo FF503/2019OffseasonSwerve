@@ -201,17 +201,17 @@ public abstract class RobotHardware {
     // FF Swerve Constants
 
     // ARM
-    public static final int ARM = 24; //TODO
+    public static final int ARM = 14; 
 
     // Constraints
-    public static final double kArmMaxControlAngle = 0; //degrees //TODO
-    public static final double kArmMinControlAngle = 0; //degrees //TODO
+    public static final double kArmMaxControlAngle = 45; //degrees //TODO
+    public static final double kArmMinControlAngle = -45; //degrees //TODO
     public static final double kArmMaxPhysicalAngle = 0; //degrees //TODO
     public static final double kArmMinPhysicalAngle = 0; //degrees //TODO
     public static final double kArmMaxCurrent = 40.0; //amps //TODO
 
     // Motion Control
-    public static final double kArmMaxSpeed = 1000; //enc units per 100 MS //TODO
+    public static final double kArmMaxSpeed = 200; //enc units per 100 MS //TODO
     public static final double kArmAngleTolerance = 5; //degrees //TODO
 
     // Position-Encoder relations
@@ -221,25 +221,42 @@ public abstract class RobotHardware {
 
 
     // ELEVATOR
-    public static final int ELEVATOR = 25; //TODO
+    public static final int ELEVATOR = 22; 
     
-    public static final double kElevatorTeleopManualSpeed = 0.5; // Percent max output manual //TODO
+    public static final double kElevatorTeleopManualSpeed = 1.0; // Percent max output manual //TODO
 
     // Constraints
-    public static final double kElevatorMinHeight = 50.0; //inches //TODO
-    public static final double kElevatorMaxHeight = 50.0; //inches //TODO
+    public static final double kElevatorMinHeight = 21.5; //inches //TODO
+    public static final double kElevatorMaxHeight = 45.5; //inches //TODO
     public static final int kElevatorCurrentLimit = 40; //amps //TODO
     public static final int kElevatorMaxCurrent = 50; //amps //TODO
 
     // Motion Control
-    public static final double kElevatorMaxSpeed = 1000; //rev per min //TODO
-    public static final double kElevatorHeightTolerance = 5; //inches //TODO
+    public static final double kElevatorMaxSpeed = 2100; //rev per min //TODO
+    public static final double kElevatorHeightTolerance = 3.0; //inches //TODO
 
     // Position-Encoder Relations
-    public static double kElevatorTicksPerInch = 4332; // enc counts per inch //TODO
-    public static double kElevatorEncoderStartingPosition = 0; // enc counts //TODO
-    public static double kElevatorMaxInitialHeight = 7.0; //inches //TODO
-    public static double kElevatorMinInitialHeight = 7.0; //inches //TODO
+    public static final double kElevatorTicksPerInch = 19.0 / 24.875; // enc counts per inch //TODO
+    public static final double kElevatorEncoderStartingPosition = 399.0/ 24.875; // enc counts //TODO
+    public static final double kElevatorMaxInitialHeight = 21.0; //inches //TODO
+    public static final double kElevatorMinInitialHeight = 21.0; //inches //TODO
+
+
+    // CARGO INTAKE
+    public static final int BALL_INTAKE = 7;
+    public static final int BALL_INTAKE_BANNER = 0;
+
+    public static final double kIntakeWeakEjectOutput = -0.75;
+	public static final double kIntakeEjectOutput = -0.6;
+	public static final double kIntakeStrongEjectOutput = -1.0;
+    public static final double kIntakingOutput = 0.75
+    ;
+	public static final double kIntakeWeakHoldingOutput = 0.75/12.0;
+	public static final double kIntakeStrongHoldingOutput =  0.75/12.0;
+	public static final double kIntakingResuckingOutput = 6.0/12.0;
+	public static final double kIntakeRampRate = 0.25;
+	public static final double kIntakeClimbOutput = 6.0/12.0;
+	public static final double kIntakePullOutput = 12.0/12.0;
 
     public final Lookahead getLookahead() {
         final Lookahead lookahead = new Lookahead(kMinLookAhead, kMaxLookAhead, kMinLookAheadSpeed, kMaxLookAheadSpeed);

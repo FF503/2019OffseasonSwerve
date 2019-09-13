@@ -24,6 +24,7 @@ public class LazyCANSparkMax extends CANSparkMax {
         mEncoder = this.getEncoder();
         mPidController = this.getPIDController();
 
+        // mEncoder.setPosition(0.0);
         mPidController.setOutputRange(-1, 1);
         mPidController.setSmartMotionMinOutputVelocity(0, 0);
         mPidController.setSmartMotionMinOutputVelocity(0, 1);

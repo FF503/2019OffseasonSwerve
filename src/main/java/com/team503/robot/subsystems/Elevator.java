@@ -95,6 +95,7 @@ public class Elevator extends Subsystem {
 		// elevator.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative,
 		// 0, 10);
 		elevator.setSensorPhase(true);
+		elevator.setEncoderPosition(0.0);
 		// zeroSensors();
 		// elevator.configReverseSoftLimitThreshold(Robot.bot.kElevatorEncoderStartingPosition,
 		// 10);
@@ -108,6 +109,7 @@ public class Elevator extends Subsystem {
 		setCurrentLimit(Robot.bot.kElevatorCurrentLimit);
 
 		resetToAbsolutePosition();
+
 		configForAscent();
 
 	}
@@ -115,18 +117,22 @@ public class Elevator extends Subsystem {
 	private void configForAscent() {
 		manualSpeed = Robot.bot.kElevatorTeleopManualSpeed;
 
-		elevator.setP(0, 1.75);// 0.75 going up
+		elevator.setP(0, 0.0);// 0.75 going up
 		elevator.setI(0, 0.0);
-		elevator.setD(0, 40.0);// 20.0
-		elevator.setFF(0, 1023.0 / Robot.bot.kElevatorMaxSpeed);
+		elevator.setD(0, 0.000);// 20.0
+		elevator.setFF(0, 1.0 / Robot.bot.kElevatorMaxSpeed);
 
-		elevator.setP(1, 1.5);// 2.5 going down
+		elevator.setP(1, 0.0);// 2.5 going down
 		elevator.setI(1, 0.0);
-		elevator.setD(1, 30.0);// 20.0
-		elevator.setFF(1, 1023.0 / Robot.bot.kElevatorMaxSpeed);
+		elevator.setD(1, 0.0);// 20.0
+		elevator.setFF(1, 1.0 / Robot.bot.kElevatorMaxSpeed);
 
 		elevator.setCruiseVelocity(0, Robot.bot.kElevatorMaxSpeed * 1.0);
-		elevator.setAcceleration(1, Robot.bot.kElevatorMaxSpeed * 3.0);
+		elevator.setAcceleration(0, Robot.bot.kElevatorMaxSpeed * 1.0);
+
+		elevator.setCruiseVelocity(1, Robot.bot.kElevatorMaxSpeed * 1.0);
+
+		elevator.setAcceleration(1, Robot.bot.kElevatorMaxSpeed * 0.5);
 		// elevator.configMotionSCurveStrength(0);
 
 		configuredForAscent = true;
@@ -286,11 +292,11 @@ public class Elevator extends Subsystem {
 	}
 
 	private double elevatorHeightToEncUnits(double elevatorHeight) {
-		return Robot.bot.kElevatorEncoderStartingPosition + inchesToEncUnits(elevatorHeight);
+		return inchesToEncUnits(elevatorHeight) - Robot.bot.kElevatorEncoderStartingPosition;
 	}
 
 	private double encUnitsToElevatorHeight(double encUnits) {
-		return encUnitsToInches(encUnits - Robot.bot.kElevatorEncoderStartingPosition);
+		return encUnitsToInches(encUnits + Robot.bot.kElevatorEncoderStartingPosition);
 	}
 
 	public boolean inVisionRange(List<double[]> ranges) {
@@ -354,27 +360,32 @@ public class Elevator extends Subsystem {
 	// };
 
 	public boolean isSensorConnected() {
-		// int pulseWidthPeriod = elevator.getSensorCollection().getPulseWidthRiseToRiseUs();
+		// int pulseWidthPeriod =
+		// elevator.getSensorCollection().getPulseWidthRiseToRiseUs();
 		// boolean connected = pulseWidthPeriod != 0;
 		// if (!connected)
-		// 	hasEmergency = true;
+		// hasEmergency = true;
 		// return connected;
 		return true;
 	}
 
 	public void resetToAbsolutePosition() {
-		int absolutePosition = (int) Util.boundToScope(0, 4096, elevator.getEncoderPosition());
-		if (encUnitsToElevatorHeight(absolutePosition) > Robot.bot.kElevatorMaxInitialHeight) {
-			absolutePosition -= 4096;
-		} else if (encUnitsToElevatorHeight(absolutePosition) < Robot.bot.kElevatorMinInitialHeight) {
-			absolutePosition += 4096;
-		}
-		double height = encUnitsToElevatorHeight(absolutePosition);
-		if (height > Robot.bot.kElevatorMaxInitialHeight || height < Robot.bot.kElevatorMinInitialHeight) {
-			DriverStation.reportError("Elevator height is out of bounds", false);
-			hasEmergency = true;
-		}
-		elevator.setEncoderPosition(absolutePosition);
+		// int absolutePosition = (int) Util.boundToScope(0, 4096,
+		// elevator.getEncoderPosition());
+		// if (encUnitsToElevatorHeight(absolutePosition) >
+		// Robot.bot.kElevatorMaxInitialHeight) {
+		// absolutePosition -= 4096;
+		// } else if (encUnitsToElevatorHeight(absolutePosition) <
+		// Robot.bot.kElevatorMinInitialHeight) {
+		// absolutePosition += 4096;
+		// }
+		// double height = encUnitsToElevatorHeight(absolutePosition);
+		// if (height > Robot.bot.kElevatorMaxInitialHeight || height <
+		// Robot.bot.kElevatorMinInitialHeight) {
+		// DriverStation.reportError("Elevator height is out of bounds", false);
+		// hasEmergency = true;
+		// }
+		// elevator.setEncoderPosition(inchesToEncUnits(inches));
 	}
 
 	@Override
@@ -390,10 +401,15 @@ public class Elevator extends Subsystem {
 
 	@Override
 	public synchronized void writePeriodicOutputs() {
-		if (getState() == ControlState.Position || getState() == ControlState.Locked)
-			elevator.set(ControlMode.SmartMotion, periodicIO.demand);
-		else
+		if (getState() == ControlState.Position || getState() == ControlState.Locked) {
+
+			if (!hasReachedTargetHeight()) {
+				elevator.set(ControlMode.SmartMotion, periodicIO.demand);
+			}
+
+		} else {
 			elevator.set(ControlMode.PercentOutput, periodicIO.demand);
+		}
 	}
 
 	@Override
@@ -409,7 +425,7 @@ public class Elevator extends Subsystem {
 
 	// @Override
 	// public void registerEnabledLoops(ILooper enabledLooper) {
-	// 	enabledLooper.register(loop);
+	// enabledLooper.register(loop);
 	// }
 
 	@Override
@@ -420,7 +436,7 @@ public class Elevator extends Subsystem {
 			SmartDashboard.putNumber("Elevator Voltage", periodicIO.voltage);
 			SmartDashboard.putNumber("Elevator Height Graph", getHeight());
 			// SmartDashboard.putNumber("Elevator Pulse Width Position",
-			// 		elevator.getSensorCollection().getPulseWidthPosition());
+			// elevator.getSensorCollection().getPulseWidthPosition());
 			SmartDashboard.putNumber("Elevator Encoder", periodicIO.position);
 			SmartDashboard.putNumber("Elevator Velocity", periodicIO.velocity);
 			SmartDashboard.putNumber("Elevator Error", elevator.getClosedLoopError());
