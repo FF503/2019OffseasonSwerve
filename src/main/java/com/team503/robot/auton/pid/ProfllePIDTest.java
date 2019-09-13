@@ -14,7 +14,7 @@ public class ProfllePIDTest extends FroggyAuton {
 
   @Override
   protected void initAuton() {
-    addSequential(new DriveToPoseProfile(new Pose(0.0, 100.0, 180.0), 100, 100));
+    addSequential(new TrapProfileToPoseCommand(new Pose(0.0, 100.0, 180.0), 100, 100));
   }
 
   @Override

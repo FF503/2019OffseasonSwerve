@@ -18,8 +18,9 @@ import com.team503.robot.subsystems.SwerveDrive.DriveMode;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.command.Command;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class DriveToPoseProfile extends Command {
+public class TrapProfileToPoseCommand extends Command {
   private Pose target;
   private PIDProfileController forwardController, strafeController;
 
@@ -27,16 +28,16 @@ public class DriveToPoseProfile extends Command {
    * 
    * @param target should be in terms of unit circle
    */
-  public DriveToPoseProfile(Pose target) {
+  public TrapProfileToPoseCommand(Pose target) {
     this(target, Robot.bot.kPathFollowingMaxVel, Robot.bot.kPathFollowingMaxAccel);
   }
 
-  public DriveToPoseProfile(Pose target, double maxVelocity, double maxAcceleration) {
+  public TrapProfileToPoseCommand(Pose target, double maxVelocity, double maxAcceleration) {
     this.target = target;
     var constraints = new TrapezoidProfile.Constraints(maxVelocity, maxAcceleration);
 
-    strafeController = new PIDProfileController(0, 0, 0, constraints);
-    forwardController = new PIDProfileController(0, 0, 0, constraints);
+    strafeController = new PIDProfileController(0.005, 0, 0, constraints);
+    forwardController = new PIDProfileController(1.5, 0, 0, constraints);
 
     forwardController.setGoal(target.getY());
     strafeController.setGoal(target.getX());
@@ -52,21 +53,26 @@ public class DriveToPoseProfile extends Command {
     SwerveDrive.getInstance().rotate(target.getTheta() - 90.0);
   }
 
+  int counter = 0;
+
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
     Pose currentPose = RobotState.getInstance().getCurrentPose().getTranslatedPose();
     double strafe = strafeController.calculate(currentPose.getX());
     double fwd = forwardController.calculate(currentPose.getY());
+    SmartDashboard.putNumber("Forward Power", fwd);
+    SmartDashboard.putNumber("Strafe Power", strafe);
+    SmartDashboard.putNumber("Run Counter", counter);
     Translation2d driveVector = new Translation2d(strafe, fwd);
     SwerveDrive.getInstance().drive(driveVector);
+    counter++;
   }
 
   // Make this return true when this Command no longer needs to run execute()
   @Override
   protected boolean isFinished() {
-    return (forwardController.atSetpoint() && strafeController.atSetpoint())
-        || DriverStation.getInstance().isDisabled();
+    return (forwardController.atGoal() && strafeController.atGoal()) || DriverStation.getInstance().isDisabled();
   }
 
   // Called once after isFinished returns true

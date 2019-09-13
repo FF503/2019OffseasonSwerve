@@ -12,7 +12,7 @@ import com.team503.robot.subsystems.SwerveDrive.DriveMode;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class DriveToPosePID extends Command {
+public class PIDToPoseCommand extends Command {
     // Called just before this Command runs the first time
     FrogPIDF xPID = new FrogPIDF(0.007, 0, 0, ControlMode.Position_Control);
     FrogPIDF yPID = new FrogPIDF(0.007, 0, 0, ControlMode.Position_Control);
@@ -23,7 +23,7 @@ public class DriveToPosePID extends Command {
     double TOTAL_DISTANCE;
     double distance;
 
-    public DriveToPosePID(Pose target) {
+    public PIDToPoseCommand(Pose target) {
         this.target = target;
     }
 

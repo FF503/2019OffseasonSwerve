@@ -47,7 +47,7 @@ public class RobotHardwareProgammingBot extends RobotHardware {
 
         // Pure Pursuit
         kPathFollowingMaxAccel = 80;
-        kPathFollowingMaxVel = 200;
+        kPathFollowingMaxVel = 130;
 
         kMinLookAhead = 12.0; // inches
         kMinLookAheadSpeed = 12.0; // inches per second

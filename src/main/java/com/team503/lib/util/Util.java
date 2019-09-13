@@ -276,13 +276,13 @@ public class Util {
         double[] converted = new double[3];
         if (cSystem.equals(CoordinateSystem.UNIT_CIRCLE)) {
             // Converts rotated to unit circle
-            converted[0] = -y;
-            converted[1] = x;
+            converted[0] = y;
+            converted[1] = -x;
             converted[2] = 90.0 + theta;
         } else if (cSystem.equals(CoordinateSystem.ROTATED)) {
             // Converts unit circle to rotated
-            converted[0] = y;
-            converted[1] = -x;
+            converted[0] = -y;
+            converted[1] = x;
             converted[2] = theta - 90.0;
         }
 

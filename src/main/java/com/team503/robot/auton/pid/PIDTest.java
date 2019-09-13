@@ -14,7 +14,7 @@ public class PIDTest extends FroggyAuton {
 
   @Override
   protected void initAuton() {
-    sequentialPIDDrive(new Pose(0.0, 100.0, 270.0));
+    sequentialPIDDrive(new Pose(0.0, 50.0, 0.0));
   }
 
   @Override

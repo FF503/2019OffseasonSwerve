@@ -9,11 +9,13 @@ package com.team503.robot;
 
 import java.util.Arrays;
 
+import com.team503.lib.geometry.Pose;
 import com.team503.lib.io.PrecisionDriveController;
 import com.team503.robot.RobotState.ArmDirection;
 import com.team503.robot.RobotState.Bot;
 import com.team503.robot.RobotState.GameElement;
-import com.team503.robot.auton.pid.PIDTest;
+import com.team503.robot.auton.pid.DriveToPoseProfile;
+import com.team503.robot.auton.pure_pursuit.ForwardTest;
 import com.team503.robot.commands.EjectBall;
 import com.team503.robot.commands.GameElementSwitcher;
 import com.team503.robot.commands.ReleaseHatch;
@@ -27,15 +29,14 @@ import com.team503.robot.loops.LimelightProcessor;
 import com.team503.robot.loops.LimelightProcessor.Pipeline;
 import com.team503.robot.subsystems.Arm;
 import com.team503.robot.subsystems.Extension;
-import com.team503.robot.subsystems.Intake;
 import com.team503.robot.subsystems.Pigeon;
 import com.team503.robot.subsystems.SubsystemManager;
 import com.team503.robot.subsystems.SwerveDrive;
 import com.team503.robot.subsystems.SwerveDrive.DriveMode;
 import com.team503.robot.subsystems.Wrist;
 
-import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
+import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
 
 /**
@@ -67,9 +68,9 @@ public class Robot extends TimedRobot {
     // Subsytem Manager
     if (RobotState.getInstance().getCurrentRobot().equals(Bot.FFSwerve)) {
       subsystems = new SubsystemManager(Arrays.asList(mSwerve, Pigeon.getInstance()));
-    } else if(RobotState.getInstance().getCurrentRobot().equals(Bot.ProgrammingBot)){
+    } else if (RobotState.getInstance().getCurrentRobot().equals(Bot.ProgrammingBot)) {
       subsystems = new SubsystemManager(Arrays.asList(mSwerve, Pigeon.getInstance(), Arm.getInstance(),
-          Wrist.getInstance(), Extension.getInstance(), Intake.getInstance()));
+          Wrist.getInstance(), Extension.getInstance()/* , Intake.getInstance() */));
     }
     subsystems.resetSensor();
   }
@@ -105,17 +106,18 @@ public class Robot extends TimedRobot {
     // Pigeon.getInstance().zeroSensors();
     // FroggyPoseController.resetPose(new Pose(0,0,0));
     mSwerve.setBrakeMode();
-    Intake.getInstance().startVacuum();
+    // Intake.getInstance().startVacuum();
     mSwerve.resetDriveEncoder();
     LimelightProcessor.getInstance().setPipeline(Pipeline.CLOSEST);
-    new PIDTest().initAndStartAuton();
+    new ForwardTest().initAndStartAuton();
   }
+
   /**
    * This function is called periodically during autonomous.
    */
   @Override
   public void autonomousPeriodic() {
-    //OILoop();
+    // OILoop();
 
     FroggyPoseController.updateOdometry();
     FroggyPoseController.outputPoseToDashboard();
@@ -131,7 +133,7 @@ public class Robot extends TimedRobot {
   public void teleopInit() {
     mSwerve.setBrakeMode();
     mSwerve.snapForward();
-    Intake.getInstance().startVacuum();
+    // Intake.getInstance().startVacuum();
     LimelightProcessor.getInstance().setPipeline(Pipeline.CLOSEST);
     PrecisionDriveController.activatePrecisionDrive();
   }
@@ -188,7 +190,7 @@ public class Robot extends TimedRobot {
       break;
     }
 
-    if(OI.driverJoystick.getStickButtonPressed(Hand.kLeft)) {
+    if (OI.driverJoystick.getStickButtonPressed(Hand.kLeft)) {
       mSwerve.setMode(DriveMode.TeleopDrive);
     }
 
@@ -196,7 +198,7 @@ public class Robot extends TimedRobot {
       operatorInput();
       Arm.getInstance().updateSuperstruture();
     }
-    
+
   }
 
   private void joystickInput() {

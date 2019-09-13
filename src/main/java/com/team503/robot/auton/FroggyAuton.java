@@ -14,7 +14,7 @@ import com.team503.lib.util.SnappingPosition;
 import com.team503.lib.util.Util;
 import com.team503.lib.util.Util.CoordinateSystem;
 import com.team503.robot.RobotState;
-import com.team503.robot.auton.pid.DriveToPosePID;
+import com.team503.robot.auton.pid.PIDToPoseCommand;
 import com.team503.robot.auton.pure_pursuit.FollowTrajectoryCommand;
 import com.team503.robot.commands.SetSnappingAngle;
 import com.team503.robot.loops.FroggyPoseController;
@@ -68,11 +68,11 @@ public abstract class FroggyAuton extends CommandGroup {
     }
 
     public void sequentialPIDDrive(Pose targetPose) {
-        addSequential(new DriveToPosePID(targetPose));
+        addSequential(new PIDToPoseCommand(targetPose));
     }
 
     public void parallelPIDDrive(Pose targetPose) {
-        addParallel(new DriveToPosePID(targetPose));
+        addParallel(new PIDToPoseCommand(targetPose));
     }
 
     // PurePursuit
