@@ -199,9 +199,9 @@ public class Robot extends TimedRobot {
     else if(OI.driverJoystick.xButton.shortReleased()) {
       mIntake.conformToState(State.INTAKING);
     } else if(OI.driverJoystick.yButton.isBeingPressed()) {
-      mIntake.setRelease(true);
+      // mIntake.setRelease(true);
     } else {
-      mIntake.setRelease(false);
+      // mIntake.setRelease(false);
 
     }
 
@@ -219,7 +219,7 @@ public class Robot extends TimedRobot {
 
 
     mIntake.onLoop(Timer.getFPGATimestamp());
-    mIntake.setSuctionOutput(0.4);
+    // mIntake.setSuctionOutput(0.4);
     // FroggyPoseController.updateOdometry();
     // FroggyPoseController.outputPoseToDashboard();
     Scheduler.getInstance().run();
