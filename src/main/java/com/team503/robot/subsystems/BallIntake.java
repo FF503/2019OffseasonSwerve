@@ -39,15 +39,8 @@ public class BallIntake extends Subsystem {
   }
 
   private Spark intake; // feeder;
-  private Spark suction;
-  private Solenoid release;
   private DigitalInput banner;
   private PowerDistributionPanel pdp;
-  private Compressor c;
-
-  // public LazyTalonSRX getPigeonTalon() {
-  // return feeder;
-  // }
 
   public boolean getBanner() {
     return banner.get();
@@ -57,60 +50,15 @@ public class BallIntake extends Subsystem {
     intake = new Spark(Robot.bot.BALL_INTAKE);
     // feeder = new LazyTalonSRX(Robot.bot.BALL_FEEDER);
     banner = new DigitalInput(Robot.bot.BALL_INTAKE_BANNER);
-    suction = new Spark(8);
-    release = new Solenoid(0);
-
-    c = new Compressor();
 
     intake.setInverted(true);
 
-    // intake.setNeutralMode(NeutralMode.Brake);
-
-    // intake.configVoltageCompSaturation(12.0, 10);
-    // intake.enableVoltageCompensation(true);
-
-    // intake.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 20, 10);
-    // intake.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 20, 10);
-
-    // feeder.setInverted(false);
-
-    // feeder.setNeutralMode(NeutralMode.Brake);
-
-    // feeder.configVoltageCompSaturation(12.0, 10);
-    // feeder.enableVoltageCompensation(true);
-
-    // feeder.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 20, 10);
-    // feeder.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 20, 10);
-
-    // setCurrentLimit(30);
     pdp = new PowerDistributionPanel(0);
   }
 
-  // public void setCurrentLimit(int amps) {
-  // intake.configContinuousCurrentLimit(amps, 10);
-  // intake.configPeakCurrentLimit(amps);
-  // intake.configPeakCurrentDuration(10, 10);
-  // intake.enableCurrentLimit(true);
-
-  // feeder.configContinuousCurrentLimit(amps, 10);
-  // feeder.configPeakCurrentLimit(amps);
-  // feeder.configPeakCurrentDuration(10, 10);
-  // feeder.enableCurrentLimit(true);
-  // }
-
-  // public void enableCurrrentLimit(boolean enable) {
-  // intake.enableCurrentLimit(enable);
-  // feeder.enableCurrentLimit(enable);
-  // }
-
-  // private void setRampRate(double secondsToMax) {
-  // intake.configOpenloopRamp(secondsToMax, 0);
-  // feeder.configOpenloopRamp(secondsToMax, 0);
-  // }
-
   public enum State {
     OFF(0), INTAKING(Robot.bot.kIntakingOutput), EJECTING(Robot.bot.kIntakeEjectOutput),
-    HOLDING(Robot.bot.kIntakingOutput), PULLING(Robot.bot.kIntakePullOutput),
+    HOLDING(Robot.bot.kIntakingOutput), // PULLING(Robot.bot.kIntakePullOutput),
     FEEDING(Robot.bot.kIntakeWeakHoldingOutput), POST_FEEDING(0);
 
     public double intakeOutput = 0;
@@ -142,15 +90,6 @@ public class BallIntake extends Subsystem {
 
   public void setHoldingOutput(double output) {
     holdingOutput = output;
-  }
-
-  public void setSuctionOutput(double output) {
-    suction.set(output);
-    c.start();
-  }
-
-  public void setRelease(boolean release) {
-    this.release.set(release);
   }
 
   private boolean needsToNotifyDrivers = false;
