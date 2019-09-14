@@ -246,18 +246,12 @@ public abstract class RobotHardware {
     public static final int BALL_INTAKE = 7;
     public static final int BALL_INTAKE_BANNER = 0;
 
-    // public static final double kIntakeWeakEjectOutput = -0.75;
 	public static final double kIntakeEjectOutput = -0.6;
 	public static final double kIntakeStrongEjectOutput = -1.0;
     public static final double kIntakingOutput = 0.75;
     
 	public static final double kIntakeWeakHoldingOutput = 0.75/12.0;
-	// public static final double kIntakeStrongHoldingOutput =  0.75/12.0;
-	// public static final double kIntakingResuckingOutput = 6.0/12.0;
-	// public static final double kIntakeRampRate = 0.25;
-	// public static final double kIntakeClimbOutput = 6.0/12.0;
-    // public static final double kIntakePullOutput = 12.0/12.0;
-    
+	public static final double kIntakeStrongHoldingOutput =  1.5/12.0;
     
     // DISK INTAKE
     public static int DISK_INTAKE = 8;
