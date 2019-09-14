@@ -11,6 +11,7 @@ import com.team503.robot.Robot;
 import com.team503.robot.subsystems.requests.Prerequisite;
 import com.team503.robot.subsystems.requests.Request;
 
+import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
@@ -39,17 +40,16 @@ public class BallIntake extends Subsystem {
   }
 
   private Spark intake; // feeder;
-  private DigitalInput banner;
+  private AnalogInput banner;
   private PowerDistributionPanel pdp;
 
   public boolean getBanner() {
-    return banner.get();
+    return banner.getVoltage() > 10.0;
   }
 
   private BallIntake() {
     intake = new Spark(Robot.bot.BALL_INTAKE);
-    // feeder = new LazyTalonSRX(Robot.bot.BALL_FEEDER);
-    banner = new DigitalInput(Robot.bot.BALL_INTAKE_BANNER);
+    banner = new AnalogInput(Robot.bot.BALL_INTAKE_BANNER);
 
     intake.setInverted(true);
 
@@ -58,15 +58,12 @@ public class BallIntake extends Subsystem {
 
   public enum State {
     OFF(0), INTAKING(Robot.bot.kIntakingOutput), EJECTING(Robot.bot.kIntakeEjectOutput),
-    HOLDING(Robot.bot.kIntakingOutput), // PULLING(Robot.bot.kIntakePullOutput),
-    FEEDING(Robot.bot.kIntakeWeakHoldingOutput), POST_FEEDING(0);
+    HOLDING(Robot.bot.kIntakingOutput);
 
     public double intakeOutput = 0;
-    // public double feederOutput = 0;
 
-    private State(double grabberSpeed) {// , double feederSpeed) {
+    private State(double grabberSpeed) {
       intakeOutput = grabberSpeed;
-      // feederOutput = feederSpeed;
     }
   }
 
@@ -103,21 +100,13 @@ public class BallIntake extends Subsystem {
   }
 
   private void setIntakeSpeed(double output) {
-    // setRampRate(0.0);
     intake.set(output);
   }
-
-  // private void setFeederSpeed(double output) {
-  // feeder.set(ControlMode.PercentOutput, output);
-  // }
 
   private void holdRollers() {
     setIntakeSpeed(holdingOutput);
   }
 
-  // private final Loop loop = new Loop() {
-
-  // @Override
   public void onStart(double timestamp) {
     hasBall = false;
     needsToNotifyDrivers = false;
@@ -125,7 +114,6 @@ public class BallIntake extends Subsystem {
     stop();
   }
 
-  // @Override
   public void onLoop(double timestamp) {
     switch (currentState) {
     case OFF:
@@ -134,17 +122,16 @@ public class BallIntake extends Subsystem {
       if (stateChanged)
         hasBall = false;
       if ((pdp.getCurrent(11) >= 10) && ((timestamp - stateEnteredTimestamp) >= 0.5)) {
-        // if (Double.isInfinite(bannerSensorBeganTimestamp)) {
-        // bannerSensorBeganTimestamp = timestamp;
-        // } else {
-        // if (timestamp - bannerSensorBeganTimestamp > 0.3) {
-        // hasBall = true;
-        // needsToNotifyDrivers = true;
-        // }
-        // }
-        // } else if (!Double.isFinite(bannerSensorBeganTimestamp)) {
-        // bannerSensorBeganTimestamp = Double.POSITIVE_INFINITY;
-        setState(State.HOLDING);
+        if (Double.isInfinite(bannerSensorBeganTimestamp)) {
+          bannerSensorBeganTimestamp = timestamp;
+        } else {
+          if (timestamp - bannerSensorBeganTimestamp > 0.3) {
+            hasBall = true;
+            needsToNotifyDrivers = true;
+          }
+        }
+      } else if (!Double.isFinite(bannerSensorBeganTimestamp)) {
+        bannerSensorBeganTimestamp = Double.POSITIVE_INFINITY;
       }
       break;
     case EJECTING:
@@ -152,8 +139,9 @@ public class BallIntake extends Subsystem {
         // setRampRate(0.0);
         hasBall = false;
       }
-      if (timestamp - stateEnteredTimestamp > 2.0) {
-        stop();
+      if (timestamp - stateEnteredTimestamp > 1.0) {
+        // stop();
+        conformToState(State.OFF);
         // setRampRate(Robot.bot.kIntakeRampRate);
       }
       break;
@@ -167,12 +155,6 @@ public class BallIntake extends Subsystem {
       if ((timestamp - stateEnteredTimestamp) >= 1.0) {
         setIntakeSpeed(Robot.bot.kIntakeWeakHoldingOutput);
       }
-      break;
-    // case CLIMBING:
-    // break;
-    case POST_FEEDING:
-      if (stateChanged)
-        hasBall = false;
       break;
     default:
       break;
@@ -189,11 +171,11 @@ public class BallIntake extends Subsystem {
 
   // };
 
-  public void eject(double output) {
-    setState(State.EJECTING);
-    setIntakeSpeed(output);
-    hasBall = false;
-  }
+  // public void eject(double output) {
+  //   setState(State.EJECTING);
+  //   setIntakeSpeed(output);
+  //   hasBall = false;
+  // }
 
   public void conformToState(State desiredState) {
     setState(desiredState);
@@ -266,7 +248,7 @@ public class BallIntake extends Subsystem {
       // SmartDashboard.putNumber("Intake Feeder Voltage",
       // feeder.getMotorOutputVoltage());
       SmartDashboard.putBoolean("Intake Has Ball", hasBall);
-      SmartDashboard.putBoolean("Intake Banner", banner.get());
+      SmartDashboard.putNumber("Intake Banner", banner.getVoltage());
     }
 
   }
