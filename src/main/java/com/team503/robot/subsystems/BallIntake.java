@@ -12,10 +12,7 @@ import com.team503.robot.subsystems.requests.Prerequisite;
 import com.team503.robot.subsystems.requests.Request;
 
 import edu.wpi.first.wpilibj.AnalogInput;
-import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
-import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -58,7 +55,7 @@ public class BallIntake extends Subsystem {
 
   public enum State {
     OFF(0), INTAKING(Robot.bot.kIntakingOutput), EJECTING(Robot.bot.kIntakeEjectOutput),
-    HOLDING(Robot.bot.kIntakingOutput);
+    HOLDING(Robot.bot.kIntakeWeakHoldingOutput);
 
     public double intakeOutput = 0;
 
@@ -72,7 +69,6 @@ public class BallIntake extends Subsystem {
   private double bannerSensorBeganTimestamp = Double.POSITIVE_INFINITY;
   private double stateEnteredTimestamp = 0;
   private double holdingOutput = Robot.bot.kIntakeWeakHoldingOutput;
-  private boolean isConstantSuck = false;
 
   public State getState() {
     return currentState;
@@ -140,18 +136,10 @@ public class BallIntake extends Subsystem {
         hasBall = false;
       }
       if (timestamp - stateEnteredTimestamp > 1.0) {
-        // stop();
         conformToState(State.OFF);
-        // setRampRate(Robot.bot.kIntakeRampRate);
       }
       break;
     case HOLDING:
-      /*
-       * if (banner.get()) { if (isConstantSuck) { holdRollers(); isConstantSuck =
-       * false; } } else { if (!isConstantSuck) {
-       * setGrabberSpeed(Robot.bot.kIntakingResuckingOutput); isConstantSuck = true; }
-       * }
-       */
       if ((timestamp - stateEnteredTimestamp) >= 1.0) {
         setIntakeSpeed(Robot.bot.kIntakeWeakHoldingOutput);
       }
@@ -169,24 +157,15 @@ public class BallIntake extends Subsystem {
     stop();
   }
 
-  // };
-
-  // public void eject(double output) {
-  //   setState(State.EJECTING);
-  //   setIntakeSpeed(output);
-  //   hasBall = false;
-  // }
 
   public void conformToState(State desiredState) {
     setState(desiredState);
     setIntakeSpeed(desiredState.intakeOutput);
-    // setFeederSpeed(desiredState.feederOutput);
   }
 
   public void conformToState(State desiredState, double outputOverride) {
     setState(desiredState);
     setIntakeSpeed(outputOverride);
-    // setFeederSpeed(outputOverride);
   }
 
   public Request stateRequest(State desiredState) {

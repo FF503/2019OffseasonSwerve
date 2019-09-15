@@ -52,7 +52,7 @@ public class DiskIntake extends Subsystem {
   private DiskIntake() {
     intake = new Spark(Robot.bot.DISK_INTAKE);
     release = new Solenoid(Robot.bot.DISK_RELEASE);
-    pressureGauge = new AnalogInput(Robot.bot.DISK_SENSOR);
+    // pressureGauge = new AnalogInput(Robot.bot.DISK_SENSOR);
 
     intake.setInverted(false);
   }
