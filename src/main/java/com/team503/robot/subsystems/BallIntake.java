@@ -55,7 +55,7 @@ public class BallIntake extends Subsystem {
 
   public enum State {
     OFF(0), INTAKING(Robot.bot.kIntakingOutput), EJECTING(Robot.bot.kIntakeEjectOutput),
-    HOLDING(Robot.bot.kIntakeWeakHoldingOutput);
+    HOLDING(Robot.bot.kIntakeStrongHoldingOutput);
 
     public double intakeOutput = 0;
 
@@ -103,6 +103,10 @@ public class BallIntake extends Subsystem {
     setIntakeSpeed(holdingOutput);
   }
 
+  private double getIntakeCurrent() {
+    return pdp.getCurrent(11);
+  }
+
   public void onStart(double timestamp) {
     hasBall = false;
     needsToNotifyDrivers = false;
@@ -117,7 +121,7 @@ public class BallIntake extends Subsystem {
     case INTAKING:
       if (stateChanged)
         hasBall = false;
-      if ((pdp.getCurrent(11) >= 10) && ((timestamp - stateEnteredTimestamp) >= 0.5)) {
+      if ((getIntakeCurrent() >= 10) && ((timestamp - stateEnteredTimestamp) >= 0.5)) {
         if (Double.isInfinite(bannerSensorBeganTimestamp)) {
           bannerSensorBeganTimestamp = timestamp;
         } else {
@@ -132,7 +136,6 @@ public class BallIntake extends Subsystem {
       break;
     case EJECTING:
       if (stateChanged) {
-        // setRampRate(0.0);
         hasBall = false;
       }
       if (timestamp - stateEnteredTimestamp > 1.0) {
@@ -151,7 +154,6 @@ public class BallIntake extends Subsystem {
       stateChanged = false;
   }
 
-  // @Override
   public void onStop(double timestamp) {
     setState(State.OFF);
     stop();
@@ -219,14 +221,8 @@ public class BallIntake extends Subsystem {
   @Override
   public void outputTelemetry() {
     if (Robot.bot.kDebuggingOutput) {
-      // SmartDashboard.putNumber("Intake Grabber Current",
-      // intake.getOutputCurrent());
-      // SmartDashboard.putNumber("Intake Grabber Voltage",
-      // intake.getMotorOutputVoltage());
-      // SmartDashboard.putNumber("Intake Feeder Current", feeder.getOutputCurrent());
-      // SmartDashboard.putNumber("Intake Feeder Voltage",
-      // feeder.getMotorOutputVoltage());
       SmartDashboard.putBoolean("Intake Has Ball", hasBall);
+      SmartDashboard.putNumber("Intake Current", getIntakeCurrent());
       SmartDashboard.putNumber("Intake Banner", banner.getVoltage());
     }
 
@@ -236,10 +232,4 @@ public class BallIntake extends Subsystem {
   public synchronized void stop() {
     conformToState(State.OFF);
   }
-
-  // @Override
-  // public void registerEnabledLoops(ILooper enabledLooper) {
-  // enabledLooper.register(loop);
-  // }
-
 }
