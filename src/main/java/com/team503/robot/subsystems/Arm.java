@@ -3,14 +3,7 @@ package com.team503.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.team254.drivers.LazyCANSparkMax;
 import com.team254.drivers.LazyTalonSRX;
-// import com.team1323.frc2019.Robot.bot;
-// import com.team1323.frc2019.Robot.bot;
-// import com.team1323.frc2019.loops.ILooper;
-// import com.team1323.frc2019.loops.Loop;
-// import com.team1323.frc2019.subsystems.requests.Prerequisite;
-// import com.team1323.frc2019.subsystems.requests.Request;
 import com.team503.lib.util.Util;
 import com.team503.robot.Robot;
 import com.team503.robot.subsystems.requests.Prerequisite;
@@ -39,16 +32,6 @@ public class Arm extends Subsystem {
 		lockAngle();
 	}
 
-	// Solenoid shifter;
-
-	// boolean isHighGear = false;
-
-	// public boolean isHighGear() {
-	// return isHighGear;
-	// }
-
-	// boolean highGearConfig = false;
-
 	public enum ArmControlState {
 		OPEN_LOOP, POSITION
 	}
@@ -63,7 +46,7 @@ public class Arm extends Subsystem {
 		arm.configVoltageCompSaturation(12.0, 10);
 		arm.enableVoltageCompensation(true);
 		arm.configNominalOutputForward(0.0 / 12.0, 10);
-		arm.configContinuousCurrentLimit(25, 10); // TODO
+		arm.configContinuousCurrentLimit(25, 10);
 		arm.configPeakCurrentLimit(30, 10);
 		arm.configPeakCurrentDuration(100, 10);
 		arm.enableCurrentLimit(true);
@@ -72,10 +55,7 @@ public class Arm extends Subsystem {
 		arm.setInverted(true);
 		arm.setSensorPhase(true);
 		arm.setNeutralMode(NeutralMode.Brake);
-		// arm.getSensorCollection().setPulseWidthPosition(0, 100);
-		// arm.setSelectedSensorPosition(0, 0, 10);
 
-		// resetToAbsolutePosition();
 		configurationOne();
 		arm.configForwardSoftLimitThreshold(armAngleToEncUnits(Robot.bot.kArmMaxControlAngle), 10);
 		arm.configReverseSoftLimitThreshold(armAngleToEncUnits(Robot.bot.kArmMinControlAngle), 10);
@@ -83,63 +63,25 @@ public class Arm extends Subsystem {
 		// arm.configReverseSoftLimitEnable(true, 10);
 
 		setOpenLoop(0.0);
-
-		// shifter = new Solenoid(Robot.bot.DRIVEBASE_PCM, Robot.bot.WRIST_SHIFTER);
 	}
 
-	private void configurationOne() { // TODO TUNE
+	private void configurationOne() {
 		arm.selectProfileSlot(0, 0);
-		arm.config_kP(0, 8.525, 10); // going down 2.5
+		arm.config_kP(0, 8.525, 10); 
 		arm.config_kI(0, 0.0, 10);
-		arm.config_kD(0, 85, 10);// 80.0
+		arm.config_kD(0, 85, 10);
 		arm.config_kF(0, 1023.0 / Robot.bot.kArmMaxSpeed, 10);
-		arm.config_kP(1, 8.525, 10);// going up 2.0
+		arm.config_kP(1, 8.525, 10);
 		arm.config_kI(1, 0.0, 10);
-		arm.config_kD(1, 240, 10);// 80.0
+		arm.config_kD(1, 240, 10);
 		arm.config_kF(1, 1023.0 / Robot.bot.kArmMaxSpeed, 10);
 		arm.configMotionCruiseVelocity((int) (Robot.bot.kArmMaxSpeed * 1.0), 10);
 		arm.configMotionAcceleration((int) (Robot.bot.kArmMaxSpeed * 3.0), 10);
 		arm.configMotionSCurveStrength(6);
-
-		// highGearConfig = true;
 	}
 
-	// public void configForLowGear() {
-	// arm.selectProfileSlot(2, 0);
-	// arm.config_kP(2, 3.0, 10);
-	// arm.config_kI(2, 0.0, 10);
-	// arm.config_kD(2, 30.0, 10);
-	// arm.config_kF(2, 1023.0 / Robot.bot.kArmMaxSpeedLowGear, 10);
-	// arm.config_kP(3, 3.0, 10);
-	// arm.config_kI(3, 0.0, 10);
-	// arm.config_kD(3, 60.0, 10);
-	// arm.config_kF(3, 1023.0 / Robot.bot.kArmMaxSpeedLowGear, 10);
-	// arm.configMotionCruiseVelocity((int) (Robot.bot.kArmMaxSpeedLowGear * 1.0),
-	// 10);
-	// arm.configMotionAcceleration((int) (Robot.bot.kArmMaxSpeedLowGear * 3.0),
-	// 10);
-	// arm.configMotionSCurveStrength(4);
-
-	// highGearConfig = false;
-	// System.out.println("Low gear set");
-	// }
-
-	// public void setHighGear(boolean high) {
-	// if (high && !isHighGear) {
-	// shifter.set(true);
-	// configForHighGear();
-	// isHighGear = true;
-	// } else if (!high && isHighGear) {
-	// shifter.set(false);
-	// configForLowGear();
-	// isHighGear = false;
-	// }
-	// DriverStation.reportError("Arm shifted to: " + (high ? "high" : "low"),
-	// true);
-	// }
-
 	public void setOpenLoop(double output) {
-		periodicIO.demand = output ;// TODO update coefficient
+		periodicIO.demand = output ;
 		currentState = ArmControlState.OPEN_LOOP;
 	}
 
@@ -149,11 +91,7 @@ public class Arm extends Subsystem {
 
 	public void setAngle(double angle) {
 		if (isSensorConnected()) {
-			// if (isHighGear && !highGearConfig) {
 			configurationOne();
-			// } else if (!isHighGear && highGearConfig) {
-			// configForLowGear();
-			// }
 			if (angle <= maxAllowableAngle) {
 				targetAngle = angle;
 			} else {
@@ -219,10 +157,6 @@ public class Arm extends Subsystem {
 
 			@Override
 			public void act() {
-				// arm.configMotionCruiseVelocity(
-				// (int) ((isHighGear ? Robot.bot.kArmMaxSpeedHighGear :
-				// Robot.bot.kArmMaxSpeedLowGear)
-				// * speedScalar));
 				arm.configMotionCruiseVelocity((int) (Robot.bot.kArmMaxSpeed * speedScalar));
 				setAngle(angle);
 			}
@@ -259,17 +193,6 @@ public class Arm extends Subsystem {
 
 		};
 	}
-
-	// public Request gearShiftRequest(boolean high) {
-	// return new Request() {
-
-	// @Override
-	// public void act() {
-	// setHighGear(high);
-	// }
-
-	// };
-	// }
 
 	public Prerequisite angleRequisite(double angle, boolean above) {
 		return new Prerequisite() {
@@ -311,45 +234,14 @@ public class Arm extends Subsystem {
 		boolean connected = pulseWidthPeriod != 0;
 		if (!connected)
 			hasEmergency = true;
-		return connected; // TODO Does this work
+		return connected; 
 	}
 
-	public void resetToAbsolutePosition() {
-		int absolutePosition = (int) Util.boundToScope(0, 4096, arm.getSensorCollection().getPulseWidthPosition());
-		if (encUnitsToArmAngle(absolutePosition) > Robot.bot.kArmMaxPhysicalAngle) {
-			absolutePosition -= 4096;
-		} else if (encUnitsToArmAngle(absolutePosition) < Robot.bot.kArmMinPhysicalAngle) {
-			absolutePosition += 4096;
-		}
-		double armAngle = encUnitsToArmAngle(absolutePosition);
-		if (armAngle > Robot.bot.kArmMaxPhysicalAngle || armAngle < Robot.bot.kArmMinPhysicalAngle) {
-			DriverStation.reportError("Arm angle is out of bounds", false);
-			hasEmergency = true;
-		}
-		arm.setSelectedSensorPosition(absolutePosition, 0, 10);
-	}
-
-	// private final Loop loop = new Loop() {
-
-	// @Override
-	// public void onStart(double timestamp) {
-
-	// }
-
-	// @Override
 	public void onLoop(double timestamp) {
 		if (arm.getOutputCurrent() > Robot.bot.kArmMaxCurrent) {
-			// stop();
 			DriverStation.reportError("Arm current high", false);
 		}
 	}
-
-	// @Override
-	// public void onStop(double timestamp) {
-
-	// }
-
-	// };
 
 	@Override
 	public synchronized void readPeriodicInputs() {
@@ -378,11 +270,6 @@ public class Arm extends Subsystem {
 	public void zeroSensors() {
 
 	}
-
-	// @Override
-	// public void registerEnabledLoops(ILooper enabledLooper) {
-	// enabledLooper.register(loop);
-	// }
 
 	@Override
 	public void outputTelemetry() {

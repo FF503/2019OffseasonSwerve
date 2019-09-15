@@ -213,11 +213,8 @@ public abstract class RobotHardware {
     public static final double kArmHumanLoaderAngle = 0.0;
     public static final double kArmPrimaryStowAngle = -80;
     public static final double kArmIntakingAngle = -15;
-	public static final double kArmShortPlatformAngle = -32.0;
-	public static final double kArmShortHangingAngle = -63.5;
-	public static final double kArmHangingAngle = -70.5;//-71.5
+	public static final double kArmHangingAngle = -70.5;
 	public static final double kArmBallHoldingAngle = 38.0;
-	public static final double kArmBallFeedingAngle = 60.5;
 
     // Motion Control
     public static final double kArmMaxSpeed = 200; //enc units per 100 MS 
@@ -259,8 +256,6 @@ public abstract class RobotHardware {
     // Position-Encoder Relations
     public static final double kElevatorTicksPerInch = 19.0 / 24.875; // enc counts per inch 
     public static final double kElevatorEncoderStartingPosition = 399.0/ 24.875; // enc counts //TODO
-    public static final double kElevatorMaxInitialHeight = 21.0; //inches //TODO
-    public static final double kElevatorMinInitialHeight = 21.0; //inches //TODO
 
 
     // CARGO INTAKE
@@ -277,7 +272,7 @@ public abstract class RobotHardware {
     // DISK INTAKE
     public static int DISK_INTAKE = 8;
     public static int DISK_RELEASE = 0;
-    public static int DISK_SENSOR = 9; //TODO
+    public static int DISK_SENSOR = 9; 
 
     public static double kDiskIntakingOutput = 0.40;
     public static double kDiskIntakeEjectOutput = 0.00;
