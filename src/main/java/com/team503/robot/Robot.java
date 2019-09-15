@@ -26,11 +26,12 @@ import com.team503.robot.commands.ToggleIntake;
 import com.team503.robot.loops.LimelightProcessor;
 import com.team503.robot.loops.LimelightProcessor.Pipeline;
 import com.team503.robot.subsystems.AndyArm;
-import com.team503.robot.subsystems.AndyWrist;
-import com.team503.robot.subsystems.Extension;
-import com.team503.robot.subsystems.Intake;
-import com.team503.robot.subsystems.Pigeon;
+import com.team503.robot.subsystems.Arm;
+import com.team503.robot.subsystems.BallIntake;
+import com.team503.robot.subsystems.DiskIntake;
+import com.team503.robot.subsystems.Elevator;
 import com.team503.robot.subsystems.SubsystemManager;
+import com.team503.robot.subsystems.Superstructure;
 import com.team503.robot.subsystems.SwerveDrive;
 import com.team503.robot.subsystems.BallIntake.State;
 import com.team503.robot.subsystems.SwerveDrive.DriveMode;
@@ -48,10 +49,12 @@ import edu.wpi.first.wpilibj.command.Scheduler;
  */
 public class Robot extends TimedRobot {
 
-  private SwerveDrive mSwerve;
+  // private SwerveDrive mSwerve;
   private Elevator mElevator;
   private Arm mArm;
-  private BallIntake mIntake;
+  private BallIntake mBallIntake;
+  private DiskIntake mDiskIntake;
+  private Superstructure s;
 
   private SubsystemManager subsystems;
   public static RobotHardware bot;
@@ -67,10 +70,12 @@ public class Robot extends TimedRobot {
     bot = RobotHardware.getInstance();
     OI.initialize();
 
-    mSwerve = SwerveDrive.getInstance();
+    // mSwerve = SwerveDrive.getInstance();
     mElevator = Elevator.getInstance();
     mArm = Arm.getInstance();
-    mIntake = BallIntake.getInstance();
+    mBallIntake = BallIntake.getInstance();
+    mDiskIntake = DiskIntake.getInstance();
+    s = Superstructure.getInstance();
 
     // Subsytem Manager
 
@@ -168,9 +173,11 @@ public class Robot extends TimedRobot {
     // Intake.getInstance().startVacuum();
     // LimelightProcessor.getInstance().setPipeline(Pipeline.CLOSEST);
     // PrecisionDriveController.activatePrecisionDrive();
-    mIntake.onStart(Timer.getFPGATimestamp());
-
-  }
+    mBallIntake.onStart(Timer.getFPGATimestamp());
+    mDiskIntake.onStart(Timer.getFPGATimestamp());
+    s.onStart(Timer.getFPGATimestamp());
+    s.enableCompressor(true);
+  } 
 
   /*
    * This function is called periodically during operator control.
@@ -178,51 +185,76 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
-    double targetHeight, targetAngle;
+    // double targetHeight, targetAngle;
   
     // OILoop();
     // mElevator.setOpenLoop(-OI.getDriverLeftYVal());
     OI.driverJoystick.update();
+    OI.operator.update();
+    // mDiskIntake.stateRequest(DiskIntake.State.INTAKING);
+    mDiskIntake.getSpark().set(0.4);
 
 
-    if(OI.getDriverAButton()) {
-      targetHeight = 45.5;
-      targetAngle = 0.0;
-    } else {
-      targetHeight = 23.0;
-      targetAngle = 0.0;
-    }
 
-    if(OI.driverJoystick.bButton.isBeingPressed()) {
-      mIntake.conformToState(State.EJECTING);
-    }
-    else if(OI.driverJoystick.xButton.shortReleased()) {
-      mIntake.conformToState(State.INTAKING);
-    } else if(OI.driverJoystick.yButton.isBeingPressed()) {
-      // mIntake.setRelease(true);
-    } else {
-      // mIntake.setRelease(false);
+    // if(OI.getDriverAButton()) {
 
-    }
+    //   targetHeight = 45.5;
+    //   targetAngle = 0.0;
+    // } else {
+    //   targetHeight = 23.0;
+    //   targetAngle = 0.0;
+    // }
+
+    // if(OI.driverJoystick.bButton.isBeingPressed()) {
+    //   mIntake.conformToState(State.EJECTING);
+    // }
+    // else if(OI.driverJoystick.xButton.shortReleased()) {
+    //   mIntake.conformToState(State.INTAKING);
+    // } else if(OI.driverJoystick.yButton.isBeingPressed()) {
+    //   // mIntake.setRelease(true);
+    // } else {
+    //   // mIntake.setRelease(false);
+
+    // }
 
 
-    mElevator.setTargetHeight(targetHeight);
-    mElevator.readPeriodicInputs();
-    mElevator.writePeriodicOutputs();
-    mElevator.outputTelemetry();
+    // mElevator.setTargetHeight(targetHeight);
+    // mElevator.readPeriodicInputs();
+    // mElevator.writePeriodicOutputs();
+    // mElevator.outputTelemetry();
 
-    // mArm.setOpenLoop(-OI.getDriverRightYVal());
-    mArm.setAngle(targetAngle);
+    // // mArm.setOpenLoop(-OI.getDriverRightYVal());
+    // mArm.setAngle(targetAngle);
+    // mArm.readPeriodicInputs();
+    // mArm.writePeriodicOutputs();
+    // mArm.outputTelemetry();
+
+
+    mBallIntake.onLoop(Timer.getFPGATimestamp());
+    mDiskIntake.onLoop(Timer.getFPGATimestamp());
+    s.onLoop(Timer.getFPGATimestamp());
+    mElevator.onLoop(Timer.getFPGATimestamp());
+    mArm.onLoop(Timer.getFPGATimestamp());
+
     mArm.readPeriodicInputs();
+    mElevator.readPeriodicInputs();
+    s.readPeriodicInputs();
+
     mArm.writePeriodicOutputs();
-    mArm.outputTelemetry();
-
-
-    mIntake.onLoop(Timer.getFPGATimestamp());
+    mElevator.writePeriodicOutputs();
     // mIntake.setSuctionOutput(0.4);
     // FroggyPoseController.updateOdometry();
     // FroggyPoseController.outputPoseToDashboard();
     Scheduler.getInstance().run();
+
+
+
+    if (OI.operator.yButton.wasActivated()) {
+      s.ballScoringState(45.5, 0.0);
+    } 
+    if (OI.driverJoystick.aButton.wasActivated()) {
+      s.ballIntakingState();
+    }
   }
 
   @Override

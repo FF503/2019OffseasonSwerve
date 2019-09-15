@@ -210,6 +210,15 @@ public abstract class RobotHardware {
     public static final double kArmMinPhysicalAngle = 0; //degrees 
     public static final double kArmMaxCurrent = 40.0; //amps 
 
+    public static final double kArmHumanLoaderAngle = 0.0;
+    public static final double kArmPrimaryStowAngle = -80;
+    public static final double kArmIntakingAngle = -15;
+	public static final double kArmShortPlatformAngle = -32.0;
+	public static final double kArmShortHangingAngle = -63.5;
+	public static final double kArmHangingAngle = -70.5;//-71.5
+	public static final double kArmBallHoldingAngle = 38.0;
+	public static final double kArmBallFeedingAngle = 60.5;
+
     // Motion Control
     public static final double kArmMaxSpeed = 200; //enc units per 100 MS 
     public static final double kArmAngleTolerance = 5; //degrees 
@@ -230,6 +239,18 @@ public abstract class RobotHardware {
     public static final double kElevatorMaxHeight = 45.5; //inches 
     public static final int kElevatorCurrentLimit = 40; //amps 
     public static final int kElevatorMaxCurrent = 50; //amps 
+
+    // Presets
+    public static final double kElevatorLowHatchHeight = 5.75;//8.925
+	public static final double kElevatorDiskHandoffHeight = 8.925;
+	public static final double kElevatorHumanLoaderHeight = 7.425;//5.5
+	public static final double kElevatorMidHatchHeight = 38.425 - 2.5;//36.5
+	public static final double kElevatorHighHatchHeight = 64.9;//63.7
+	public static final double kElevatorBallIntakeHeight = 23;
+	public static final double kElevatorBallCargoShipHeight = 15.0;
+	public static final double kElevatorLowBallHeight = 4.3;
+	public static final double kElevatorMidBallHeight = 32.0;
+	public static final double kElevatorHighBallHeight = 60.4;
 
     // Motion Control
     public static final double kElevatorMaxSpeed = 2100; //rev per min 
@@ -256,7 +277,7 @@ public abstract class RobotHardware {
     // DISK INTAKE
     public static int DISK_INTAKE = 8;
     public static int DISK_RELEASE = 0;
-    public static int DISK_SENSOR = 24; //TODO
+    public static int DISK_SENSOR = 9; //TODO
 
     public static double kDiskIntakingOutput = 0.40;
     public static double kDiskIntakeEjectOutput = 0.00;
