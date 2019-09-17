@@ -61,6 +61,8 @@ public class Arm extends Subsystem {
 		arm.configReverseSoftLimitThreshold(armAngleToEncUnits(Robot.bot.kArmMinControlAngle), 10);
 		// arm.configForwardSoftLimitEnable(true, 10); //TODO
 		// arm.configReverseSoftLimitEnable(true, 10);
+		// arm.getSensorCollection().setPulseWidthPosition(0, 10);
+		// arm.setSelectedSensorPosition(0);
 
 		setOpenLoop(0.0);
 	}

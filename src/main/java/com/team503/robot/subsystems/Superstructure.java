@@ -37,16 +37,8 @@ public class Superstructure extends Subsystem {
 
 	private RobotState robotState;
 
-	// private boolean isClimbing = false;
-	// public boolean isClimbing(){ return isClimbing; }
-	// public void enableInterpolator(boolean enable){
-	// isClimbing = enable;
-	// swerve.setLowPowerScalar(0.25);
-	// }
-	// public void stopClimbing(){
-	// isClimbing = false;
-	// swerve.setLowPowerScalar(0.6);
-	// }
+	private Element element = Element.DISK;
+
 
 	public Superstructure() {
 		elevator = Elevator.getInstance();
@@ -72,6 +64,10 @@ public class Superstructure extends Subsystem {
 		return instance;
 	}
 
+	public enum Element {
+		BALL, DISK;
+	}
+
 	private RequestList activeRequests;
 	private ArrayList<RequestList> queuedRequests;
 	private Request currentRequest;
@@ -79,6 +75,10 @@ public class Superstructure extends Subsystem {
 	private boolean newRequests = false;
 	private boolean activeRequestsCompleted = false;
 	private boolean allRequestsCompleted = false;
+
+	public Element getCurrentElement() {
+		return element;
+	}
 
 	public boolean requestsCompleted() {
 		return allRequestsCompleted;
@@ -164,6 +164,7 @@ public class Superstructure extends Subsystem {
 	// @Override
 	public void onStart(double timestamp) {
 		stop();
+		enableCompressor(true);
 	}
 
 	// @Override
@@ -311,6 +312,9 @@ public class Superstructure extends Subsystem {
 	}
 
 	public void ballIntakingState() {
+
+		element = Element.BALL;
+
 		RequestList state = new RequestList(Arrays.asList(elevator.heightRequest(Robot.bot.kElevatorBallIntakeHeight),
 				arm.angleRequest(Robot.bot.kArmIntakingAngle), ballIntake.stateRequest(BallIntake.State.INTAKING),
 				diskIntake.stateRequest(DiskIntake.State.OFF), ballIntake.waitForBallRequest()), true);
@@ -327,7 +331,7 @@ public class Superstructure extends Subsystem {
 	public void ballScoringState(double elevatorHeight, double armAngle) {
 		RequestList state = new RequestList(
 				Arrays.asList(elevator.heightRequest(elevatorHeight), arm.angleRequest(armAngle),
-						ballIntake.stateRequest(BallIntake.State.OFF), diskIntake.stateRequest(DiskIntake.State.OFF)),
+						ballIntake.stateRequest(BallIntake.State.HOLDING), diskIntake.stateRequest(DiskIntake.State.OFF)),
 				true);
 		request(state);
 	}
@@ -340,6 +344,9 @@ public class Superstructure extends Subsystem {
 		request(state);
 	}
 	public void diskReceivingState() {
+
+		element = Element.DISK;
+
 		RequestList state = new RequestList(Arrays.asList(elevator.heightRequest(Robot.bot.kElevatorHumanLoaderHeight),
 				diskIntake.stateRequest(DiskIntake.State.INTAKING), arm.angleRequest(Robot.bot.kArmHumanLoaderAngle),
 				ballIntake.stateRequest(BallIntake.State.OFF), diskIntake.waitForDiskRequest()), true);

@@ -52,7 +52,7 @@ public class DiskIntake extends Subsystem {
   private DiskIntake() {
     intake = new Spark(Robot.bot.DISK_INTAKE);
     release = new Solenoid(Robot.bot.DISK_RELEASE);
-    // pressureGauge = new AnalogInput(Robot.bot.DISK_SENSOR);
+    pressureGauge = new AnalogInput(Robot.bot.DISK_SENSOR);
 
     intake.setInverted(false);
   }
@@ -75,7 +75,7 @@ public class DiskIntake extends Subsystem {
 
   }
 
-  private State currentState = State.OFF;
+  private State currentState = State.INTAKING;
 
   public State getState() {
     return currentState;
@@ -136,8 +136,8 @@ public class DiskIntake extends Subsystem {
   public void onStart(double timestamp) {
     hasDisk = false;
     needsToNotifyDrivers = false;
-    setState(State.OFF);
-    stop();
+    conformToState(State.INTAKING);
+    // stop();
   }
 
   // @Override
@@ -150,12 +150,13 @@ public class DiskIntake extends Subsystem {
     case INTAKING:
       if (stateChanged)
         hasDisk = false;
-      if (pressureGauge.getVoltage() >= 10.0 && (timestamp - stateEnteredTimestamp) >= 0.5) {
+      if (pressureGauge.getVoltage() >= 0.4 && (timestamp - stateEnteredTimestamp) >= 0.5) {
         if (Double.isInfinite(pressureSpikeTimestamp)) {
           pressureSpikeTimestamp = timestamp;
         } else {
-          if (timestamp - pressureSpikeTimestamp > 0.375) {
+          if (timestamp - pressureSpikeTimestamp > 1.0) {
             hasDisk = true;
+            Superstructure.getInstance().diskScoringState(45.5, -60);
             needsToNotifyDrivers = true;
           }
         }
@@ -165,12 +166,10 @@ public class DiskIntake extends Subsystem {
       break;
     case RELEASING:
       if (stateChanged) {
-        // setRampRate(0.0);
         hasDisk = false;
       }
       if (timestamp - stateEnteredTimestamp > 2.0) {
-        stop();
-        // setRampRate(Robot.bot.kDiskIntakeRampRate);
+        conformToState(State.INTAKING);
       }
       break;
     // case HANDOFF_COMPLETE:
@@ -193,7 +192,6 @@ public class DiskIntake extends Subsystem {
 
   }
 
-  // @Override
   public void onStop(double timestamp) {
     setState(State.OFF);
     stop();
