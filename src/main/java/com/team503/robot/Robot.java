@@ -9,19 +9,7 @@ package com.team503.robot;
 
 import java.util.Arrays;
 
-// import com.team503.lib.io.PrecisionDriveController;
-import com.team503.robot.RobotState.ArmDirection;
 import com.team503.robot.RobotState.Bot;
-import com.team503.robot.RobotState.GameElement;
-import com.team503.robot.RobotState.SuperStructurePreset;
-import com.team503.robot.commands.EjectBall;
-import com.team503.robot.commands.GameElementSwitcher;
-import com.team503.robot.commands.ReleaseHatch;
-import com.team503.robot.commands.ResetEncoderCommand;
-import com.team503.robot.commands.SwitchArmDirection;
-import com.team503.robot.commands.TargetHeightSwitcher;
-import com.team503.robot.commands.ToggleControlMode;
-import com.team503.robot.commands.ToggleIntake;
 import com.team503.robot.subsystems.AndyArm;
 import com.team503.robot.subsystems.AndyWrist;
 import com.team503.robot.subsystems.Arm;
@@ -101,7 +89,7 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     subsystems.outputToSmartDashboard();
     // System.out.println("ROBOT"+
-// RobotState.getInstance().getCurrentRobot().name());
+    // RobotState.getInstance().getCurrentRobot().name());
   }
 
   /**
@@ -137,30 +125,7 @@ public class Robot extends TimedRobot {
     RobotState.getInstance().setCurrentTheta(Pigeon.getInstance().getYaw());
     OI.driverJoystick.update();
 
-    // if (RobotState.getInstance().getAutonDone()) {
-
-    // switch (SwerveDrive.getInstance().getMode()) {
-    // case TeleopDrive:
-
-    // break;
-    // case Defense:
-    // if (!OI.driverJoystick.getStartButton()) {
-    // mSwerve.setMode(DriveMode.TeleopDrive);
-    // break;
-    // }
-    // mSwerve.defensePosition();
-    // break;
-    // default:
-    // break;
-    // }
-    // }
     oneControllerMode();
-
-    // FroggyPoseController.updateOdometry();
-    // FroggyPoseController.outputPoseToDashboard();
-    // Arm.getInstance().updateSuperstruture();
-
-    // Scheduler.getInstance().run();
   }
 
   /**
@@ -169,11 +134,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
-    // mSwerve.setBrakeMode();
-    // mSwerve.snapForward();
-    // Intake.getInstance().startVacuum();
-    // LimelightProcessor.getInstance().setPipeline(Pipeline.CLOSEST);
-    // PrecisionDriveController.activatePrecisionDrive();
     mBallIntake.onStart(Timer.getFPGATimestamp());
     mDiskIntake.onStart(Timer.getFPGATimestamp());
     mS.onStart(Timer.getFPGATimestamp());
@@ -184,53 +144,11 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopPeriodic() {
-    // subsystems.outputToSmartDashboard();
-    mArm.outputTelemetry();
-    mS.outputTelemetry();
-    mElevator.outputTelemetry();
-    mBallIntake.outputTelemetry();
-    mDiskIntake.outputTelemetry();
+    subsystems.outputToSmartDashboard();
 
-    // double targetHeight, targetAngle;
-
-    // OILoop();
-    // mElevator.setOpenLoop(-OI.getDriverLeftYVal());
     OI.driverJoystick.update();
     OI.operator.update();
     mDiskIntake.stateRequest(DiskIntake.State.INTAKING);
-    // mDiskIntake.getSpark().set(0.4);
-
-    // if(OI.getDriverAButton()) {
-
-    // targetHeight = 45.5;
-    // targetAngle = 0.0;
-    // } else {
-    // targetHeight = 23.0;
-    // targetAngle = 0.0;
-    // }
-
-    // if(OI.driverJoystick.bButton.isBeingPressed()) {
-    // mIntake.conformToState(State.EJECTING);
-    // }
-    // else if(OI.driverJoystick.xButton.shortReleased()) {
-    // mIntake.conformToState(State.INTAKING);
-    // } else if(OI.driverJoystick.yButton.isBeingPressed()) {
-    // // mIntake.setRelease(true);
-    // } else {
-    // // mIntake.setRelease(false);
-
-    // }
-
-    // mElevator.setTargetHeight(targetHeight);
-    // mElevator.readPeriodicInputs();
-    // mElevator.writePeriodicOutputs();
-    // mElevator.outputTelemetry();
-
-    // // mArm.setOpenLoop(-OI.getDriverRightYVal());
-    // mArm.setAngle(targetAngle);
-    // mArm.readPeriodicInputs();
-    // mArm.writePeriodicOutputs();
-    // mArm.outputTelemetry();
 
     mBallIntake.onLoop(Timer.getFPGATimestamp());
     mDiskIntake.onLoop(Timer.getFPGATimestamp());
@@ -246,40 +164,8 @@ public class Robot extends TimedRobot {
     mElevator.writePeriodicOutputs();
     Scheduler.getInstance().run();
 
-    if (OI.operator.bButton.wasActivated()) {
-      if (mS.getCurrentElement() == Superstructure.Element.BALL) {
-        mS.ballScoringState(50.0, 33.0);
-      } else {
-        mS.diskScoringState(50.0, -21.0);
-      }
-    } else if (OI.operator.aButton.wasActivated()) {
-      if (mS.getCurrentElement() == Superstructure.Element.BALL) {
-        mS.ballScoringState(34.0, 0.0);
-      } else {
-        mS.diskScoringState(Robot.bot.kElevatorHumanLoaderHeight, 0.0);
-      }
-    } else if (OI.operator.xButton.wasActivated()) {
-      // if (mS.getCurrentElement() == Superstructure.Element.BALL) {
-      mS.ballScoringState(45.5, 0.0);
-      // }
-    }
-    if (OI.driverJoystick.aButton.wasActivated()) {
-      mS.ballIntakingState();
-    } else if (OI.driverJoystick.bButton.shortReleased()) {
-      if (mS.getCurrentElement() == Superstructure.Element.BALL) {
-        mBallIntake.conformToState(BallIntake.State.EJECTING);
-      } else {
-        mDiskIntake.conformToState(DiskIntake.State.RELEASING);
-      }
-    } else if (OI.driverJoystick.xButton.wasActivated()) {
-      mS.diskReceivingState();
-    } else if (OI.driverJoystick.yButton.wasActivated()) {
-      if (mS.getCurrentElement() == Superstructure.Element.BALL) {
-        mS.ballScoringState(45.5, 49.0);
-      } else {
-        mS.diskScoringState(45.5, -60.0);
-      }
-    }
+    twoControllerMode();
+    
   }
 
   @Override
@@ -302,36 +188,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
-    // subsystems.outputToSmartDashboard();
+    subsystems.outputToSmartDashboard();
   }
-
-  // private void OILoop() {
-  // OI.driverJoystick.update();
-  // switch (mSwerve.getMode()) {
-  // case TeleopDrive:
-  // joystickInput();
-  // break;
-  // case Defense:
-  // if (!OI.driverJoystick.getStartButton()) {
-  // mSwerve.setMode(DriveMode.TeleopDrive);
-  // break;
-  // }
-  // mSwerve.defensePosition();
-  // break;
-  // default:
-  // break;
-  // }
-
-  // if(OI.driverJoystick.leftCenterClick.isBeingPressed()) {
-  // mSwerve.setMode(DriveMode.TeleopDrive);
-  // }
-
-  // if (RobotState.getInstance().getCurrentRobot().equals(Bot.ProgrammingBot)) {
-  // operatorInput();
-  // AndyArm.getInstance().updateSuperstruture();
-  // }
-
-  // }
 
   private void azimuthDebugInput() {
     double swerveYInput = 0.3 * Math.sin(theta);
@@ -367,57 +225,38 @@ public class Robot extends TimedRobot {
   public void twoControllerMode() {
     oneControllerMode();
 
-  private void operatorInput() {
-    // if (OI.getOperatorA()) {
-    // RobotState.getInstance().setArmDirection(ArmDirection.FRONT);
-    // TargetHeightSwitcher.set(RobotState.TargetHeight.LOW);
-    // } else if (OI.getOperatorB()) {
-    // if (RobotState.getInstance().getGameElement() == GameElement.CARGO) {
-    // RobotState.getInstance().setArmDirection(ArmDirection.BACK);
-    // } else {
-    // RobotState.getInstance().setArmDirection(ArmDirection.FRONT);
-    // }
-    // TargetHeightSwitcher.set(RobotState.TargetHeight.MIDDLE);
-    // } else if (OI.getOperatorX()) {
-    // RobotState.getInstance().setArmDirection(ArmDirection.FRONT);
-    // TargetHeightSwitcher.set(RobotState.TargetHeight.BUS);
-    // } else if (OI.getOperatorY()) {
-    // if (RobotState.getInstance().getGameElement() == GameElement.CARGO) {
-    // RobotState.getInstance().setArmDirection(ArmDirection.BACK);
-    // } else {
-    // RobotState.getInstance().setArmDirection(ArmDirection.FRONT);
-    // }
-    // TargetHeightSwitcher.set(RobotState.TargetHeight.HIGH);
-    // } else if (OI.getOperatorMenu()) {
-    // RobotState.getInstance().setArmDirection(ArmDirection.FRONT);
-    // TargetHeightSwitcher.set(RobotState.TargetHeight.INTAKE);
-    // } else if (OI.getOperatorRightBumper()) {
-    // TargetHeightSwitcher.set(RobotState.TargetHeight.HOME);
-    // } else if (OI.getOperatorLeftBumper()) {
-    // SwitchArmDirection.flip();
-    // } else if (OI.getOperatorHatchSwitch()) {
-    // GameElementSwitcher.setGameElement(GameElement.HATCH);
-    // } else if (OI.getOperatorCargoSwitch()) {
-    // GameElementSwitcher.setGameElement(GameElement.CARGO);
-    // } else if (OI.getOperatorSelect()) {
-    // ToggleControlMode.toggle();
-    // } else if (OI.getDriverXButton()) {
-    // ToggleIntake.toggleIntake();
-    // }
-    // ToggleIntake.handleIntakeFinish();
-    // if (OI.getDriverBButton()) {
-    // EjectBall.eject();
-    // } else {
-    // EjectBall.stopEject();
-    // }
-    // if (OI.getDriverAButton()) {
-    // ReleaseHatch.startRelease();
-    // }
-    // ReleaseHatch.handleFinish();
-    // if (OI.getOperatorRJ()) {
-    // ResetEncoderCommand.resetEncs();
-    // }
-
-    // Arm.getInstance().updateSuperstruture();
+    if (OI.operator.bButton.wasActivated()) {
+      if (mS.getCurrentElement() == Superstructure.Element.BALL) {
+        mS.ballScoringState(50.0, 33.0);
+      } else {
+        mS.diskScoringState(50.0, -21.0);
+      }
+    } else if (OI.operator.aButton.wasActivated()) {
+      if (mS.getCurrentElement() == Superstructure.Element.BALL) {
+        mS.ballScoringState(34.0, 0.0);
+      } else {
+        mS.diskScoringState(Robot.bot.kElevatorHumanLoaderHeight, 0.0);
+      }
+    } else if (OI.operator.xButton.wasActivated()) {
+      mS.ballScoringState(45.5, 0.0);
+    }
+    if (OI.driverJoystick.aButton.wasActivated()) {
+      mS.ballIntakingState();
+    } else if (OI.driverJoystick.bButton.shortReleased()) {
+      if (mS.getCurrentElement() == Superstructure.Element.BALL) {
+        mBallIntake.conformToState(BallIntake.State.EJECTING);
+      } else {
+        mDiskIntake.conformToState(DiskIntake.State.RELEASING);
+      }
+    } else if (OI.driverJoystick.xButton.wasActivated()) {
+      mS.diskReceivingState();
+    } else if (OI.driverJoystick.yButton.wasActivated()) {
+      if (mS.getCurrentElement() == Superstructure.Element.BALL) {
+        mS.ballScoringState(45.5, 49.0);
+      } else {
+        mS.diskScoringState(45.5, -60.0);
+      }
+    }
   }
+
 }
