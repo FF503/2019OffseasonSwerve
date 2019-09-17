@@ -195,7 +195,7 @@ public abstract class RobotHardware {
 
     public static final double kArmHumanLoaderAngle = 0.0;
     public static final double kArmPrimaryStowAngle = -80;
-    public static final double kArmIntakingAngle = -15;
+    public static final double kArmIntakingAngle = -20;
 	public static final double kArmHangingAngle = -70.5;
 	public static final double kArmBallHoldingAngle = 38.0;
 
@@ -223,7 +223,7 @@ public abstract class RobotHardware {
     // Presets
     public static final double kElevatorLowHatchHeight = 5.75;//8.925
 	public static final double kElevatorDiskHandoffHeight = 8.925;
-	public static final double kElevatorHumanLoaderHeight = 7.425;//5.5
+	public static final double kElevatorHumanLoaderHeight = 26.165;//5.5
 	public static final double kElevatorMidHatchHeight = 38.425 - 2.5;//36.5
 	public static final double kElevatorHighHatchHeight = 64.9;//63.7
 	public static final double kElevatorBallIntakeHeight = 23;
@@ -249,13 +249,13 @@ public abstract class RobotHardware {
 	public static final double kIntakeStrongEjectOutput = -1.0;
     public static final double kIntakingOutput = 0.75;
     
-	public static final double kIntakeWeakHoldingOutput = 0.75/12.0;
-	public static final double kIntakeStrongHoldingOutput =  1.5/12.0;
+	public static final double kIntakeWeakHoldingOutput = 4.0/12.0;
+	public static final double kIntakeStrongHoldingOutput =  4.0/12.0;
     
     // DISK INTAKE
     public static int DISK_INTAKE = 8;
     public static int DISK_RELEASE = 0;
-    public static int DISK_SENSOR = 9; 
+    public static int DISK_SENSOR = 1; 
 
     public static double kDiskIntakingOutput = 0.40;
     public static double kDiskIntakeEjectOutput = 0.00;

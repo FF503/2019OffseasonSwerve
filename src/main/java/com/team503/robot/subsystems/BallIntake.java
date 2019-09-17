@@ -121,12 +121,14 @@ public class BallIntake extends Subsystem {
     case INTAKING:
       if (stateChanged)
         hasBall = false;
-      if ((getIntakeCurrent() >= 10) && ((timestamp - stateEnteredTimestamp) >= 0.5)) {
+      if ((getIntakeCurrent() >= 15.0) && ((timestamp - stateEnteredTimestamp) >= 0.5)) {
         if (Double.isInfinite(bannerSensorBeganTimestamp)) {
           bannerSensorBeganTimestamp = timestamp;
         } else {
           if (timestamp - bannerSensorBeganTimestamp > 0.3) {
             hasBall = true;
+            conformToState(State.HOLDING);
+            Superstructure.getInstance().ballScoringState(45.5, 49.0);
             needsToNotifyDrivers = true;
           }
         }
@@ -222,6 +224,8 @@ public class BallIntake extends Subsystem {
   public void outputTelemetry() {
     if (Robot.bot.kDebuggingOutput) {
       SmartDashboard.putBoolean("Intake Has Ball", hasBall);
+      SmartDashboard.putString("Intake State", currentState.name());
+      // SmartDashboard.putNumber("Intake Output", getS)
       SmartDashboard.putNumber("Intake Current", getIntakeCurrent());
       SmartDashboard.putNumber("Intake Banner", banner.getVoltage());
     }
