@@ -53,11 +53,11 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    RobotState.getInstance().setCurrentRobot(Bot.Automatic);
+    RobotState.getInstance().setCurrentRobot(Bot.FFSwerve);
     bot = RobotHardware.getInstance();
     OI.initialize();
 
-    // mSwerve = SwerveDrive.getInstance();
+    mSwerve = SwerveDrive.getInstance();
     mElevator = Elevator.getInstance();
     mArm = Arm.getInstance();
     mBallIntake = BallIntake.getInstance();
@@ -201,7 +201,7 @@ public class Robot extends TimedRobot {
 
     mSwerve.sendInput(swerveXInput, swerveYInput, swerveRotationInput, false, false);
 
-    mSwerve.onLoop(Timer.getFPGATimestamp());
+    // mSwerve.onLoop(Timer.getFPGATimestamp());
   }
 
   public void oneControllerMode() {
@@ -219,7 +219,7 @@ public class Robot extends TimedRobot {
 
     mSwerve.sendInput(swerveXInput, swerveYInput, swerveRotationInput, lowPower, lowPower);
 
-    mSwerve.onLoop(Timer.getFPGATimestamp());
+    // mSwerve.onLoop(Timer.getFPGATimestamp());
   }
 
   public void twoControllerMode() {
