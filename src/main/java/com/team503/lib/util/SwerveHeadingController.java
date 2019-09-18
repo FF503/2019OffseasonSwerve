@@ -13,9 +13,9 @@ public class SwerveHeadingController {
     private FrogPIDF stabilizationPID, rotateInPlace, snappingPID;
 
     public SwerveHeadingController() {
-        this.stabilizationPID = new FrogPIDF(0.005, 0.0, 0.0005, 0.0, ControlMode.Position_Control);
-        this.rotateInPlace = new FrogPIDF(0.005, 0.0, 0.0001, ControlMode.Position_Control);
-        this.snappingPID = new FrogPIDF(0.015, 0.0, 0.000, 0.0, ControlMode.Position_Control);
+        this.stabilizationPID = new FrogPIDF(0.0075, 0.0, 0.0005, 0.0, ControlMode.Position_Control);
+        this.rotateInPlace = new FrogPIDF(0.0075, 0.0, 0.0001, ControlMode.Position_Control);
+        this.snappingPID = new FrogPIDF(0.003, 0.0, 0.000, 0.0, ControlMode.Position_Control);
         snappingPID.setTolerance(5);
         targetHeading = 0;
     }

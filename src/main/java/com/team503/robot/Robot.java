@@ -86,7 +86,7 @@ public class Robot extends TimedRobot {
       subsystems = new SubsystemManager(Arrays.asList(mSwerve, Pigeon.getInstance(), AndyArm.getInstance(),
           AndyWrist.getInstance(), Extension.getInstance(), Intake.getInstance()));
     }
-    // subsystems.resetSensor();
+    subsystems.resetSensor();
   }
 
   /**
@@ -147,7 +147,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     // mSwerve.setBrakeMode();
-    // mSwerve.snapForward();
+    mSwerve.snapForward();
     // Intake.getInstance().startVacuum();
     // LimelightProcessor.getInstance().setPipeline(Pipeline.CLOSEST);
     // PrecisionDriveController.activatePrecisionDrive();
@@ -170,7 +170,7 @@ public class Robot extends TimedRobot {
 
     // double targetHeight, targetAngle;
 
-    // OILoop();
+    OILoop();
     // mElevator.setOpenLoop(-OI.getDriverLeftYVal());
     OI.driverJoystick.update();
     OI.operator.update();
