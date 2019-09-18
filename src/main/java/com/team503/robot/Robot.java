@@ -21,6 +21,8 @@ import com.team503.robot.commands.SwitchArmDirection;
 import com.team503.robot.commands.TargetHeightSwitcher;
 import com.team503.robot.commands.ToggleControlMode;
 import com.team503.robot.commands.ToggleIntake;
+import com.team503.robot.loops.LimelightProcessor;
+import com.team503.robot.loops.LimelightProcessor.Pipeline;
 import com.team503.robot.subsystems.AndyArm;
 import com.team503.robot.subsystems.AndyWrist;
 import com.team503.robot.subsystems.Arm;
@@ -33,6 +35,7 @@ import com.team503.robot.subsystems.Pigeon;
 import com.team503.robot.subsystems.SubsystemManager;
 import com.team503.robot.subsystems.Superstructure;
 import com.team503.robot.subsystems.SwerveDrive;
+import com.team503.robot.subsystems.SwerveDrive.DriveMode;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
@@ -67,7 +70,7 @@ public class Robot extends TimedRobot {
     bot = RobotHardware.getInstance();
     OI.initialize();
 
-    // mSwerve = SwerveDrive.getInstance();
+    mSwerve = SwerveDrive.getInstance();
     mElevator = Elevator.getInstance();
     mArm = Arm.getInstance();
     mBallIntake = BallIntake.getInstance();
@@ -129,12 +132,12 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousPeriodic() {
-    // OILoop();
+    
 
     // FroggyPoseController.updateOdometry();
     // FroggyPoseController.outputPoseToDashboard();
 
-    // Scheduler.getInstance().run();
+    Scheduler.getInstance().run();
   }
 
   /**
@@ -282,83 +285,83 @@ public class Robot extends TimedRobot {
     // subsystems.outputToSmartDashboard();
   }
 
-  // private void OILoop() {
-  // OI.driverJoystick.update();
-  // switch (mSwerve.getMode()) {
-  // case TeleopDrive:
-  // joystickInput();
-  // break;
-  // case Defense:
-  // if (!OI.driverJoystick.getStartButton()) {
-  // mSwerve.setMode(DriveMode.TeleopDrive);
-  // break;
-  // }
-  // mSwerve.defensePosition();
-  // break;
-  // default:
-  // break;
-  // }
+  private void OILoop() {
+  OI.driverJoystick.update();
+  switch (mSwerve.getMode()) {
+  case TeleopDrive:
+  joystickInput();
+  break;
+  case Defense:
+  if (!OI.driverJoystick.getStartButton()) {
+  mSwerve.setMode(DriveMode.TeleopDrive);
+  break;
+  }
+  mSwerve.defensePosition();
+  break;
+  default:
+  break;
+  }
 
-  // if(OI.driverJoystick.leftCenterClick.isBeingPressed()) {
-  // mSwerve.setMode(DriveMode.TeleopDrive);
-  // }
+  if(OI.driverJoystick.leftCenterClick.isBeingPressed()) {
+  mSwerve.setMode(DriveMode.TeleopDrive);
+  }
 
-  // if (RobotState.getInstance().getCurrentRobot().equals(Bot.ProgrammingBot)) {
-  // operatorInput();
-  // AndyArm.getInstance().updateSuperstruture();
-  // }
+  if (RobotState.getInstance().getCurrentRobot().equals(Bot.ProgrammingBot)) {
+  operatorInput();
+  AndyArm.getInstance().updateSuperstruture();
+  }
 
-  // }
+  }
 
-  // private void joystickInput() {
-  // double swerveYInput = -OI.getDriverLeftYVal();
-  // double swerveXInput = OI.getDriverLeftXVal();
-  // double swerveRotationInput = OI.getDriverRightXVal();
-  // boolean lowPower = OI.getDriverRightTriggerPressed();
-  // double deadband = 0.015;
-  // double lastSnapTarget = 0;
+  private void joystickInput() {
+  double swerveYInput = -OI.getDriverLeftYVal();
+  double swerveXInput = OI.getDriverLeftXVal();
+  double swerveRotationInput = OI.getDriverRightXVal();
+  boolean lowPower = OI.getDriverRightTriggerPressed();
+  double deadband = 0.015;
+  double lastSnapTarget = 0;
 
-  // if (swerveRotationInput > -deadband && swerveRotationInput < deadband) {
-  // swerveRotationInput = mSwerve.getRotationalOutput();
-  // } else {
-  // mSwerve.rotate(RobotState.getInstance().getCurrentTheta());
-  // }
+  if (swerveRotationInput > -deadband && swerveRotationInput < deadband) {
+  swerveRotationInput = mSwerve.getRotationalOutput();
+  } else {
+  mSwerve.rotate(RobotState.getInstance().getCurrentTheta());
+  }
 
-  // if (OI.getDriverYButton()) {
-  // mSwerve.visionFollow();
-  // } else {
-  // LimelightProcessor.getInstance().setPipeline(Pipeline.DRIVER);
-  // if (OI.driverJoystick.leftBumper.shortReleased()) {
-  // mSwerve.rotate(-30);
-  // swerveRotationInput = mSwerve.getRotationalOutput();
-  // } else if (OI.driverJoystick.leftBumper.longPressed()) {
-  // mSwerve.rotate(-150.0);
-  // swerveRotationInput = mSwerve.getRotationalOutput();
-  // } else if (OI.driverJoystick.rightBumper.shortReleased()) {
-  // mSwerve.rotate(30);
-  // swerveRotationInput = mSwerve.getRotationalOutput();
-  // } else if (OI.driverJoystick.rightBumper.longPressed()) {
-  // mSwerve.rotate(150.0);
-  // swerveRotationInput = mSwerve.getRotationalOutput();
-  // } else if (OI.driverJoystick.getPOV() == 180) {
-  // mSwerve.rotate(179);
-  // swerveRotationInput = mSwerve.getRotationalOutput();
-  // } else if (OI.driverJoystick.getPOV() == 90) {
-  // mSwerve.rotate(90);
-  // swerveRotationInput = mSwerve.getRotationalOutput();
-  // } else if (OI.driverJoystick.getPOV() == 270) {
-  // mSwerve.rotate(270);
-  // swerveRotationInput = mSwerve.getRotationalOutput();
-  // } else if (OI.driverJoystick.getPOV() == 0) {
-  // mSwerve.rotate(1);
-  // swerveRotationInput = mSwerve.getRotationalOutput();
-  // } else if (OI.driverJoystick.getStartButtonPressed()) {
-  // mSwerve.setMode(DriveMode.Defense);
-  // }
-  // mSwerve.setFieldCentric(!OI.getDriverRightTriggerPressed());
-  // mSwerve.drive(swerveXInput, swerveYInput, swerveRotationInput, lowPower);
-  // }
-  // }
+  if (OI.getDriverYButton()) {
+  mSwerve.visionFollow();
+  } else {
+  LimelightProcessor.getInstance().setPipeline(Pipeline.DRIVER);
+  if (OI.driverJoystick.leftBumper.shortReleased()) {
+  mSwerve.rotate(-30);
+  swerveRotationInput = mSwerve.getRotationalOutput();
+  } else if (OI.driverJoystick.leftBumper.longPressed()) {
+  mSwerve.rotate(-150.0);
+  swerveRotationInput = mSwerve.getRotationalOutput();
+  } else if (OI.driverJoystick.rightBumper.shortReleased()) {
+  mSwerve.rotate(30);
+  swerveRotationInput = mSwerve.getRotationalOutput();
+  } else if (OI.driverJoystick.rightBumper.longPressed()) {
+  mSwerve.rotate(150.0);
+  swerveRotationInput = mSwerve.getRotationalOutput();
+  } else if (OI.driverJoystick.getPOV() == 180) {
+  mSwerve.rotate(179);
+  swerveRotationInput = mSwerve.getRotationalOutput();
+  } else if (OI.driverJoystick.getPOV() == 90) {
+  mSwerve.rotate(90);
+  swerveRotationInput = mSwerve.getRotationalOutput();
+  } else if (OI.driverJoystick.getPOV() == 270) {
+  mSwerve.rotate(270);
+  swerveRotationInput = mSwerve.getRotationalOutput();
+  } else if (OI.driverJoystick.getPOV() == 0) {
+  mSwerve.rotate(1);
+  swerveRotationInput = mSwerve.getRotationalOutput();
+  } else if (OI.driverJoystick.getStartButtonPressed()) {
+  mSwerve.setMode(DriveMode.Defense);
+  }
+  mSwerve.setFieldCentric(!OI.getDriverRightTriggerPressed());
+  mSwerve.drive(swerveXInput, swerveYInput, swerveRotationInput, lowPower);
+  }
+  }
 
   private void operatorInput() {
     // if (OI.getOperatorA()) {
