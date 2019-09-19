@@ -37,7 +37,7 @@ public class Superstructure extends Subsystem {
 
 	private RobotState robotState;
 
-	private Element element = Element.DISK;
+	private Element element = Element.BALL;
 
 
 	public Superstructure() {
