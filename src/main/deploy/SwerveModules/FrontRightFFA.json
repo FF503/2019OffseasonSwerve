@@ -3,7 +3,7 @@
     "driveMotorID": 2,
     "turnMotorID": 6,
     "P": 0.7,
-    "I": 0.000,
+    "I": 0.00,
     "D": 7.0,
     "F": 0.833,
     "startingEncoderClick": 1380,

@@ -205,24 +205,27 @@ public abstract class RobotHardware {
 
     // Constraints
     public static final double kArmMaxControlAngle = 45; //degrees 
-    public static final double kArmMinControlAngle = -45; //degrees 
+    public static final double kArmMinControlAngle = -69; //degrees 
     public static final double kArmMaxPhysicalAngle = 0; //degrees 
     public static final double kArmMinPhysicalAngle = 0; //degrees 
     public static final double kArmMaxCurrent = 40.0; //amps 
 
     public static final double kArmHumanLoaderAngle = 0.0;
-    public static final double kArmPrimaryStowAngle = -80;
+    public static final double kArmPrimaryStowAngle = -69;
     public static final double kArmIntakingAngle = -20;
 	public static final double kArmHangingAngle = -70.5;
 	public static final double kArmBallHoldingAngle = 38.0;
 
     // Motion Control
-    public static final double kArmMaxSpeed = 200; //enc units per 100 MS 
+    public static final double kArmMaxSpeed = 350; //enc units per 100 MS 
     public static final double kArmAngleTolerance = 5; //degrees 
+
 
     // Position-Encoder relations
     public static final double kArmEncoderToOutputRatio = 1.0; //arm rev per enc rev 
+    // public static final int kArmStartingAngle = -63; //physical starting angle (degrees) //TODO
     public static final int kArmStartingAngle = 0; //physical starting angle (degrees) //TODO
+
     public static final int kArmStartingEncoderPosition = 0; //starting encoder counts (enc units) 
 
 
@@ -232,7 +235,7 @@ public abstract class RobotHardware {
     public static final double kElevatorTeleopManualSpeed = 1.0; // Percent max output manual 
 
     // Constraints
-    public static final double kElevatorMinHeight = 23.0; //inches 
+    public static final double kElevatorMinHeight = 21.0; //inches 
     public static final double kElevatorMaxHeight = 45.5; //inches 
     public static final int kElevatorCurrentLimit = 40; //amps 
     public static final int kElevatorMaxCurrent = 50; //amps 
@@ -243,7 +246,7 @@ public abstract class RobotHardware {
 	public static final double kElevatorHumanLoaderHeight = 26.165;//5.5
 	public static final double kElevatorMidHatchHeight = 38.425 - 2.5;//36.5
 	public static final double kElevatorHighHatchHeight = 64.9;//63.7
-	public static final double kElevatorBallIntakeHeight = 23;
+	public static final double kElevatorBallIntakeHeight = 21;
 	public static final double kElevatorBallCargoShipHeight = 15.0;
 	public static final double kElevatorLowBallHeight = 4.3;
 	public static final double kElevatorMidBallHeight = 32.0;
@@ -255,7 +258,10 @@ public abstract class RobotHardware {
 
     // Position-Encoder Relations
     public static final double kElevatorTicksPerInch = 19.0 / 24.875; // enc counts per inch 
+    
     public static final double kElevatorEncoderStartingPosition = 399.0/ 24.875; // enc counts //TODO
+    // public static final double kElevatorEncoderStartingPosition = 712.5 / 24.875; // enc counts //TODO
+
 
 
     // CARGO INTAKE

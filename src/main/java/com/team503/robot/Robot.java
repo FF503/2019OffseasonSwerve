@@ -9,7 +9,20 @@ package com.team503.robot;
 
 import java.util.Arrays;
 
+import com.team503.robot.RobotState.ArmDirection;
 import com.team503.robot.RobotState.Bot;
+import com.team503.robot.RobotState.GameElement;
+import com.team503.robot.RobotState.SuperStructurePreset;
+import com.team503.robot.commands.EjectBall;
+import com.team503.robot.commands.GameElementSwitcher;
+import com.team503.robot.commands.ReleaseHatch;
+import com.team503.robot.commands.ResetEncoderCommand;
+import com.team503.robot.commands.SwitchArmDirection;
+import com.team503.robot.commands.TargetHeightSwitcher;
+import com.team503.robot.commands.ToggleControlMode;
+import com.team503.robot.commands.ToggleIntake;
+import com.team503.robot.loops.LimelightProcessor;
+import com.team503.robot.loops.LimelightProcessor.Pipeline;
 import com.team503.robot.subsystems.AndyArm;
 import com.team503.robot.subsystems.AndyWrist;
 import com.team503.robot.subsystems.Arm;
@@ -22,6 +35,7 @@ import com.team503.robot.subsystems.Pigeon;
 import com.team503.robot.subsystems.SubsystemManager;
 import com.team503.robot.subsystems.Superstructure;
 import com.team503.robot.subsystems.SwerveDrive;
+import com.team503.robot.subsystems.SwerveDrive.DriveMode;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
@@ -134,6 +148,11 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
+    // mSwerve.setBrakeMode();
+    mSwerve.snapForward();
+    // Intake.getInstance().startVacuum();
+    // LimelightProcessor.getInstance().setPipeline(Pipeline.CLOSEST);
+    // PrecisionDriveController.activatePrecisionDrive();
     mBallIntake.onStart(Timer.getFPGATimestamp());
     mDiskIntake.onStart(Timer.getFPGATimestamp());
     mS.onStart(Timer.getFPGATimestamp());
@@ -144,11 +163,53 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopPeriodic() {
-    subsystems.outputToSmartDashboard();
+    // subsystems.outputToSmartDashboard();
+    mArm.outputTelemetry();
+    mS.outputTelemetry();
+    mElevator.outputTelemetry();
+    mBallIntake.outputTelemetry();
+    mDiskIntake.outputTelemetry();
 
+    // double targetHeight, targetAngle;
+
+    OILoop();
+    // mElevator.setOpenLoop(-OI.getDriverLeftYVal());
     OI.driverJoystick.update();
     OI.operator.update();
     mDiskIntake.stateRequest(DiskIntake.State.INTAKING);
+    // mDiskIntake.getSpark().set(0.4);
+
+    // if(OI.getDriverAButton()) {
+
+    // targetHeight = 45.5;
+    // targetAngle = 0.0;
+    // } else {
+    // targetHeight = 23.0;
+    // targetAngle = 0.0;
+    // }
+
+    // if(OI.driverJoystick.bButton.isBeingPressed()) {
+    // mIntake.conformToState(State.EJECTING);
+    // }
+    // else if(OI.driverJoystick.xButton.shortReleased()) {
+    // mIntake.conformToState(State.INTAKING);
+    // } else if(OI.driverJoystick.yButton.isBeingPressed()) {
+    // // mIntake.setRelease(true);
+    // } else {
+    // // mIntake.setRelease(false);
+
+    // }
+
+    // mElevator.setTargetHeight(targetHeight);
+    // mElevator.readPeriodicInputs();
+    // mElevator.writePeriodicOutputs();
+    // mElevator.outputTelemetry();
+
+    // // mArm.setOpenLoop(-OI.getDriverRightYVal());
+    // mArm.setAngle(targetAngle);
+    // mArm.readPeriodicInputs();
+    // mArm.writePeriodicOutputs();
+    // mArm.outputTelemetry();
 
     mBallIntake.onLoop(Timer.getFPGATimestamp());
     mDiskIntake.onLoop(Timer.getFPGATimestamp());
@@ -164,8 +225,40 @@ public class Robot extends TimedRobot {
     mElevator.writePeriodicOutputs();
     Scheduler.getInstance().run();
 
-    twoControllerMode();
-    
+    if (OI.operator.bButton.wasActivated()) {
+      if (mS.getCurrentElement() == Superstructure.Element.BALL) {
+        mS.ballScoringState(50.0, 33.0);
+      } else {
+        mS.diskScoringState(50.0, -21.0);
+      }
+    } else if (OI.operator.aButton.wasActivated()) {
+      if (mS.getCurrentElement() == Superstructure.Element.BALL) {
+        mS.ballScoringState(34.0, 0.0);
+      } else {
+        mS.diskScoringState(Robot.bot.kElevatorHumanLoaderHeight, 0.0);
+      }
+    } else if (OI.operator.xButton.wasActivated()) {
+      // if (mS.getCurrentElement() == Superstructure.Element.BALL) {
+      mS.ballScoringState(45.5, 0.0);
+      // }
+    }
+    if (OI.driverJoystick.aButton.wasActivated()) {
+      mS.ballIntakingState();
+    } else if (OI.driverJoystick.bButton.shortReleased()) {
+      if (mS.getCurrentElement() == Superstructure.Element.BALL) {
+        mBallIntake.conformToState(BallIntake.State.EJECTING);
+      } else {
+        mDiskIntake.conformToState(DiskIntake.State.RELEASING);
+      }
+    } else if (OI.driverJoystick.xButton.wasActivated()) {
+      mS.diskReceivingState();
+    } else if (OI.driverJoystick.yButton.wasActivated()) {
+      if (mS.getCurrentElement() == Superstructure.Element.BALL) {
+        mS.ballScoringState(45.5, 49.0);
+      } else {
+        mS.diskScoringState(45.5, -60.0);
+      }
+    }
   }
 
   @Override
@@ -188,7 +281,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
-    subsystems.outputToSmartDashboard();
+    // subsystems.outputToSmartDashboard();
   }
 
   private void azimuthDebugInput() {

@@ -2,9 +2,9 @@
     "name": "FrontLeftFFA",
     "driveMotorID": 1,
     "turnMotorID": 5,
-    "P": 6.0,
-    "I": 0.00,
-    "D": 50.0,
+    "P": 2.0,
+    "I": 0.0,
+    "D": 1.0,
     "F": 0.833,
     "startingEncoderClick": 3764,
     "cruiseVelocity": 1000,
@@ -12,6 +12,6 @@
     "turnCountsDecreasing": true,
     "DriveInverted": false,
     "DriveEncoderInverted": true,
-    "TurnMotorInverted": false,
-    "TurnEncoderInverted": false
+    "TurnMotorInverted": true,
+    "TurnEncoderInverted": true
 }
