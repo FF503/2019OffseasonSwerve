@@ -239,7 +239,7 @@ public abstract class RobotHardware {
     // Position-Encoder Relations
     public static final double kElevatorTicksPerInch = 19.0 / 24.875; // enc counts per inch 
     // public static final double kElevatorEncoderStartingPosition = 399.0/ 24.875; // enc counts //TODO
-    public static final double kElevatorEncoderStartingPosition = 703 / 24.875; // enc counts //TODO
+    public static final double kElevatorEncoderStartingPosition = 712.5 / 24.875; // enc counts //TODO
 
 
 
