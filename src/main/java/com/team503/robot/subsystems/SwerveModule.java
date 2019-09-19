@@ -111,7 +111,6 @@ public class SwerveModule extends Subsystem {
 		rotationMotor.configFeedbackNotContinuous(true, 30);
 		rotationMotor.setSensorPhase(this.kTurnEncoderInverted);
 		rotationMotor.setInverted(this.kTurnMotorInverted);
-		// rotationMotor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 10, 10);
 		rotationMotor.setNeutralMode(NeutralMode.Brake);
 		rotationMotor.configVoltageCompSaturation(7.0, 10);
 		rotationMotor.enableVoltageCompensation(true);
@@ -124,12 +123,7 @@ public class SwerveModule extends Subsystem {
 		rotationMotor.config_kI(0, this.kI, 10);
 		rotationMotor.config_kD(0, this.kD, 10);
 		rotationMotor.config_kF(0, this.kF, 10);
-		// // Slot 2 is reserved for the beginning of auto
-		// rotationMotor.config_kP(1, 8.0, 10);
-		// rotationMotor.config_kI(1, 0.0, 10);
-		// rotationMotor.config_kD(1, 200.0, 10);
-		// rotationMotor.config_kF(1, 1023.0 / Constants.kSwerveRotation10VoltMaxSpeed,
-		// 10);
+		
 		rotationMotor.set(ControlMode.MotionMagic, rotationMotor.getSelectedSensorPosition(0));
 		if (!isRotationSensorConnected()) {
 			DriverStation.reportError(name + "rotation encoder not detected!", false);
