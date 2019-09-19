@@ -69,14 +69,14 @@ public class Arm extends Subsystem {
 
 	private void configurationOne() {
 		arm.selectProfileSlot(0, 0);
-		arm.config_kP(0, 8.525, 10); 
+		arm.config_kP(0, 2.0, 10); 
 		arm.config_kI(0, 0.0, 10);
-		arm.config_kD(0, 85, 10);
-		arm.config_kF(0, 1023.0 / Robot.bot.kArmMaxSpeed, 10);
-		arm.config_kP(1, 8.525, 10);
+		arm.config_kD(0, 0.0, 10);
+		arm.config_kF(0, 1023.0 / 350.0, 10);
+		arm.config_kP(1, 2.0, 10);
 		arm.config_kI(1, 0.0, 10);
-		arm.config_kD(1, 240, 10);
-		arm.config_kF(1, 1023.0 / Robot.bot.kArmMaxSpeed, 10);
+		arm.config_kD(1, 0.0, 10);
+		arm.config_kF(1, 1023.0 / 350.0, 10);
 		arm.configMotionCruiseVelocity((int) (Robot.bot.kArmMaxSpeed * 1.0), 10);
 		arm.configMotionAcceleration((int) (Robot.bot.kArmMaxSpeed * 3.0), 10);
 		arm.configMotionSCurveStrength(6);

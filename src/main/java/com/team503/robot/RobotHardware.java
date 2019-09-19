@@ -200,12 +200,15 @@ public abstract class RobotHardware {
 	public static final double kArmBallHoldingAngle = 38.0;
 
     // Motion Control
-    public static final double kArmMaxSpeed = 200; //enc units per 100 MS 
+    public static final double kArmMaxSpeed = 350; //enc units per 100 MS 
     public static final double kArmAngleTolerance = 5; //degrees 
+
 
     // Position-Encoder relations
     public static final double kArmEncoderToOutputRatio = 1.0; //arm rev per enc rev 
-    public static final int kArmStartingAngle = -63; //physical starting angle (degrees) //TODO
+    // public static final int kArmStartingAngle = -63; //physical starting angle (degrees) //TODO
+    public static final int kArmStartingAngle = 0; //physical starting angle (degrees) //TODO
+
     public static final int kArmStartingEncoderPosition = 0; //starting encoder counts (enc units) 
 
 
@@ -238,8 +241,9 @@ public abstract class RobotHardware {
 
     // Position-Encoder Relations
     public static final double kElevatorTicksPerInch = 19.0 / 24.875; // enc counts per inch 
-    // public static final double kElevatorEncoderStartingPosition = 399.0/ 24.875; // enc counts //TODO
-    public static final double kElevatorEncoderStartingPosition = 712.5 / 24.875; // enc counts //TODO
+    
+    public static final double kElevatorEncoderStartingPosition = 399.0/ 24.875; // enc counts //TODO
+    // public static final double kElevatorEncoderStartingPosition = 712.5 / 24.875; // enc counts //TODO
 
 
 
