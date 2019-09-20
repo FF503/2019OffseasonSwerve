@@ -154,7 +154,7 @@ public class DiskIntake extends Subsystem {
         if (Double.isInfinite(pressureSpikeTimestamp)) {
           pressureSpikeTimestamp = timestamp;
         } else {
-          if (timestamp - pressureSpikeTimestamp > 1.0) {
+          if (timestamp - pressureSpikeTimestamp > 0.6) {
             hasDisk = true;
             Superstructure.getInstance().diskScoringState(45.5, -60);
             needsToNotifyDrivers = true;
