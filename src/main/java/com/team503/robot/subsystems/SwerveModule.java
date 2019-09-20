@@ -161,7 +161,7 @@ public class SwerveModule extends Subsystem {
 	public void setModuleAngle(double goalAngle) {
 
 		double newAngle = Util.placeInAppropriate0To360Scope(getRawAngle(),
-				encUnitsToDegrees(encoderOffset) + goalAngle * (this.kTurnCountsDecreasing ? 1 : -1));
+				encUnitsToDegrees(encoderOffset) + goalAngle * (this.kTurnCountsDecreasing ? -1 : 1));
 		SmartDashboard.putNumber(name + " AZ NEW Target", newAngle);
 		SmartDashboard.putNumber(name + " AZ Target", goalAngle);
 
@@ -283,7 +283,9 @@ public class SwerveModule extends Subsystem {
 
 	@Override
 	public synchronized void writePeriodicOutputs() {
-		rotationMotor.set(periodicIO.rotationControlMode, periodicIO.rotationDemand);
+		// rotationMotor.set(periodicIO.rotationControlMode, periodicIO.rotationDemand);
+		rotationMotor.set(ControlMode.MotionMagic, periodicIO.rotationDemand);
+
 		driveMotor.set(periodicIO.driveDemand);
 	}
 

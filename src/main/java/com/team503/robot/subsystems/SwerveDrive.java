@@ -289,14 +289,21 @@ public class SwerveDrive extends Subsystem {
     /** Configures each module to match its assigned vector */
     public void setDriveOutput(List<Translation2d> driveVectors) {
         for (int i = 0; i < modules.size(); i++) {
+
+            double angle;
             if (com.team503.lib.util.Util.shouldReverse(driveVectors.get(i).direction().getDegrees(),
                     modules.get(i).getModuleAngle().getDegrees())) {
-                modules.get(i).setModuleAngle(driveVectors.get(i).direction().getDegrees() + 180.0);
+                angle = driveVectors.get(i).direction().getDegrees() + 180.0;
                 modules.get(i).setDriveOpenLoop(-driveVectors.get(i).norm());
             } else {
-                modules.get(i).setModuleAngle(driveVectors.get(i).direction().getDegrees());
+                angle = driveVectors.get(i).direction().getDegrees();
                 modules.get(i).setDriveOpenLoop(driveVectors.get(i).norm());
             }
+            modules.get(i).setModuleAngle(angle);
+
+            SmartDashboard.putNumber("Sent ANgle", angle);
+
+
         }
     }
 

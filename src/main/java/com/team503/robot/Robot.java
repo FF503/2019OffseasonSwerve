@@ -35,7 +35,7 @@ import com.team503.robot.subsystems.Pigeon;
 import com.team503.robot.subsystems.SubsystemManager;
 import com.team503.robot.subsystems.Superstructure;
 import com.team503.robot.subsystems.SwerveDrive;
-import com.team503.robot.subsystems.SwerveDrive.DriveMode;
+// import com.team503.robot.subsystems.SwerveDrive.DriveMode;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
@@ -149,7 +149,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     // mSwerve.setBrakeMode();
-    mSwerve.snapForward();
+    // mSwerve.snapForward();
     // Intake.getInstance().startVacuum();
     // LimelightProcessor.getInstance().setPipeline(Pipeline.CLOSEST);
     // PrecisionDriveController.activatePrecisionDrive();
@@ -164,6 +164,10 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     // subsystems.outputToSmartDashboard();
+
+    RobotState.getInstance().setCurrentTheta(Pigeon.getInstance().getYaw());
+
+    
     mArm.outputTelemetry();
     mS.outputTelemetry();
     mElevator.outputTelemetry();
@@ -172,7 +176,7 @@ public class Robot extends TimedRobot {
 
     // double targetHeight, targetAngle;
 
-    OILoop();
+    // OILoop();
     // mElevator.setOpenLoop(-OI.getDriverLeftYVal());
     OI.driverJoystick.update();
     OI.operator.update();
@@ -224,6 +228,8 @@ public class Robot extends TimedRobot {
     mArm.writePeriodicOutputs();
     mElevator.writePeriodicOutputs();
     Scheduler.getInstance().run();
+
+    oneControllerMode();
 
     if (OI.operator.bButton.wasActivated()) {
       if (mS.getCurrentElement() == Superstructure.Element.BALL) {
@@ -312,7 +318,7 @@ public class Robot extends TimedRobot {
 
     mSwerve.sendInput(swerveXInput, swerveYInput, swerveRotationInput, lowPower, lowPower);
 
-    // mSwerve.onLoop(Timer.getFPGATimestamp());
+    mSwerve.onLoop(Timer.getFPGATimestamp());
   }
 
   public void twoControllerMode() {
