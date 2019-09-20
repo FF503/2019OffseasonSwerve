@@ -9,18 +9,7 @@ package com.team503.robot;
 
 import java.util.Arrays;
 
-import com.team503.robot.RobotState.ArmDirection;
 import com.team503.robot.RobotState.Bot;
-import com.team503.robot.RobotState.GameElement;
-import com.team503.robot.RobotState.SuperStructurePreset;
-import com.team503.robot.commands.EjectBall;
-import com.team503.robot.commands.GameElementSwitcher;
-import com.team503.robot.commands.ReleaseHatch;
-import com.team503.robot.commands.ResetEncoderCommand;
-import com.team503.robot.commands.SwitchArmDirection;
-import com.team503.robot.commands.TargetHeightSwitcher;
-import com.team503.robot.commands.ToggleControlMode;
-import com.team503.robot.commands.ToggleIntake;
 import com.team503.robot.loops.LimelightProcessor;
 import com.team503.robot.loops.LimelightProcessor.Pipeline;
 import com.team503.robot.subsystems.AndyArm;
@@ -118,14 +107,15 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-   // mSwerve.setBrakeMode();
-   mSwerve.snapForward();
-   // Intake.getInstance().startVacuum();
-   // LimelightProcessor.getInstance().setPipeline(Pipeline.CLOSEST);
-   // PrecisionDriveController.activatePrecisionDrive();
-   mBallIntake.onStart(Timer.getFPGATimestamp());
-   mDiskIntake.onStart(Timer.getFPGATimestamp());
-   mS.onStart(Timer.getFPGATimestamp());;
+    // mSwerve.setBrakeMode();
+    mSwerve.snapForward();
+    // Intake.getInstance().startVacuum();
+    // LimelightProcessor.getInstance().setPipeline(Pipeline.CLOSEST);
+    // PrecisionDriveController.activatePrecisionDrive();
+    mBallIntake.onStart(Timer.getFPGATimestamp());
+    mDiskIntake.onStart(Timer.getFPGATimestamp());
+    mS.onStart(Timer.getFPGATimestamp());
+    ;
   }
 
   /**
@@ -164,7 +154,7 @@ public class Robot extends TimedRobot {
     teleopControl();
   }
 
-  public void teleopControl(){
+  public void teleopControl() {
     // subsystems.outputToSmartDashboard();
     mArm.outputTelemetry();
     mS.outputTelemetry();
@@ -172,10 +162,7 @@ public class Robot extends TimedRobot {
     mBallIntake.outputTelemetry();
     mDiskIntake.outputTelemetry();
 
-    // double targetHeight, targetAngle;
-
     OILoop();
-    // mElevator.setOpenLoop(-OI.getDriverLeftYVal());
     OI.driverJoystick.update();
     OI.operator.update();
     mDiskIntake.stateRequest(DiskIntake.State.INTAKING);
@@ -206,9 +193,7 @@ public class Robot extends TimedRobot {
         mS.diskScoringState(Robot.bot.kElevatorHumanLoaderHeight, 0.0);
       }
     } else if (OI.operator.xButton.wasActivated()) {
-      // if (mS.getCurrentElement() == Superstructure.Element.BALL) {
       mS.ballScoringState(45.5, 0.0);
-      // }
     }
     if (OI.driverJoystick.aButton.wasActivated()) {
       mS.ballIntakingState();
@@ -229,6 +214,12 @@ public class Robot extends TimedRobot {
         mS.diskScoringState(45.5, -60.0);
       }
     }
+
+    // THIS SHOULD WORK TO RUMBLE WHEN SUCCESSFULLY PICKED UP
+    // if (mBallIntake.needsToNotifyDrivers() || mDiskIntake.needsToNotifyDivers()) {
+    //   OI.driverJoystick.rumble(1.0, 2.0);
+    //   OI.operator.rumble(1.0, 2.0);
+    // }
 
   }
 
@@ -293,7 +284,6 @@ public class Robot extends TimedRobot {
     boolean lowPower = OI.getDriverRightTriggerPressed();
     double deadband = 0.015;
     double rotDeadband = 0.1;
-    double lastSnapTarget = 0;
 
     if (swerveRotationInput > -deadband && swerveRotationInput < rotDeadband) {
       swerveRotationInput = mSwerve.getRotationalOutput();
@@ -305,8 +295,7 @@ public class Robot extends TimedRobot {
       mSwerve.visionFollow();
     } else {
       LimelightProcessor.getInstance().setPipeline(Pipeline.DRIVER);
-      
-      
+
       if (OI.driverJoystick.leftBumper.shortReleased()) {
         mSwerve.rotateButton(-30);
         swerveRotationInput = mSwerve.getRotationalOutput();
