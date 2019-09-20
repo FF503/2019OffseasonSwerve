@@ -328,6 +328,23 @@ public class Superstructure extends Subsystem {
 		request(state);
 	}
 
+	public void ballIntakingLoaderState() {
+
+		element = Element.BALL;
+
+		RequestList state = new RequestList(Arrays.asList(elevator.heightRequest(Robot.bot.kElevatorBallIntakeLoaderHeight),
+				arm.angleRequest(Robot.bot.kArmIntakingLoaderAngle), ballIntake.stateRequest(BallIntake.State.INTAKING),
+				diskIntake.stateRequest(DiskIntake.State.OFF), ballIntake.waitForBallRequest()), true);
+		/*
+		 * RequestList queue = new RequestList(Arrays.asList(
+		 * elevator.heightRequest(Robot.bot.kElevatorBallIntakeHeight),
+		 * wrist.angleRequest(Robot.bot.kArmBallHoldingAngle),
+		 * ballCarriage.stateRequest(BallCarriage.State.OFF),
+		 * ballIntake.stateRequest(BallIntake.State.HOLDING)), true);
+		 */
+		request(state);
+	}
+
 	public void ballScoringState(double elevatorHeight, double armAngle) {
 		RequestList state = new RequestList(
 				Arrays.asList(elevator.heightRequest(elevatorHeight), arm.angleRequest(armAngle),
