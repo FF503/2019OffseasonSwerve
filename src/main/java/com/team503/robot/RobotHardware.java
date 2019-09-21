@@ -195,7 +195,7 @@ public abstract class RobotHardware {
 
     public static final double kArmHumanLoaderAngle = 3.0;
     public static final double kArmPrimaryStowAngle = -69;
-    public static final double kArmIntakingAngle = -20;
+    public static final double kArmIntakingAngle = -18;
     public static final double kArmIntakingLoaderAngle = 10.5;
 	public static final double kArmHangingAngle = -70.5;
 	public static final double kArmBallHoldingAngle = 38.0;
