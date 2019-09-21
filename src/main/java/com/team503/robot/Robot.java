@@ -216,10 +216,10 @@ public class Robot extends TimedRobot {
     }
 
     // THIS SHOULD WORK TO RUMBLE WHEN SUCCESSFULLY PICKED UP
-    // if (mBallIntake.needsToNotifyDrivers() || mDiskIntake.needsToNotifyDivers()) {
-    //   OI.driverJoystick.rumble(1.0, 2.0);
-    //   OI.operator.rumble(1.0, 2.0);
-    // }
+    if (mBallIntake.needsToNotifyDrivers() || mDiskIntake.needsToNotifyDivers()) {
+      OI.driverJoystick.rumble(1.0, 2.0);
+      OI.operator.rumble(1.0, 2.0);
+    }
 
   }
 
@@ -285,7 +285,7 @@ public class Robot extends TimedRobot {
     double deadband = 0.015;
     double rotDeadband = 0.1;
 
-    if (swerveRotationInput > -deadband && swerveRotationInput < rotDeadband) {
+    if (swerveRotationInput > -rotDeadband && swerveRotationInput < rotDeadband) {
       swerveRotationInput = mSwerve.getRotationalOutput();
     } else {
       mSwerve.rotate(RobotState.getInstance().getCurrentTheta());
@@ -308,7 +308,7 @@ public class Robot extends TimedRobot {
       } else if (OI.driverJoystick.rightBumper.longPressed()) {
         mSwerve.rotateButton(150.0);
         swerveRotationInput = mSwerve.getRotationalOutput();
-      } else if (OI.driverJoystick.getPOV() == 180) {
+      } else if (OI.driverJoystick.getPOV() == 180|| OI.driverJoystick.leftTrigger.wasActivated()) {
         mSwerve.rotateButton(179);
         swerveRotationInput = mSwerve.getRotationalOutput();
       } else if (OI.driverJoystick.getPOV() == 90) {
