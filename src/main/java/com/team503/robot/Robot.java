@@ -284,19 +284,11 @@ public class Robot extends TimedRobot {
     double swerveRotationInput = OI.getDriverRightXVal() * 0.5;
     boolean lowPower = OI.getDriverRightTriggerPressed();
     double deadband = 0.015;
-    double rotDeadband = 0.05;
-    
-    if (swerveRotationInput > -rotDeadband && swerveRotationInput < rotDeadband) {
-      if (pressed){
-        timeReleased = Timer.getFPGATimestamp();
-        pressed = false;
-      }
-      if (Timer.getFPGATimestamp() - timeReleased > 1.0){
-        swerveRotationInput = mSwerve.getRotationalOutput();
-      }
-      else{
-        mSwerve.rotate(RobotState.getInstance().getCurrentTheta());
-      }
+    double rotDeadband = 0.1;
+    double lastSnapTarget = 0;
+
+    if (swerveRotationInput > -deadband && swerveRotationInput < rotDeadband) {
+      swerveRotationInput = mSwerve.getRotationalOutput();
     } else {
       mSwerve.rotate(RobotState.getInstance().getCurrentTheta());
       pressed = true;
