@@ -276,19 +276,30 @@ public class Robot extends TimedRobot {
     }
 
   }
-
+  boolean pressed = false;
+  double timeReleased = -503.0;
   private void joystickInput() {
     double swerveYInput = -OI.getDriverLeftYVal();
     double swerveXInput = OI.getDriverLeftXVal();
-    double swerveRotationInput = OI.getDriverRightXVal();
+    double swerveRotationInput = OI.getDriverRightXVal() * 0.5;
     boolean lowPower = OI.getDriverRightTriggerPressed();
     double deadband = 0.015;
-    double rotDeadband = 0.1;
-
+    double rotDeadband = 0.05;
+    
     if (swerveRotationInput > -rotDeadband && swerveRotationInput < rotDeadband) {
-      swerveRotationInput = mSwerve.getRotationalOutput();
+      if (pressed){
+        timeReleased = Timer.getFPGATimestamp();
+        pressed = false;
+      }
+      if (Timer.getFPGATimestamp() - timeReleased > 1.0){
+        swerveRotationInput = mSwerve.getRotationalOutput();
+      }
+      else{
+        mSwerve.rotate(RobotState.getInstance().getCurrentTheta());
+      }
     } else {
       mSwerve.rotate(RobotState.getInstance().getCurrentTheta());
+      pressed = true;
     }
 
     if (OI.getDriverYButton()) {
