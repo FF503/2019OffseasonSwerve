@@ -91,6 +91,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
+    subsystems.outputToSmartDashboard();
   }
 
   /**
@@ -246,7 +247,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
-    // subsystems.outputToSmartDashboard();
+    subsystems.outputToSmartDashboard();
   }
 
   private void OILoop() {
