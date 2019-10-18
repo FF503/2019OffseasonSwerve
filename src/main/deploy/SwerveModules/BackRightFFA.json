@@ -6,12 +6,12 @@
     "I": 0.001,
     "D": 35.0,
     "F": 0.7314,
-    "startingEncoderClick": 3805,
+    "startingEncoderClick": 1999,
     "cruiseVelocity": 1000,
     "cruiseAccel": 16400,
     "turnCountsDecreasing": true,
-    "DriveInverted": true,
-    "DriveEncoderInverted": true,
+    "DriveInverted": false,
+    "DriveEncoderInverted": false,
     "TurnMotorInverted": true,
     "TurnEncoderInverted": true
 }
