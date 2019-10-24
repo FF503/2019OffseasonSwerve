@@ -91,7 +91,7 @@ public class SwerveHeadingController {
             break;
         }
 
-        return output;
+        return 0.0;
     }
 
     public double getTargetAngle() {
