@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 /**
  * Subsystem for wrist motion magic trajectories
  */
-public class Wrist extends Subsystem implements SuperStructureSystem {
+public class AndyWrist extends Subsystem implements SuperStructureSystem {
   // Put methods for controlling this subsystem
   // here. Call these from Commands.
 
@@ -31,7 +31,7 @@ public class Wrist extends Subsystem implements SuperStructureSystem {
   private MotionMagicPID wristPID;
   private double lastVel, currVel, accel, maxVel, maxAccel, minAccel = 0;
 
-  public Wrist() {
+  public AndyWrist() {
     if (Robot.bot.hasWrist()) {
       wristMotor = new TalonSRX(Robot.bot.wristID);
       wristMotor.configSelectedFeedbackSensor(/*FeedbackDevice.CTRE_MagEncoder_Relative*/ FeedbackDevice.CTRE_MagEncoder_Absolute , Robot.bot.gSlotIdx,
@@ -51,9 +51,9 @@ public class Wrist extends Subsystem implements SuperStructureSystem {
     }
   }
 
-  private static Wrist instance = new Wrist();
+  private static AndyWrist instance = new AndyWrist();
 
-  public static Wrist getInstance() {
+  public static AndyWrist getInstance() {
     return instance;
   }
 
@@ -214,11 +214,11 @@ public class Wrist extends Subsystem implements SuperStructureSystem {
   }
 
   private double d2h(double val) {
-    return 180 - Robot.bot.gWristAngularOffset + val + Arm.getInstance().getEncoderDeg();
+    return 180 - Robot.bot.gWristAngularOffset + val + AndyArm.getInstance().getEncoderDeg();
   }
 
   private double h2d(double val) {
-    return val - 180 + Robot.bot.gWristAngularOffset - Arm.getInstance().getEncoderDeg();
+    return val - 180 + Robot.bot.gWristAngularOffset - AndyArm.getInstance().getEncoderDeg();
   }
 
   public double maxLim(double value, double limit) {

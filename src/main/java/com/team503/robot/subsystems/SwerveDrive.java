@@ -16,6 +16,7 @@ import com.team503.robot.Robot;
 import com.team503.robot.RobotState;
 import com.team503.robot.loops.LimelightProcessor;
 import com.team503.robot.loops.LimelightProcessor.Pipeline;
+import com.team503.robot.subsystems.Superstructure.Element;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -144,6 +145,10 @@ public class SwerveDrive extends Subsystem {
             str = -fwd * Math.sin(angle) + str * Math.cos(angle);
             fwd = temp;
         }
+        // else if (Superstructure.getInstance().getCurrentElement() == Element.DISK){
+        //     str*=-1;
+        //     fwd*=-1;
+        // }
 
         rotationalInput = rcw;
 
@@ -248,10 +253,20 @@ public class SwerveDrive extends Subsystem {
         rotate(snappingPosition.getAngle());
     }
 
+    public synchronized void rotateButton(double goalHeading){
+        double diskOffset = 0;
+            if (Superstructure.getInstance().getCurrentElement() == Superstructure.Element.DISK){
+                diskOffset = 180;
+            }
+            goalHeading += diskOffset;
+        rotate(goalHeading);
+    }
+
     // Various methods to control the heading controller
     public synchronized void rotate(double goalHeading) {
         if (translationalVector.getX() == 0 && translationalVector.getY() == 0)
             rotateInPlace(goalHeading);
+
         else {
             stabilize(goalHeading);
         }

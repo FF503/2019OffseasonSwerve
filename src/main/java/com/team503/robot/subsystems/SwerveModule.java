@@ -62,7 +62,7 @@ public class SwerveModule {
         this.motorEncoder = new CANEncoder(this.driveMotor);
         this.turnMotor = new TalonSRX(turnMotorID);
 
-        driveMotor.setIdleMode(IdleMode.kCoast);
+        driveMotor.setIdleMode(IdleMode.kBrake);
         turnMotor.setNeutralMode(NeutralMode.Brake);
         // this is the encoder count when the wheel is aligned forward at the start
         this.kBaseEncoderClicks = startingEncoderClick;
@@ -80,7 +80,7 @@ public class SwerveModule {
 
         // configure drive motor
         driveMotor.setInverted(kDriveMotorInverted);
-        driveMotor.setOpenLoopRampRate(1.0);
+        // driveMotor.setOpenLoopRampRate(1.0);
 
         // configure turn motor
         if (RobotState.getInstance().getCurrentRobot().equals(Bot.FFSwerve)) {
@@ -108,6 +108,9 @@ public class SwerveModule {
         turnMotor.configMotionAcceleration(kMagicCruiseAcceleration, kTimeoutMs);
 
         driveMotor.setSmartCurrentLimit(50);
+        turnMotor.enableCurrentLimit(true);
+        turnMotor.configContinuousCurrentLimit(15);
+        
         // motorEncoder.setVelocityConversionFactor(driveVelocityConversionFactor);
     }
 
@@ -147,7 +150,7 @@ public class SwerveModule {
             // addin the base starting clicks when the wheel is pointing to zero
             desiredclicks += kBaseEncoderClicks;
             // becuase we are using an absolute encoder the value must be between 0 and 1024
-            if (desiredclicks > kTurnEncoderClicksperRevolution) {
+            if (desiredclicks >= kTurnEncoderClicksperRevolution) {
                 desiredclicks -= kTurnEncoderClicksperRevolution;
             }
         }
