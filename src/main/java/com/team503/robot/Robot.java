@@ -290,6 +290,7 @@ public class Robot extends TimedRobot {
 
     if (swerveRotationInput > -deadband && swerveRotationInput < rotDeadband) {
       swerveRotationInput = mSwerve.getRotationalOutput();
+
     } else {
       mSwerve.rotate(RobotState.getInstance().getCurrentTheta());
       pressed = true;
