@@ -156,16 +156,18 @@ public class Robot extends TimedRobot {
   }
 
   public void teleopControl() {
-    // subsystems.outputToSmartDashboard();
-    mArm.outputTelemetry();
-    mS.outputTelemetry();
-    mElevator.outputTelemetry();
-    mBallIntake.outputTelemetry();
-    mDiskIntake.outputTelemetry();
+    subsystems.outputToSmartDashboard();
+    // mArm.outputTelemetry();
+    // mS.outputTelemetry();
+    // mElevator.outputTelemetry();
+    // mBallIntake.outputTelemetry();
+    // mDiskIntake.outputTelemetry();
 
     OILoop();
+    
     OI.driverJoystick.update();
     OI.operator.update();
+
     mDiskIntake.stateRequest(DiskIntake.State.INTAKING);
     mBallIntake.onLoop(Timer.getFPGATimestamp());
     mDiskIntake.onLoop(Timer.getFPGATimestamp());
@@ -179,6 +181,7 @@ public class Robot extends TimedRobot {
 
     mArm.writePeriodicOutputs();
     mElevator.writePeriodicOutputs();
+
     Scheduler.getInstance().run();
 
     if (OI.operator.bButton.wasActivated()) {
@@ -196,6 +199,7 @@ public class Robot extends TimedRobot {
     } else if (OI.operator.xButton.wasActivated()) {
       mS.ballScoringState(45.5, 0.0);
     }
+    
     if (OI.driverJoystick.aButton.wasActivated()) {
       mS.ballIntakingState();
     } else if (OI.driverJoystick.yButton.wasActivated()) {
@@ -333,6 +337,7 @@ public class Robot extends TimedRobot {
     }
   }
 
+  @Deprecated
   private void operatorInput() {
     // if (OI.getOperatorA()) {
     // RobotState.getInstance().setArmDirection(ArmDirection.FRONT);
