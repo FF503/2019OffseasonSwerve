@@ -7,10 +7,12 @@
 
 package com.team503.lib.controllers;
 
+import java.util.ArrayList;
+
+import com.team503.lib.geometry.Pose;
 import com.team503.lib.geometry.Translation2d;
 import com.team503.lib.util.FFDashboard;
 import com.team503.robot.Robot;
-import java.util.ArrayList;
 
 /**
  * Add your docs here.
@@ -65,40 +67,46 @@ public class VisionFollowerController {
         Linear;
     }
 
-    enum VisionTarget {
-        LEFT_CARGO_BAY(0, 0, 0), RIGHT_CARGO_BAY(0, 0, 0);
-        double x, y, theta;
-
-        VisionTarget(double x, double y, double theta) {
-            this.x = x;
-            this.y = y;
-            this.theta = theta;
-        }
-
-        private double getX(){
-            return this.x;
-        }
-        private double getY(){
-            return this.y;
-        }
-        private double getTheta(){
-            return this.theta;
-        }
-
-    }
-
-    public ArrayList<VisionTarget> possibleVisibleTargets(double robotX, double robotY, double robotTheta, double toleranceRadius){
+    public ArrayList<VisionTarget> possibleVisibleTargets(Pose robotPose, double toleranceRadius) {
         ArrayList<VisionTarget> targets = new ArrayList<VisionTarget>();
-        for(VisionTarget target:VisionTarget.values()){
+
+        for (VisionTarget target : VisionTarget.values()) {
             double x = target.getX();
-            double y=target.getY();
+            double y = target.getY();
             double theta = target.getTheta();
-            if(Math.abs(robotTheta-theta)<=Math.PI/3 && (Math.pow((x-robotX),2) + Math.pow((y-robotY),2))<=Math.pow(toleranceRadius,2)){
+            if (Math.abs(robotPose.getTheta() - theta) <= Math.PI / 3
+                    && (Math.pow((x - robotPose.getX()), 2) + Math.pow((y - robotPose.getY()), 2)) <= Math
+                            .pow(toleranceRadius, 2)) {
                 targets.add(target);
             }
         }
 
         return targets;
+    }
+
+}
+
+enum VisionTarget {
+    LEFT_CARGO_BAY(0, 0, 0), RIGHT_CARGO_BAY(0, 0, 0);
+
+    private double theta;
+    private Translation2d translation;
+
+    VisionTarget(double x, double y, double theta) {
+        this.translation = new Translation2d(x, y);
+        this.theta = theta;
+    }
+
+    double getX() {
+        return this.translation.getX();
+    }
+
+    double getY() {
+        return this.translation.getY();
+    }
+
+    double getTheta() {
+        return this.theta;
     }
 
 }
