@@ -117,7 +117,8 @@ public class Robot extends TimedRobot {
     // Intake.getInstance().startVacuum();
     mSwerve.resetDriveEncoder();
     LimelightProcessor.getInstance().setPipeline(Pipeline.CLOSEST);
-    Pose target = new Pose(-6.0,67.0,90.0);
+    //Pose target = new Pose(-48.0,79.0,-30.0);
+    Pose target = new Pose(-34.0,163.0,-150.0);
     Command auton = new DriveToPosePID(target);
     auton.start();
     //new ForwardTest().initAndStartAuton();

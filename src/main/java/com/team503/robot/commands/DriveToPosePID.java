@@ -60,7 +60,13 @@ public class DriveToPosePID extends Command {
         SmartDashboard.putBoolean("good auton output: ", goodOutput);
 
         distance = target.toNewVector().minus(currentPose.toNewVector()).getNorm();
+        if (currentPose.getY() < 80){
+            System.out.println("alert");
+            translationVector.times(0.3);
+        }
+        SmartDashboard.putNumber("distance remaining", distance);
         if (distance / TOTAL_DISTANCE > 0.5 && !turnTargetSet) {
+            System.out.println("ROTATINT NOW");
             SwerveDrive.getInstance().rotate(target.getTheta());
             turnTargetSet = true;
         }
