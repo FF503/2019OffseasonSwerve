@@ -9,10 +9,10 @@ package com.team503.robot;
 
 import java.util.Arrays;
 
-import com.team503.lib.io.PrecisionDriveController;
+import com.team503.lib.geometry.Pose;
 import com.team503.robot.RobotState.Bot;
-// import com.team503.robot.auton.pid.DriveToPoseProfile;
-import com.team503.robot.auton.pure_pursuit.ForwardTest;
+import com.team503.robot.commands.DriveToPosePID;
+import com.team503.robot.loops.FroggyPoseController;
 import com.team503.robot.loops.LimelightProcessor;
 import com.team503.robot.loops.LimelightProcessor.Pipeline;
 import com.team503.robot.subsystems.AndyArm;
@@ -32,6 +32,7 @@ import com.team503.robot.subsystems.SwerveDrive.DriveMode;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 
 /**
@@ -59,7 +60,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    RobotState.getInstance().setCurrentRobot(Bot.FFSwerve);
+    RobotState.getInstance().setCurrentRobot(Bot.ProgrammingBot);
     bot = RobotHardware.getInstance();
     OI.initialize();
 
@@ -74,10 +75,9 @@ public class Robot extends TimedRobot {
 
     if (RobotState.getInstance().getCurrentRobot().equals(Bot.FFSwerve)) {
       subsystems = new SubsystemManager(
-          Arrays.asList(Pigeon.getInstance(), mElevator, mArm, mBallIntake, mDiskIntake, mS));
+          Arrays.asList(mSwerve, Pigeon.getInstance(), mElevator, mArm, mBallIntake, mDiskIntake, mS));
     } else if (RobotState.getInstance().getCurrentRobot().equals(Bot.ProgrammingBot)) {
-      subsystems = new SubsystemManager(Arrays.asList(mSwerve, Pigeon.getInstance(), AndyArm.getInstance(),
-          AndyWrist.getInstance(), Extension.getInstance(), Intake.getInstance()));
+      subsystems = new SubsystemManager(Arrays.asList(mSwerve, Pigeon.getInstance()));
     }
     subsystems.resetSensor();
     CameraServer.getInstance().startAutomaticCapture();
@@ -117,7 +117,10 @@ public class Robot extends TimedRobot {
     // Intake.getInstance().startVacuum();
     mSwerve.resetDriveEncoder();
     LimelightProcessor.getInstance().setPipeline(Pipeline.CLOSEST);
-    new ForwardTest().initAndStartAuton();
+    Pose target = new Pose(-6.0,67.0,90.0);
+    Command auton = new DriveToPosePID(target);
+    auton.start();
+    //new ForwardTest().initAndStartAuton();
   }
 
   /**
@@ -126,10 +129,10 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
 
-    // FroggyPoseController.updateOdometry();
-    // FroggyPoseController.outputPoseToDashboard();
-
-    teleopControl();
+    FroggyPoseController.updateOdometry();
+    FroggyPoseController.outputPoseToDashboard();
+    Scheduler.getInstance().run();
+    //teleopControl();
   }
 
   /**
@@ -142,7 +145,7 @@ public class Robot extends TimedRobot {
     mSwerve.snapForward();
     // Intake.getInstance().startVacuum();
     LimelightProcessor.getInstance().setPipeline(Pipeline.CLOSEST);
-    PrecisionDriveController.activatePrecisionDrive();
+    //PrecisionDriveController.activatePrecisionDrive();
     // Intake.getInstance().startVacuum();
     // LimelightProcessor.getInstance().setPipeline(Pipeline.CLOSEST);
     // PrecisionDriveController.activatePrecisionDrive();
@@ -157,6 +160,8 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     teleopControl();
+    FroggyPoseController.updateOdometry();
+    FroggyPoseController.outputPoseToDashboard();
   }
 
   public void teleopControl() {
@@ -245,8 +250,10 @@ public class Robot extends TimedRobot {
     // mSwerve.setBrakeMode();
     // subsystems.stop();
     // PrecisionDriveController.disablePrecisionDrive();
-
-    mBallIntake.onStop(Timer.getFPGATimestamp());
+    if (RobotState.getInstance().getCurrentRobot().equals(Bot.FFSwerve)){
+      mBallIntake.onStop(Timer.getFPGATimestamp());
+    }
+  
   }
 
   @Override

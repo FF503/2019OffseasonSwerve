@@ -173,18 +173,18 @@ public class SwerveModule {
      */
     public double getDriveEncoderClicks() {
         double pos = countsPerRotation * motorEncoder.getPosition();
-        // if(kDriveEncoderInverted) {
-        // pos *= -1;
-        // }
+        if(kDriveEncoderInverted) {
+        pos *= -1;
+        }
         return pos;
     }
 
     public double getDriveEncoderRPM() {
-        double vol = motorEncoder.getVelocity() * countsPerRotation;
-        // if(kDriveEncoderInverted) {
-        // vol *= -1;
-        // }
-        return vol;
+        double vel = motorEncoder.getVelocity() * countsPerRotation;
+        if(kDriveEncoderInverted) {
+        vel *= -1;
+        }
+        return vel;
     }
 
     /**
@@ -204,8 +204,8 @@ public class SwerveModule {
     }
 
     public SwerveModuleState getState() {
-        return new SwerveModuleState(getDriveMotorVelocity(),
-                Rotation2d.fromDegrees(-getTurnEncoderPositioninDegrees()));
+
+        return new SwerveModuleState(getDriveMotorVelocity(),Rotation2d.fromDegrees(-getTurnEncoderPositioninDegrees()));
     }
 
     public double getTurnEncoderPosition() {

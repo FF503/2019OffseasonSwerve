@@ -35,8 +35,7 @@ public class FroggyPoseController {
         for (int i = 0; i < 4; i++) {
             moduleStates[i] = mSwerve.getModules().get(i).getState();
         }
-        RobotState.getInstance()
-                .setCurrentPose(mOdometry.update(Rotation2d.fromDegrees(robotAngle).unaryMinus(), moduleStates));
+        RobotState.getInstance().setCurrentPose(mOdometry.update(Rotation2d.fromDegrees(robotAngle).unaryMinus(), moduleStates));
     }
 
     /**

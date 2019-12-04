@@ -43,8 +43,9 @@ public class FrogPIDF {
         this.state = sensorState;
         double error = boundTo180 ? Util.boundAngleNeg180to180Degrees(setPoint - sensorState)
                 : (setPoint - sensorState);
+      
         this.error = error;
-        if (error < tolerance && !boundTo180) {
+        if (Math.abs(error) < tolerance && !boundTo180) {
             return 0.0;
         }
         double dError = error - lastError;
@@ -56,12 +57,12 @@ public class FrogPIDF {
         double iOut = i * integral;
         double dOut = d * derivative;
         double fOut = f * setPoint;
-
+          System.out.println("input pOut"+ tolerance);
         SmartDashboard.putNumber("FrogPIDF Error", error);
 
         lastTime = time;
         lastError = error;
-
+        System.out.println("calc:"+Math.max(-1, Math.min(pOut + iOut + dOut + fOut, 1)));
         return Math.max(-1, Math.min(pOut + iOut + dOut + fOut, 1));
     }
 

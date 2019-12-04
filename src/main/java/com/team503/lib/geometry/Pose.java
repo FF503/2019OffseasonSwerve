@@ -195,7 +195,7 @@ public class Pose {
 	 */
 	public Pose getTranslatedPose() {
 		var translated = Util.convertCoordinateSystem(CoordinateSystem.UNIT_CIRCLE, translation, theta);
-		Translation2d modifiedTranslation = new Translation2d(translated[0], translated[1]);
+		Translation2d modifiedTranslation = new Translation2d(-translated[0], -translated[1]);
 		return new Pose(this.timestamp, modifiedTranslation, translated[2]);
 	}
 
