@@ -1,6 +1,7 @@
 package com.team503.robot.loops;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -16,6 +17,8 @@ public class LimelightProcessor {
 	private NetworkTableEntry ct;
 	private List<NetworkTableEntry> target1, target2, combinedTarget;
 	private NetworkTableEntry cornerX, cornerY;
+
+	private LinkedList<VisionData> collectedData = new LinkedList<VisionData>();
 
 	public static LimelightProcessor getInstance() {
 		return instance == null ? instance = new LimelightProcessor() : instance;
@@ -91,7 +94,11 @@ public class LimelightProcessor {
 		return (combinedTarget.get(3).getDouble(0.0));
 	}
 
-	//TODO: do this properly
+	public double[] getTranslation() {
+		return ct.getDoubleArray(new double[] { 0, 0, 0, 0, 0, 0 });
+	}
+
+	// TODO: do this properly
 	public boolean hasReachedAreaThreshold() {
 		return getTA() > 13;
 	}
@@ -110,4 +117,51 @@ public class LimelightProcessor {
 		}
 	}
 
+	public void updateData(double x, double y, double angle, double[] ct) {
+		updateData(new VisionData(x, y, angle, seesTarget(), ct));
+	}
+
+	private void updateData(VisionData data) {
+		if (collectedData.size() >= 15) {
+			collectedData.removeFirst();
+		}
+
+		collectedData.add(data);
+	}
+
+	public LinkedList<VisionData> getCollectedData() {
+		return collectedData;
+	}
+
+	public boolean sawTarget(int numberOfTimes) {
+		if (collectedData.size() <= numberOfTimes) {
+			for (int i = collectedData.size() - 1; i > 0; i--) {
+				if (!collectedData.get(i).seesTarget) {
+					return false;
+				}
+			}
+			return true;
+		}
+		return false;
+	}
+
+}
+
+class VisionData {
+	final double x, y, angle;
+	final boolean seesTarget;
+	final double[] camtran;
+
+	VisionData(double x, double y, double angle, boolean seesTarget, double[] camtran) {
+		this.x = x;
+		this.y = y;
+		this.angle = angle;
+		this.seesTarget = seesTarget;
+		this.camtran = camtran;
+	}
+
+	@Override
+	public String toString() {
+		return "x: " + x + "y: " + y + "angle: " + angle + "sees: " + seesTarget + "Trans" + Arrays.toString(camtran);
+	}
 }

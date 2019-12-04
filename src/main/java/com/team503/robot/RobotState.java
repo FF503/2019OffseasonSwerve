@@ -24,6 +24,8 @@ public class RobotState {
 	private int pipeline = 2;
 	private volatile StartingDirection startingDirection = StartingDirection.FORWARD;
 
+	private boolean limelightSeesTarget = false;
+
 	public static RobotState getInstance() {
 		return instance;
 	}
@@ -34,6 +36,14 @@ public class RobotState {
 
 	public synchronized void setCurrentPose(Pose currentPose) {
 		this.currentPose = currentPose;
+	}
+
+	public synchronized boolean limelightSeesTarget() {
+		return limelightSeesTarget;
+	}
+
+	public synchronized void setLimelightSeesTarget(boolean limelightSeesTarget) {
+		this.limelightSeesTarget = limelightSeesTarget;
 	}
 
 	public synchronized double getCurrentTheta() {

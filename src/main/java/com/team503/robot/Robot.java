@@ -5,11 +5,12 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package com.team503.robot; 
+package com.team503.robot;
 
 import java.util.Arrays;
 
 import com.team503.robot.RobotState.Bot;
+import com.team503.robot.commands.LimelightLoop;
 import com.team503.robot.loops.LimelightProcessor;
 import com.team503.robot.loops.LimelightProcessor.Pipeline;
 import com.team503.robot.subsystems.AndyArm;
@@ -93,6 +94,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     subsystems.outputToSmartDashboard(); // always printing data for EVERY SUBSYSTEM
+    Scheduler.getInstance().run();
   }
 
   /**
@@ -110,14 +112,15 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     // mSwerve.setBrakeMode();
-    mSwerve.snapForward();
+    // mSwerve.snapForward();
     // Intake.getInstance().startVacuum();
     // LimelightProcessor.getInstance().setPipeline(Pipeline.CLOSEST);
     // PrecisionDriveController.activatePrecisionDrive();
     mBallIntake.onStart(Timer.getFPGATimestamp());
     mDiskIntake.onStart(Timer.getFPGATimestamp());
     mS.onStart(Timer.getFPGATimestamp());
-    ;
+
+    new LimelightLoop().start();
   }
 
   /**
@@ -144,7 +147,7 @@ public class Robot extends TimedRobot {
     // LimelightProcessor.getInstance().setPipeline(Pipeline.CLOSEST);
     // PrecisionDriveController.activatePrecisionDrive();
 
-    mBallIntake.onStart(Timer.getFPGATimestamp()); // executes init sequences 
+    mBallIntake.onStart(Timer.getFPGATimestamp()); // executes init sequences
     mDiskIntake.onStart(Timer.getFPGATimestamp()); // (initialize current states and local variables)
     mS.onStart(Timer.getFPGATimestamp());
   }
@@ -186,7 +189,7 @@ public class Robot extends TimedRobot {
     } else if (OI.operator.aButton.wasActivated()) { // A
       if (mS.getCurrentElement() == Superstructure.Element.BALL) {
         mS.ballScoringState(34.0, 0.0); // LOW
-      } else { 
+      } else {
         mS.diskScoringState(Robot.bot.kElevatorHumanLoaderHeight, 0.0);
       }
     } else if (OI.operator.xButton.wasActivated()) { // X
@@ -204,7 +207,7 @@ public class Robot extends TimedRobot {
       }
     } else if (OI.driverJoystick.xButton.wasActivated()) { // X
       mS.diskReceivingState(); // hatch intake
-    } else if (OI.operator.yButton.wasActivated()) { 
+    } else if (OI.operator.yButton.wasActivated()) {
       if (mS.getCurrentElement() == Superstructure.Element.BALL) {
         mS.ballScoringState(45.5, 49.0); // BALL SAFE
       } else {
@@ -273,8 +276,10 @@ public class Robot extends TimedRobot {
     }
 
   }
+
   boolean pressed = false;
   double timeReleased = -503.0;
+
   private void joystickInput() {
     double swerveYInput = -OI.getDriverLeftYVal();
     double swerveXInput = OI.getDriverLeftXVal();
@@ -309,7 +314,7 @@ public class Robot extends TimedRobot {
       } else if (OI.driverJoystick.rightBumper.longPressed()) {
         mSwerve.rotateButton(150.0);
         swerveRotationInput = mSwerve.getRotationalOutput();
-      } else if (OI.driverJoystick.getPOV() == 180|| OI.driverJoystick.leftTrigger.wasActivated()) {
+      } else if (OI.driverJoystick.getPOV() == 180 || OI.driverJoystick.leftTrigger.wasActivated()) {
         mSwerve.rotateButton(179);
         swerveRotationInput = mSwerve.getRotationalOutput();
       } else if (OI.driverJoystick.getPOV() == 90) {
