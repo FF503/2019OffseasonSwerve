@@ -60,7 +60,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    RobotState.getInstance().setCurrentRobot(Bot.ProgrammingBot);
+    RobotState.getInstance().setCurrentRobot(Bot.FFSwerve);
     bot = RobotHardware.getInstance();
     OI.initialize();
 
