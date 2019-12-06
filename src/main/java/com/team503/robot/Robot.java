@@ -12,17 +12,15 @@ import java.util.Arrays;
 import com.team503.lib.geometry.Pose;
 import com.team503.robot.RobotState.Bot;
 import com.team503.robot.commands.DriveToPosePID;
+import com.team503.robot.commands.TestMultiple;
 import com.team503.robot.loops.FroggyPoseController;
 import com.team503.robot.loops.LimelightProcessor;
 import com.team503.robot.loops.LimelightProcessor.Pipeline;
 import com.team503.robot.subsystems.AndyArm;
-import com.team503.robot.subsystems.AndyWrist;
 import com.team503.robot.subsystems.Arm;
 import com.team503.robot.subsystems.BallIntake;
 import com.team503.robot.subsystems.DiskIntake;
 import com.team503.robot.subsystems.Elevator;
-import com.team503.robot.subsystems.Extension;
-import com.team503.robot.subsystems.Intake;
 import com.team503.robot.subsystems.Pigeon;
 import com.team503.robot.subsystems.SubsystemManager;
 import com.team503.robot.subsystems.Superstructure;
@@ -118,14 +116,17 @@ public class Robot extends TimedRobot {
     mSwerve.resetDriveEncoder();
     LimelightProcessor.getInstance().setPipeline(Pipeline.CLOSEST);
     //Pose target = new Pose(-48.0,79.0,-30.0);
-    Pose target = new Pose(-34.0,163.0,-150.0);
+    // Pose target = new Pose(-34.0,163.0,-150.0);
+    Pose target = new Pose(-34.0, 9, 0.0);
+
     Command auton = new DriveToPosePID(target);
-    auton.start();
+    // auton.start();
+    (new TestMultiple()).start();
     //new ForwardTest().initAndStartAuton();
   }
 
   /**
-   * This function is called periodically during autonomous.
+   * This function is called periodically duing autonomous.
    */
   @Override
   public void autonomousPeriodic() {

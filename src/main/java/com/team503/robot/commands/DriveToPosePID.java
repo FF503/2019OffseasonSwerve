@@ -72,7 +72,7 @@ public class DriveToPosePID extends Command {
         }
         // SwerveDrive.getInstance().rotate(target.getTheta());
         System.out.println("set:" + translationVector.toString());
-        SwerveDrive.getInstance().drive(translationVector);
+        SwerveDrive.getInstance().drive(translationVector, Math.max(SwerveDrive.getInstance().getRotationalOutput(), -0.2));
     }
 
     // Make this return true when this Command no longer needs to run execute()
