@@ -5,12 +5,12 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package com.team503.robot.commands;
+package com.team503.robot.loops;
 
 import java.util.Arrays;
 
 import com.team503.robot.RobotState;
-import com.team503.robot.loops.LimelightProcessor;
+import com.team503.robot.subsystems.LimelightProcessor;
 import com.team503.robot.subsystems.Pigeon;
 
 import edu.wpi.first.wpilibj.DriverStation;

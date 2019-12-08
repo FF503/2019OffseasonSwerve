@@ -5,14 +5,13 @@ import java.util.List;
 
 import com.team503.lib.controllers.VisionFollowerController;
 import com.team503.lib.geometry.Translation2d;
+import com.team503.lib.kinematics.SwerveDriveKinematics;
 import com.team503.lib.util.SnappingPosition;
 import com.team503.lib.util.SwerveHeadingController;
 import com.team503.lib.util.Util;
 import com.team503.robot.Robot;
 import com.team503.robot.RobotState;
-import com.team503.robot.loops.LimelightProcessor;
-import com.team503.robot.loops.LimelightProcessor.Pipeline;
-import com.team503.robot.subsystems.Superstructure.Element;
+import com.team503.robot.subsystems.LimelightProcessor.Pipeline;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -21,6 +20,7 @@ public class SwerveDrive extends Subsystem {
     // Instance declaration
     private static SwerveDrive instance = null;
     private SwerveHeadingController headingController = new SwerveHeadingController();
+    private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(Robot.bot.kModulePositions);
 
     // Teleop driving variables
     private Translation2d translationalVector = new Translation2d();
@@ -30,6 +30,25 @@ public class SwerveDrive extends Subsystem {
     private final double kLengthComponent;
     private final double kWidthComponent;
 
+    // Constructor
+    public SwerveDrive() {
+        try {
+            this.backRight = Util.readSwerveJSON(Robot.bot.getBackRightName());
+            this.backLeft = Util.readSwerveJSON(Robot.bot.getBackLeftName());
+            this.frontRight = Util.readSwerveJSON(Robot.bot.getFrontRightName());
+            this.frontLeft = Util.readSwerveJSON(Robot.bot.getFrontLeftName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        modules = Arrays.asList(backRight, backLeft, frontLeft, frontRight);
+
+        double width = Robot.bot.kWheelbaseWidth, length = Robot.bot.kWheelbaseLength;
+        double radius = Math.hypot(width, length);
+        kLengthComponent = length / radius;
+        kWidthComponent = width / radius;
+
+    }
 
     public static SwerveDrive getInstance() {
         if (instance == null)
@@ -38,7 +57,7 @@ public class SwerveDrive extends Subsystem {
     }
 
     public enum DriveMode {
-        TeleopDrive, Defense, MotionProfling, Vision, PurePursuit, KeyboardControl, PIDControl;
+        TeleopDrive, Defense, Vision, KeyboardControl, PIDControl, ProfilePID, MotionProfling, PurePursuit;
     }
 
     private DriveMode mode = DriveMode.TeleopDrive;
@@ -68,26 +87,6 @@ public class SwerveDrive extends Subsystem {
 
     }
 
-    // Constructor
-    public SwerveDrive() {
-        try {
-            this.backRight = Util.readSwerveJSON(Robot.bot.getBackRightName());
-            this.backLeft = Util.readSwerveJSON(Robot.bot.getBackLeftName());
-            this.frontRight = Util.readSwerveJSON(Robot.bot.getFrontRightName());
-            this.frontLeft = Util.readSwerveJSON(Robot.bot.getFrontLeftName());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        modules = Arrays.asList(backRight, backLeft, frontLeft, frontRight);
-
-        double width = Robot.bot.kWheelbaseWidth, length = Robot.bot.kWheelbaseLength;
-        double radius = Math.hypot(width, length);
-        kLengthComponent = length / radius;
-        kWidthComponent = width / radius;
-
-    }
-
     private boolean fieldCentric = true;
 
     /**
@@ -109,39 +108,32 @@ public class SwerveDrive extends Subsystem {
     }
 
     public void drive(Translation2d translationVector) {
-        double rotOutput = getRotationalOutput();
-        drive(translationVector, rotOutput);
-        SmartDashboard.putNumber("rotationalOUTStep1", rotOutput);
+        drive(translationVector, getRotationalOutput());
     }
 
-    public void drive(Translation2d translationVector, double rotIn) {
-        //SmartDashboard.putNumber("rotationalOUT", rotationalInput);
-        drive(translationVector, rotIn, false);
-        SmartDashboard.putNumber("rotationalOUTStep2", rotIn);
+    public void drive(Translation2d translationVector, double rotationalInput) {
+        drive(translationVector, rotationalInput, false);
     }
 
-    public void drive(Translation2d translationVector, double rotIn, boolean lowPower) {
-        //translationVector = translationVector.normalize();
+    public void drive(Translation2d translationVector, double rotationalInput, boolean lowPower) {
         double str = translationVector.getX();
         double fwd = translationVector.getY();
-        
-        drive(str, fwd, rotIn, lowPower);
+        drive(str, fwd, rotationalInput, lowPower);
     }
 
-    public void snapForward(){
+    public void snapForward() {
         // backRight.drive(503.0, 0.0);
         // backLeft.drive(503.0, 0.0);
         // frontRight.drive(503.0, 0.0);
         // frontLeft.drive(503.0, 0.0);
     }
 
-    // Takes joystick input an calculates drive wheel speed and turn motor angle
     public void drive(double str, double fwd, double rcw, boolean lowPower) {
         translationalVector = new Translation2d(str, fwd);
         str *= (lowPower ? 0.3 : 1.0) * Robot.bot.requestDriveReversed;
         fwd *= (lowPower ? 0.5 : 1.0) * Robot.bot.requestDriveReversed;
         rcw *= lowPower ? 0.5 : 1.0;
-       
+
         if (fieldCentric) {
             double angle = Math.toRadians(RobotState.getInstance().getCurrentTheta());
             double temp = fwd * Math.cos(angle) + str * Math.sin(angle);
@@ -153,9 +145,8 @@ public class SwerveDrive extends Subsystem {
         //     fwd*=-1;
         // }
 
-        
         rotationalInput = rcw;
-        
+
         double a = str - rcw * kLengthComponent;
         double b = str + rcw * kLengthComponent;
         double c = fwd - rcw * kWidthComponent;
@@ -188,43 +179,43 @@ public class SwerveDrive extends Subsystem {
             backLeftSpeed /= max;
             backRightSpeed /= max;
         }
-        boolean reversing = false;
-        modules.forEach((mod)-> System.out.println(mod.getMotorPower()));
-        modules.forEach((mod)-> System.out.println(Util.boundAngle0to360Degrees(mod.getTurnEncoderPositioninDegrees())));
-        System.out.println("LF Calc Angle (deg)"+ Util.boundAngle0to360Degrees(frontLeftAngle));
-        System.out.println("RF Calc Angle (deg)"+ Util.boundAngle0to360Degrees(frontRightAngle));
-        System.out.println("LR Calc Angle (deg)"+ Util.boundAngle0to360Degrees(backLeftAngle));
-        System.out.println("RR Calc Angle (deg)"+ Util.boundAngle0to360Degrees(backRightAngle));
-        if (shouldReverse(backRightAngle, backRight.getTurnEncoderPositioninDegrees())) {
-            backRightAngle += 180;
-            backRightSpeed *= -1;
-            reversing = !reversing;
-        }
+        // boolean reversing = false;
+        // modules.forEach((mod) -> System.out.println(mod.getMotorPower()));
+        // modules.forEach(
+        //         (mod) -> System.out.println(Util.boundAngle0to360Degrees(mod.getTurnEncoderPositioninDegrees())));
+        // System.out.println("LF Calc Angle (deg)" + Util.boundAngle0to360Degrees(frontLeftAngle));
+        // System.out.println("RF Calc Angle (deg)" + Util.boundAngle0to360Degrees(frontRightAngle));
+        // System.out.println("LR Calc Angle (deg)" + Util.boundAngle0to360Degrees(backLeftAngle));
+        // System.out.println("RR Calc Angle (deg)" + Util.boundAngle0to360Degrees(backRightAngle));
+        // if (shouldReverse(backRightAngle, backRight.getTurnEncoderPositioninDegrees())) {
+        //     backRightAngle += 180;
+        //     backRightSpeed *= -1;
+        //     reversing = !reversing;
+        // }
 
-        if (shouldReverse(backLeftAngle, backLeft.getTurnEncoderPositioninDegrees())) {
-            backLeftAngle += 180;
-            backLeftSpeed *= -1;
-            reversing = !reversing;
+        // if (shouldReverse(backLeftAngle, backLeft.getTurnEncoderPositioninDegrees())) {
+        //     backLeftAngle += 180;
+        //     backLeftSpeed *= -1;
+        //     reversing = !reversing;
 
-        }
+        // }
 
-        if (shouldReverse(frontRightAngle, frontRight.getTurnEncoderPositioninDegrees())) {
-            frontRightAngle += 180;
-            frontRightSpeed *= -1;
-            reversing = !reversing;
-        }
+        // if (shouldReverse(frontRightAngle, frontRight.getTurnEncoderPositioninDegrees())) {
+        //     frontRightAngle += 180;
+        //     frontRightSpeed *= -1;
+        //     reversing = !reversing;
+        // }
 
-        if (shouldReverse(frontLeftAngle, frontLeft.getTurnEncoderPositioninDegrees())) {
-            frontLeftAngle += 180;
-            frontLeftSpeed *= -1;
-            reversing = !reversing;
-        }
-        if (reversing){
-            System.out.println("REVERSING SOME BUT NOT OTHERS");
-        }
+        // if (shouldReverse(frontLeftAngle, frontLeft.getTurnEncoderPositioninDegrees())) {
+        //     frontLeftAngle += 180;
+        //     frontLeftSpeed *= -1;
+        //     reversing = !reversing;
+        // }
+        // if (reversing) {
+        //     System.out.println("REVERSING SOME BUT NOT OTHERS");
+        // }
 
         // Send speeds and angles to the drive motors
-
 
         backRight.drive(backRightSpeed, backRightAngle);
         backLeft.drive(backLeftSpeed, backLeftAngle);
@@ -235,7 +226,6 @@ public class SwerveDrive extends Subsystem {
         SmartDashboard.putNumber("RF Calc Angle (deg)", frontRightAngle);
         SmartDashboard.putNumber("LR Calc Angle (deg)", backLeftAngle);
         SmartDashboard.putNumber("RR Calc Angle (deg)", backRightAngle);
-   
     }
 
     public void defensePosition() {
@@ -269,21 +259,15 @@ public class SwerveDrive extends Subsystem {
 
     // Various methods to control the heading controller
     public synchronized void rotate(double goalHeading) {
-        
-        if (translationalVector.getX() == 0 && translationalVector.getY() == 0){
-            
+        if (translationalVector.getX() == 0 && translationalVector.getY() == 0)
             rotateInPlace(goalHeading);
-            
-        }
-        // else if (mode == DriveMode.PIDControl){
-        //     stabilize(goalHeading);
-        // }
+
         else {
             stabilize(goalHeading);
         }
     }
 
-    public Translation2d getCurrentTranslationVector(){
+    public Translation2d getCurrentTranslationVector() {
         return translationalVector;
     }
 
@@ -292,15 +276,18 @@ public class SwerveDrive extends Subsystem {
     }
 
     public void setPathHeading(double goalHeading) {
-        headingController.setSnapTarget(Util.placeInAppropriate0To360Scope(RobotState.getInstance().getCurrentTheta(), goalHeading));
+        headingController.setSnapTarget(
+                Util.placeInAppropriate0To360Scope(RobotState.getInstance().getCurrentTheta(), goalHeading));
     }
 
     public synchronized void stabilize(double goalHeading) {
-        headingController.setStabilizationTarget(Util.placeInAppropriate0To360Scope(RobotState.getInstance().getCurrentTheta(), goalHeading));
+        headingController.setStabilizationTarget(
+                Util.placeInAppropriate0To360Scope(RobotState.getInstance().getCurrentTheta(), goalHeading));
     }
 
     public void rotateInPlace(double goalHeading) {
-        headingController.setStationaryTarget(Util.placeInAppropriate0To360Scope(RobotState.getInstance().getCurrentTheta(), goalHeading));
+        headingController.setStationaryTarget(
+                Util.placeInAppropriate0To360Scope(RobotState.getInstance().getCurrentTheta(), goalHeading));
     }
 
     /**
@@ -395,7 +382,8 @@ public class SwerveDrive extends Subsystem {
         SmartDashboard.putBoolean("Field Centric", isFieldCentric());
         SmartDashboard.putString("Snap State", headingController.getState().toString());
         // SmartDashboard.putNumber("Snap Angle", headingController.getTargetAngle());
-        // SmartDashboard.putNumber("Snap Output", headingController.getRotationalOutput());
+        // SmartDashboard.putNumber("Snap Output",
+        // headingController.getRotationalOutput());
     }
 
     @Override

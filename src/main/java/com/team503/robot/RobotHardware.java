@@ -177,8 +177,6 @@ public abstract class RobotHardware {
     // Power Distribution Panel
     public int PdpID;
 
-
-
     ///////////////////////////////////////////////////////////////////////////////////
 
     // FF Swerve Constants
@@ -246,8 +244,6 @@ public abstract class RobotHardware {
     
    // public static final double kElevatorEncoderStartingPosition = 399.0/ 24.875; // enc counts //TODO
      public static final double kElevatorEncoderStartingPosition = 712.5 / 24.875; // enc counts //TODO
-
-
 
     // CARGO INTAKE
     public static final int BALL_INTAKE = 7;

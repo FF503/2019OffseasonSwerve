@@ -12,6 +12,7 @@ public class FrogPIDF {
     private double integral;
     private ControlMode control;
     private double error;
+
     public enum ControlMode {
         Velocity_Control, Position_Control;
     }
@@ -40,9 +41,11 @@ public class FrogPIDF {
 
     public double calculateOutput(double sensorState, boolean boundTo180) {
         this.state = sensorState;
-        double error = boundTo180 ? boundHalfDegrees(setPoint - sensorState) : (setPoint - sensorState) ;
+        double error = boundTo180 ? Util.boundAngleNeg180to180Degrees(setPoint - sensorState)
+                : (setPoint - sensorState);
+      
         this.error = error;
-        if (error < tolerance && !boundTo180){
+        if (Math.abs(error) < tolerance && !boundTo180) {
             return 0.0;
         }
         double dError = error - lastError;
@@ -54,12 +57,12 @@ public class FrogPIDF {
         double iOut = i * integral;
         double dOut = d * derivative;
         double fOut = f * setPoint;
-
+          System.out.println("input pOut"+ tolerance);
         SmartDashboard.putNumber("FrogPIDF Error", error);
-        
+
         lastTime = time;
         lastError = error;
-        
+        System.out.println("calc:"+Math.max(-1, Math.min(pOut + iOut + dOut + fOut, 1)));
         return Math.max(-1, Math.min(pOut + iOut + dOut + fOut, 1));
     }
 
@@ -71,15 +74,7 @@ public class FrogPIDF {
         return Math.abs(state - setPoint) < tolerance;
     }
 
-    public static double boundHalfDegrees(double angle_degrees) {
-		while (angle_degrees >= 180.0)
-			angle_degrees -= 360.0;
-		while (angle_degrees < -180.0)
-			angle_degrees += 360.0;
-		return angle_degrees;
-    }
-    
-    public double getError(){
+    public double getError() {
         return error;
     }
 

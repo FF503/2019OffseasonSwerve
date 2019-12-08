@@ -11,7 +11,7 @@
     "cruiseAccel": 16400,
     "turnCountsDecreasing": true,
     "DriveInverted": false,
-    "DriveEncoderInverted": true,
+    "DriveEncoderInverted": false,
     "TurnMotorInverted": true,
     "TurnEncoderInverted": true
 }

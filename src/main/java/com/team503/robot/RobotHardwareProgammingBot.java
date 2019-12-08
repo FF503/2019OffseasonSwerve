@@ -32,11 +32,11 @@ public class RobotHardwareProgammingBot extends RobotHardware {
         requestPigeonFlipped = -1;
 
         // Swerve Module Positions (relative to the center of the drive base)
-        kVehicleToBackRight = new Translation2d(kWheelbaseLength / 2, -kWheelbaseWidth / 2);
-        kVehicleToBackLeft = new Translation2d(-kWheelbaseLength / 2, -kWheelbaseWidth / 2);
-        kVehicleToFrontLeft = new Translation2d(-kWheelbaseLength / 2, kWheelbaseWidth / 2);
-        kVehicleToFrontRight = new Translation2d(kWheelbaseLength / 2, kWheelbaseWidth / 2);
-
+        kVehicleToFrontLeft = new Translation2d(kWheelbaseLength / 2, kWheelbaseWidth / 2);
+        kVehicleToFrontRight = new Translation2d(kWheelbaseLength / 2, -kWheelbaseWidth / 2);
+        kVehicleToBackRight = new Translation2d(-kWheelbaseLength / 2, -kWheelbaseWidth / 2);
+        kVehicleToBackLeft = new Translation2d(-kWheelbaseLength / 2, kWheelbaseWidth / 2);
+        
         kModulePositions = new Translation2d[] { kVehicleToFrontLeft, kVehicleToFrontRight, kVehicleToBackLeft,
                 kVehicleToBackRight };
 
@@ -47,7 +47,7 @@ public class RobotHardwareProgammingBot extends RobotHardware {
 
         // Pure Pursuit
         kPathFollowingMaxAccel = 80;
-        kPathFollowingMaxVel = 200;
+        kPathFollowingMaxVel = 130;
 
         kMinLookAhead = 12.0; // inches
         kMinLookAheadSpeed = 12.0; // inches per second

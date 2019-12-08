@@ -1,5 +1,8 @@
 package com.team503.lib.geometry;
 
+import com.team503.lib.util.Util;
+import com.team503.lib.util.Util.CoordinateSystem;
+
 public class Pose {
 	private double timestamp = 0;
 	private double theta = 0;
@@ -191,8 +194,9 @@ public class Pose {
 	 *         calculations
 	 */
 	public Pose getTranslatedPose() {
-		Translation2d modifiedTranslation = new Translation2d(getY(), -getX());
-		return new Pose(this.timestamp, modifiedTranslation, 90.0 + this.theta);
+		var translated = Util.convertCoordinateSystem(CoordinateSystem.UNIT_CIRCLE, translation, theta);
+		Translation2d modifiedTranslation = new Translation2d(-translated[0], -translated[1]);
+		return new Pose(this.timestamp, modifiedTranslation, translated[2]);
 	}
 
 }
