@@ -5,23 +5,19 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package com.team503.robot.commands;
+package com.team503.robot.loops;
 
 import java.util.Arrays;
 
 import com.team503.robot.RobotState;
-import com.team503.robot.loops.LimelightProcessor;
-import com.team503.robot.subsystems.Pigeon;
+import com.team503.robot.subsystems.LimelightProcessor;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.command.Command;
 
 public class LimelightLoop extends Command {
-  private LimelightProcessor processor = new LimelightProcessor();
+  private LimelightProcessor processor = LimelightProcessor.getInstance();
 
-  public LimelightLoop() {
-
-  }
 
   // Called just before this Command runs the first time
   @Override
@@ -41,11 +37,12 @@ public class LimelightLoop extends Command {
     } else {
       // use tx/ta...
       x = y = angle = 0; // defualt until updated later
+
     }
 
     processor.updateData(x, y, angle, trans);
     RobotState.getInstance().setLimelightSeesTarget(processor.sawTarget(3));
-    System.out.println(processor.getCollectedData().getLast());
+    // System.out.println(processor.getCollectedData().getLast());
   }
 
   // Make this return true when this Command no longer needs to run execute()

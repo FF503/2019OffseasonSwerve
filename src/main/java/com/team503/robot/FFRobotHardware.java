@@ -24,6 +24,7 @@ public class FFRobotHardware extends RobotHardware {
 
     @Override
     public void initalizeConstants() {
+
         // Swerve Calculations Constants (measurements are in inches)
         kWheelbaseLength = 16.75;
         kWheelbaseWidth = 17.25;
@@ -34,10 +35,10 @@ public class FFRobotHardware extends RobotHardware {
         requestPigeonFlipped = 1;
 
         // Swerve Module Positions (relative to the center of the drive base)
-        kVehicleToBackRight = new Translation2d(kWheelbaseLength / 2, -kWheelbaseWidth / 2);
-        kVehicleToBackLeft = new Translation2d(-kWheelbaseLength / 2, -kWheelbaseWidth / 2);
-        kVehicleToFrontLeft = new Translation2d(-kWheelbaseLength / 2, kWheelbaseWidth / 2);
-        kVehicleToFrontRight = new Translation2d(kWheelbaseLength / 2, kWheelbaseWidth / 2);
+        kVehicleToFrontLeft = new Translation2d(kWheelbaseLength / 2, kWheelbaseWidth / 2);
+        kVehicleToFrontRight = new Translation2d(kWheelbaseLength / 2, -kWheelbaseWidth / 2);
+        kVehicleToBackRight = new Translation2d(-kWheelbaseLength / 2, -kWheelbaseWidth / 2);
+        kVehicleToBackLeft = new Translation2d(-kWheelbaseLength / 2, kWheelbaseWidth / 2);
 
         kModulePositions = new Translation2d[] { kVehicleToFrontLeft, kVehicleToFrontRight, kVehicleToBackLeft,
                 kVehicleToBackRight };

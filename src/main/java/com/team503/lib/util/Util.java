@@ -140,25 +140,30 @@ public class Util {
         double angleDifference = Math.abs(goalAngle - currentAngle);
         double reversedAngleDifference = Math.abs(goalAngle - reversedAngle);
         angleDifference = (angleDifference > 180) ? 360 - angleDifference : angleDifference;
-        reversedAngleDifference = (reversedAngleDifference > 180) ? 360 - reversedAngleDifference: reversedAngleDifference;
-        if (reversedAngle < angleDifference){
+        reversedAngleDifference = (reversedAngleDifference > 180) ? 360 - reversedAngleDifference
+                : reversedAngleDifference;
+        if (reversedAngle < angleDifference) {
             System.out.println(alternateShouldReverse(goalAngle, currentAngle));
         }
         return reversedAngleDifference < angleDifference;
     }
+
     /**
-     * written as a possible alternative to test logic (when tested in a test class, it produced the exact same outputs as the other method so this is not the problem)
+     * written as a possible alternative to test logic (when tested in a test class,
+     * it produced the exact same outputs as the other method so this is not the
+     * problem)
+     * 
      * @param goal
      * @param cur
      * @return
      */
-    public static boolean alternateShouldReverse(double goal, double cur){
+    public static boolean alternateShouldReverse(double goal, double cur) {
         goal = boundAngle0to360Degrees(goal);
         cur = boundAngle0to360Degrees(cur);
-        if (Math.abs(goal-cur) <= 90.0){
+        if (Math.abs(goal - cur) <= 90.0) {
             return false;
         }
-        if (360-Math.abs(goal-cur)>90.0){
+        if (360 - Math.abs(goal - cur) > 90.0) {
             return true;
         }
         return false;
@@ -246,6 +251,46 @@ public class Util {
     // clockwise
     public static double unitCircleify(double angle) {
         return 90 - angle;
+    }
+
+    /**
+     * @return converted coordinates (x,y,theta)
+     * @param cSystem     coordinate system to convert to
+     * @param translation translation
+     * @param theta       input theta
+     */
+    public static double[] convertCoordinateSystem(CoordinateSystem cSystem, Translation2d translation, double theta) {
+        double x = translation.getX();
+        double y = translation.getY();
+        return convertCoordinateSystem(cSystem, x, y, theta);
+    }
+
+    /**
+     * @return converted coordinates (x,y,theta)
+     * @param cSystem coordinate system to convert to
+     * @param x       input x
+     * @param y       input y
+     * @param theta   input theta
+     */
+    public static double[] convertCoordinateSystem(CoordinateSystem cSystem, double x, double y, double theta) {
+        double[] converted = new double[3];
+        if (cSystem.equals(CoordinateSystem.UNIT_CIRCLE)) {
+            // Converts rotated to unit circle
+            converted[0] = y;
+            converted[1] = -x;
+            converted[2] = 90.0 + theta;
+        } else if (cSystem.equals(CoordinateSystem.ROTATED)) {
+            // Converts unit circle to rotated
+            converted[0] = -y;
+            converted[1] = x;
+            converted[2] = theta - 90.0;
+        }
+
+        return converted;
+    }
+
+    public static enum CoordinateSystem {
+        UNIT_CIRCLE, ROTATED;
     }
 
 }

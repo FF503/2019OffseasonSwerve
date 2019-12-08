@@ -9,7 +9,7 @@ import com.team503.robot.Robot;
 // import com.team503.robot.Robot.bot;
 import com.team503.robot.RobotState;
 // import com.team503.robot.loops.ILooper;
-import com.team503.robot.loops.LimelightProcessor;
+import com.team503.robot.subsystems.LimelightProcessor;
 // import com.team503.robot.loops.Loop;
 // import com.team503.robot.subsystems.Swerve.VisionState;
 import com.team503.robot.subsystems.requests.Request;

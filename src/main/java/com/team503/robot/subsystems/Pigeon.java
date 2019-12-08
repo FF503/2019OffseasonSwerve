@@ -11,7 +11,6 @@ import com.ctre.phoenix.sensors.PigeonIMU;
 import com.ctre.phoenix.sensors.PigeonIMU.PigeonState;
 import com.team503.robot.Robot;
 import com.team503.robot.RobotState;
-import com.team503.robot.auton.FroggyAuton.StartingDirection;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -48,7 +47,8 @@ public class Pigeon extends Subsystem {
 		double[] ypr = new double[3];
 		pigeon.getYawPitchRoll(ypr);
 		PigeonIMU.FusionStatus fusionStatus = new PigeonIMU.FusionStatus();
-		double heading = boundTo360(Robot.bot.requestPigeonFlipped * pigeon.getFusedHeading(fusionStatus));
+		double heading = (Robot.bot.requestPigeonFlipped * pigeon.getFusedHeading(fusionStatus));
+		heading = boundTo360(heading + RobotState.getInstance().getGyroOffset());
 		SmartDashboard.putNumber("Pigeon Heading", heading);
 		return heading/*-ypr[0]*/;
 	}
@@ -77,10 +77,6 @@ public class Pigeon extends Subsystem {
 
 	private void zero() {
 		setAngle(0);
-	}
-
-	public void reset() {
-		setAngle(RobotState.getInstance().getGyroOffset());
 	}
 
 	public void setAngle(double angle) {

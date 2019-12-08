@@ -1,4 +1,4 @@
-package com.team503.robot.loops;
+package com.team503.robot.subsystems;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -148,9 +148,9 @@ public class LimelightProcessor {
 }
 
 class VisionData {
-	final double x, y, angle;
-	final boolean seesTarget;
-	final double[] camtran;
+	public final double x, y, angle;
+	public final boolean seesTarget;
+	public final double[] camtran;
 
 	VisionData(double x, double y, double angle, boolean seesTarget, double[] camtran) {
 		this.x = x;

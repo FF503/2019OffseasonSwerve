@@ -5,20 +5,10 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package com.team503.robot.auton;
+package com.team503.robot.commands;
 
 /**
  * Add your docs here.
  */
-public class ForwardTest extends FroggyAuton{
-
-    @Override
-    protected void initAuton() {
-        froggySequentialDrive("forwardTest");
-    }
-
-    @Override
-    protected AutonStartingLocation getStartingLocation() {
-        return AutonStartingLocation.Origin;
-    }
+public class FollowerTest {
 }

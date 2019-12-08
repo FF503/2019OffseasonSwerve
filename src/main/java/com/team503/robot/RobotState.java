@@ -21,7 +21,6 @@ public class RobotState {
 	private boolean grabberDeployed;
 	private boolean isManualControl = true;
 	private boolean autoDone = false;
-	private int pipeline = 2;
 	private volatile StartingDirection startingDirection = StartingDirection.FORWARD;
 
 	private boolean limelightSeesTarget = false;
@@ -47,12 +46,8 @@ public class RobotState {
 	}
 
 	public synchronized double getCurrentTheta() {
-		currentTheta = Pigeon.getInstance().getYaw();
+		this.currentTheta = Pigeon.getInstance().getYaw();
 		return currentTheta;
-	}
-
-	public synchronized void setCurrentTheta(double currentTheta) {
-		this.currentTheta = currentTheta;
 	}
 
 	public synchronized void setStartingDirection(StartingDirection startingDirection) {
