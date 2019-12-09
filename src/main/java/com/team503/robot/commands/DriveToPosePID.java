@@ -22,24 +22,32 @@ public class DriveToPosePID extends Command {
     boolean turnTargetSet = false;
     double TOTAL_DISTANCE;
     double distance;
+    boolean slowOffRamp = false;
 
     public DriveToPosePID(Pose target) {
         this.target = target;
     }
 
+    public DriveToPosePID(Pose target, boolean slowOffRamp) {
+        this.target = target;
+        this.slowOffRamp = slowOffRamp;
+    }
+
     @Override
     protected void initialize() {
-        xPID =  new FrogPIDF(0.008, 0, 0, ControlMode.Position_Control);
-        yPID =  new FrogPIDF(0.008, 0, 0, ControlMode.Position_Control);
+        xPID = new FrogPIDF(0.008, 0, 0, ControlMode.Position_Control);
+        yPID = new FrogPIDF(0.008, 0, 0, ControlMode.Position_Control);
         System.out.println("startin");
         SwerveDrive.getInstance().setMode(DriveMode.PIDControl);
         xPID.setSetpoint(target.getX());
         yPID.setSetpoint(target.getY());
         xPID.setTolerance(3.0);
         yPID.setTolerance(3.0);
-        // if (Math.abs(Util.boundAngle0to360Degrees(target.getTheta()) - Util.boundAngle0to360Degrees(
-        //         Util.boundAngle0to360Degrees(RobotState.getInstance().getCurrentTheta()))) < 3.0) {
-        //     SwerveDrive.getInstance().rotate(target.getTheta());
+        // if (Math.abs(Util.boundAngle0to360Degrees(target.getTheta()) -
+        // Util.boundAngle0to360Degrees(
+        // Util.boundAngle0to360Degrees(RobotState.getInstance().getCurrentTheta()))) <
+        // 3.0) {
+        // SwerveDrive.getInstance().rotate(target.getTheta());
         // }
         TOTAL_DISTANCE = target.toNewVector().minus(RobotState.getInstance().getCurrentPose().toNewVector()).getNorm();
     }
@@ -48,7 +56,8 @@ public class DriveToPosePID extends Command {
     @Override
     protected void execute() {
         currentPose = RobotState.getInstance().getCurrentPose().getTranslatedPose();
-        Translation2d translationVector = new Translation2d(xPID.calculateOutput(currentPose.getX(), false),yPID.calculateOutput(currentPose.getY(), false));
+        Translation2d translationVector = new Translation2d(xPID.calculateOutput(currentPose.getX(), false),
+                yPID.calculateOutput(currentPose.getY(), false));
 
         SmartDashboard.putNumber("y error:", yPID.getError());
         SmartDashboard.putNumber("x output:", translationVector.getX());
@@ -60,9 +69,9 @@ public class DriveToPosePID extends Command {
         SmartDashboard.putBoolean("good auton output: ", goodOutput);
 
         distance = target.toNewVector().minus(currentPose.toNewVector()).getNorm();
-        if (currentPose.getY() < 80){
+        if (currentPose.getY() < 50 && slowOffRamp) {
             System.out.println("alert");
-            translationVector.scale(0.3);
+            translationVector = translationVector.times(0.3);
         }
         SmartDashboard.putNumber("distance remaining", distance);
         if (distance / TOTAL_DISTANCE > 0.5 && !turnTargetSet) {
@@ -72,7 +81,8 @@ public class DriveToPosePID extends Command {
         }
         // SwerveDrive.getInstance().rotate(target.getTheta());
         System.out.println("set:" + translationVector.toString());
-        SwerveDrive.getInstance().drive(translationVector, Math.max(SwerveDrive.getInstance().getRotationalOutput(), -0.2));
+        SwerveDrive.getInstance().drive(translationVector,
+                Math.max(SwerveDrive.getInstance().getRotationalOutput(), -0.2));
     }
 
     // Make this return true when this Command no longer needs to run execute()
@@ -96,6 +106,7 @@ public class DriveToPosePID extends Command {
     }
 
     private boolean angleTolerance() {
-        return Math.abs(Util.boundAngle0to360Degrees(target.getTheta())- Util.boundAngle0to360Degrees(currentPose.getTheta())) < 3.0;
+        return Math.abs(Util.boundAngle0to360Degrees(target.getTheta())
+                - Util.boundAngle0to360Degrees(currentPose.getTheta())) < 3.0;
     }
 }

@@ -43,7 +43,7 @@ public class TestMultiple extends CommandGroup {
     Pose target2= new Pose(19. ,49.0,0.0);
     Pose target3 = new Pose(68.0,75.0,0);
 
-    addSequential(new DriveToPosePID(target), 3.1);
+    addSequential(new DriveToPosePID(target), 3.1, true);
     addSequential(new DriveToPosePID(interTarget), 3.1);
     addSequential(new DriveToPosePID(target1), 3.1);
     addSequential(new DriveToPosePID(target2), 3.1);
