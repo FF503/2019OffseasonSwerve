@@ -28,8 +28,8 @@ public class Translation2d {
     return kIdentity;
   }
 
-  private final double m_x;
-  private final double m_y;
+  private double m_x;
+  private double m_y;
 
   /**
    * Constructs a Translation2d with X and Y components equal to zero.
@@ -212,5 +212,9 @@ public class Translation2d {
   public boolean epsilonEquals(final Translation2d other, double epsilon) {
     return Util.epsilonEquals(getX(), other.getX(), epsilon) && Util.epsilonEquals(getY(), other.getY(), epsilon);
   }
-
+  
+  public void scale(double scalar){
+    m_x *= scalar;
+    m_y *= scalar;
+  }
 }
