@@ -3,6 +3,15 @@ package com.team503.robot.subsystems;
 import java.util.Arrays;
 import java.util.List;
 
+import com.frcteam2910.common.control.CentripetalAccelerationConstraint;
+import com.frcteam2910.common.control.HolonomicMotionProfiledTrajectoryFollower;
+import com.frcteam2910.common.control.HolonomicPurePursuitTrajectoryFollower;
+import com.frcteam2910.common.control.ITrajectoryConstraint;
+import com.frcteam2910.common.control.MaxAccelerationConstraint;
+import com.frcteam2910.common.control.MaxVelocityConstraint;
+import com.frcteam2910.common.control.PidConstants;
+import com.frcteam2910.common.util.DrivetrainFeedforwardConstants;
+import com.frcteam2910.common.util.HolonomicFeedforward;
 import com.team503.lib.controllers.VisionFollowerController;
 import com.team503.lib.geometry.Translation2d;
 import com.team503.lib.kinematics.SwerveDriveKinematics;
@@ -26,10 +35,26 @@ public class SwerveDrive extends Subsystem {
     private Translation2d translationalVector = new Translation2d();
     private Translation2d centerOfRotation = new Translation2d();
     private double rotationalInput = 0;
+    
 
     private final double kLengthComponent;
     private final double kWidthComponent;
 
+    private static final double MAX_VELOCITY = 12.0 * 12.0;
+
+    public static final ITrajectoryConstraint[] CONSTRAINTS = {
+            new MaxVelocityConstraint(MAX_VELOCITY),
+            new MaxAccelerationConstraint(13.0 * 12.0),
+            new CentripetalAccelerationConstraint(15.0 * 12.0)
+    };
+
+    private static final PidConstants FOLLOWER_TRANSLATION_CONSTANTS = new PidConstants(0.0, 0.0, 10.0);
+    private static final PidConstants FOLLOWER_ROTATION_CONSTANTS = new PidConstants(0.2, 0.01, 0.0);
+    private static final HolonomicFeedforward FOLLOWER_FEEDFORWARD_CONSTANTS = new HolonomicFeedforward(
+            new DrivetrainFeedforwardConstants(1.0 / (15.0 * 12.0), 0.0, 0.0)
+    );
+
+    private HolonomicPurePursuitTrajectoryFollower follower = new HolonomicPurePursuitTrajectoryFollower(10,10,FOLLOWER_FEEDFORWARD_CONSTANTS,FOLLOWER_ROTATION_CONSTANTS);
     // Constructor
     public SwerveDrive() {
         try {
@@ -395,5 +420,9 @@ public class SwerveDrive extends Subsystem {
     public void zeroSensors() {
         resetDriveEncoder();
     }
+
+	public HolonomicPurePursuitTrajectoryFollower getFollower() {
+		return follower;
+	}
 
 }

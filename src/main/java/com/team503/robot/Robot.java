@@ -9,7 +9,19 @@ package com.team503.robot;
 
 import java.util.Arrays;
 
+import com.frcteam2910.common.control.CentripetalAccelerationConstraint;
+import com.frcteam2910.common.control.ITrajectoryConstraint;
+import com.frcteam2910.common.control.MaxAccelerationConstraint;
+import com.frcteam2910.common.control.MaxVelocityConstraint;
+import com.frcteam2910.common.control.Path;
+import com.frcteam2910.common.control.PathArcSegment;
+import com.frcteam2910.common.control.PathLineSegment;
+import com.frcteam2910.common.control.Trajectory;
+import com.frcteam2910.common.math.Rotation2;
+import com.frcteam2910.common.math.Vector2;
 import com.team503.robot.RobotState.Bot;
+import com.team503.robot.auton.pure_pursuit.FollowTrajectoryCommand;
+import com.team503.robot.commands.JackInBotFollowTrajectoryCommand;
 import com.team503.robot.loops.FroggyPoseController;
 import com.team503.robot.loops.LimelightLoop;
 import com.team503.robot.subsystems.AndyArm;
@@ -49,6 +61,18 @@ public class Robot extends TimedRobot {
 
   private SubsystemManager subsystems; // encloses the subsystem array list and operations
   public static RobotHardware bot;
+  
+
+  private final Rotation2 LOADING_STATION_ROTATION = Rotation2.ZERO;
+  private final Rotation2 CARGO_SHIP_SIDE_HATCH_ROTATION = Rotation2.fromDegrees(90.0);
+  private final Rotation2 CARGO_SHIP_SIDE_CARGO_ROTATION = Rotation2.fromDegrees(-90.0);
+  private final Rotation2 ROCKET_FAR_ROTATION = Rotation2.fromDegrees(-28.75);
+  private Trajectory hab1ToRocketFarTrajectoryLeft;
+  ITrajectoryConstraint[] constraints = {
+    new MaxVelocityConstraint(120.0),
+    new MaxAccelerationConstraint(13.0 * 12.0),
+    new CentripetalAccelerationConstraint(25.0 * 12.0)
+  };
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -77,6 +101,44 @@ public class Robot extends TimedRobot {
     }
     subsystems.resetSensor();
     CameraServer.getInstance().startAutomaticCapture();
+    Path habToRocketFarPathLeft = new Path(LOADING_STATION_ROTATION);
+    habToRocketFarPathLeft.addSegment(
+            new PathLineSegment(
+                    new Vector2(0.0, 0.0),
+                    new Vector2(154.0, 0.0)
+            )
+    );
+    // habToRocketFarPathLeft.addSegment(
+    //   // new PathLineSegment(
+    //   //         new Vector2(40.0, 0.0),
+    //   //         new Vector2(40.0, -40.0)
+    //   // )
+    //   new PathArcSegment(  new Vector2(0.0, 0.0),
+    //   new Vector2(40.0, -40.0),
+    //   new Vector2(0.0,-40.0)
+    //   )
+//);
+
+//        habToRocketFarPathLeft.addSegment(
+//                PathArcSegment.fromPoints(  new Vector2(0.0, 40.0),
+//                        new Vector2(20.0, 50.0),
+//                        new Vector2(70.0,60.0))
+//
+//        );
+//
+//        SplinePathGenerator splineGenerator = new SplinePathGenerator();
+//        Waypoint[] waypoints = {
+//                new Waypoint(new Vector2(70,60),Rotation2.ZERO),
+//                new Waypoint(new Vector2(170,160),Rotation2.ZERO)
+//        };
+    //Path spline = splineGenerator.generate(waypoints);
+    //spline.getSegments().forEach((PathSegment s)->{habToRocketFarPathLeft.addSegment(s);});
+
+    
+    habToRocketFarPathLeft.subdivide(8);
+    hab1ToRocketFarTrajectoryLeft = new Trajectory(10,0,habToRocketFarPathLeft, constraints);
+
+    hab1ToRocketFarTrajectoryLeft.calculateSegments(0.05);
   }
 
   /**
@@ -110,11 +172,13 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
     // Pigeon.getInstance().zeroSensors();
     // FroggyPoseController.resetPose(new Pose(0,0,0));
+
     mSwerve.setBrakeMode();
     // Intake.getInstance().startVacuum();
     mSwerve.resetDriveEncoder();
     //new ForwardTest().initAndStartAuton();
-    new LimelightLoop().start();
+    (new JackInBotFollowTrajectoryCommand(hab1ToRocketFarTrajectoryLeft, -90.0)).start();
+    //new LimelightLoop().start();
   }
 
   /**
@@ -136,7 +200,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     // mSwerve.setBrakeMode();
-    mSwerve.snapForward();
+   mSwerve.snapForward();
     // Intake.getInstance().startVacuum();
     LimelightProcessor.getInstance().setPipeline(Pipeline.CLOSEST);
     //PrecisionDriveController.activatePrecisionDrive();

@@ -198,10 +198,10 @@ public class Translation2d {
   public static double dot(final Translation2d a, final Translation2d b) {
     return a.getX() * b.getX() + a.getY() * b.getY();
   }
-
+  @Override
   public String toString() {
     final DecimalFormat fmt = new DecimalFormat("#0.000");
-    return "(" + fmt.format(getX()) + "," + fmt.format(getY()) + ")";
+    return "Translation: "+ "(" + fmt.format(getX()) + "," + fmt.format(getY()) + ")";
   }
 
   public String toCSV() {
