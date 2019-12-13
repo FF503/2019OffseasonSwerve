@@ -37,6 +37,7 @@ public class JackInBotFollowTrajectoryCommand extends Command {
     @Override
     protected void initialize() {
         trajectory = trajectorySupplier.get();
+        SwerveDrive.getInstance().rotate(targetTheta);
         SwerveDrive.getInstance().getFollower().follow(trajectory);
     }
 
@@ -49,7 +50,6 @@ public class JackInBotFollowTrajectoryCommand extends Command {
     protected void execute() {
         // terribly ineffiecent way to bridge between two different math libs. Should
         // update this later.
-        SwerveDrive.getInstance().rotate(targetTheta);
         Pose frogPose = RobotState.getInstance().getCurrentPose();
         Vector2 robotTranslation = new Vector2(frogPose.getX(), -frogPose.getY());
         Rotation2 robotRotation = Rotation2.fromDegrees(frogPose.getTheta());
