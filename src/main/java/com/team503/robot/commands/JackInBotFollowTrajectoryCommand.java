@@ -1,9 +1,7 @@
 package com.team503.robot.commands;
 
-import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.command.Command;
-
+import java.util.Optional;
+import java.util.function.Supplier;
 
 import com.frcteam2910.common.control.Trajectory;
 import com.frcteam2910.common.math.RigidTransform2;
@@ -12,18 +10,18 @@ import com.frcteam2910.common.math.Vector2;
 import com.frcteam2910.common.util.HolonomicDriveSignal;
 import com.team503.lib.geometry.Pose;
 import com.team503.lib.geometry.Translation2d;
-import com.team503.robot.Robot;
 import com.team503.robot.RobotState;
 import com.team503.robot.subsystems.SwerveDrive;
 
-import java.util.Optional;
-import java.util.function.Supplier;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.command.Command;
 
 public class JackInBotFollowTrajectoryCommand extends Command {
     private final Supplier<Trajectory> trajectorySupplier;
 
     private Trajectory trajectory;
-    private double targetTheta;
+    private double targetTheta = 0;
+
     public JackInBotFollowTrajectoryCommand(Trajectory trajectory, double targetTheta) {
         this(() -> trajectory);
         this.targetTheta = targetTheta;

@@ -101,11 +101,11 @@ public class Robot extends TimedRobot {
     }
     subsystems.resetSensor();
     CameraServer.getInstance().startAutomaticCapture();
-    Path habToRocketFarPathLeft = new Path(LOADING_STATION_ROTATION);
-    habToRocketFarPathLeft.addSegment(
-            new PathLineSegment(
-                    new Vector2(0.0, 0.0),
-                    new Vector2(154.0, 0.0)
+    Path habToRocketFarPathLeft = new Path(LOADING_STATION_ROTATION); // Initilizes empty path and establish inital heading
+    habToRocketFarPathLeft.addSegment( // defines the single segement of path (This is only a "PATH SEGMENT". [no trajectory parameters in these])
+            new PathLineSegment( // line segment takes two coordinates/vector2s (start/end)
+                    new Vector2(0.0, 0.0), // starting coordinate
+                    new Vector2(154.0, 0.0) // ending coordinate
             )
     );
     // habToRocketFarPathLeft.addSegment(
@@ -135,10 +135,12 @@ public class Robot extends TimedRobot {
     //spline.getSegments().forEach((PathSegment s)->{habToRocketFarPathLeft.addSegment(s);});
 
     
-    habToRocketFarPathLeft.subdivide(8);
-    hab1ToRocketFarTrajectoryLeft = new Trajectory(10,0,habToRocketFarPathLeft, constraints);
+    habToRocketFarPathLeft.subdivide(8); // Creates actual segments from overall segment to assign trajectory parameters to
+    // (This means the number of total segments is 2^8 = 256 segments)
 
-    hab1ToRocketFarTrajectoryLeft.calculateSegments(0.05);
+    hab1ToRocketFarTrajectoryLeft = new Trajectory(10,0,habToRocketFarPathLeft, constraints); // constructs trajectory parameters including path, velocities, constraints
+
+    hab1ToRocketFarTrajectoryLeft.calculateSegments(0.05); // creates "Trajectory Segments" that each have actual kinematic goals assigned to them
   }
 
   /**
@@ -177,7 +179,7 @@ public class Robot extends TimedRobot {
     // Intake.getInstance().startVacuum();
     mSwerve.resetDriveEncoder();
     //new ForwardTest().initAndStartAuton();
-    (new JackInBotFollowTrajectoryCommand(hab1ToRocketFarTrajectoryLeft, -90.0)).start();
+    (new JackInBotFollowTrajectoryCommand(hab1ToRocketFarTrajectoryLeft, -90.0)).start(); // starts pure pursuit command with trajectory and a target heading
     //new LimelightLoop().start();
   }
 
